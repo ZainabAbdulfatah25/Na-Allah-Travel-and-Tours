@@ -1,0 +1,140 @@
+.hero {
+    position: relative;
+    height: 85vh;
+    min-height: 600px;
+    background-image: url('/src/assets/hero-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    color: var(--color-white);
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.7));
+}
+
+.content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--color-white);
+    max-width: 900px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    /* Expert touch for legibility */
+}
+
+.highlight {
+    color: var(--color-secondary);
+}
+
+.subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 3rem;
+    max-width: 600px;
+    color: var(--color-light-gray);
+    font-weight: 300;
+}
+
+.searchBox {
+    background: var(--color-white);
+    padding: 0.75rem;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: var(--shadow-lg);
+}
+
+.inputGroup {
+    padding: 0 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.inputGroup label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.inputGroup input {
+    border: none;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-primary);
+    outline: none;
+    width: 100%;
+}
+
+.divider {
+    width: 1px;
+    height: 40px;
+    background-color: var(--color-light-gray);
+}
+
+.searchButton {
+    background-color: var(--color-secondary);
+    color: var(--color-white);
+    border: none;
+    border-radius: var(--radius-full);
+    padding: 1rem 2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    font-size: 1.125rem;
+}
+
+.searchButton:hover {
+    background-color: #d97706;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .title {
+        font-size: 2.5rem;
+    }
+
+    .searchBox {
+        flex-direction: column;
+        border-radius: var(--radius-lg);
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+
+    .divider {
+        display: none;
+    }
+
+    .inputGroup {
+        width: 100%;
+        padding: 0;
+        border-bottom: 1px solid var(--color-light-gray);
+        padding-bottom: 0.75rem;
+    }
+
+    .searchButton {
+        width: 100%;
+        justify-content: center;
+    }
+}

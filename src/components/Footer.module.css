@@ -1,0 +1,196 @@
+.footer {
+    background-color: #020617;
+    /* Very Dark Navy/Black (Slate 950) */
+    color: var(--color-white);
+    padding-top: var(--spacing-lg);
+}
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 3rem;
+    padding-bottom: 3rem;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--color-primary);
+    /* Vibrant Cyan */
+}
+
+.brand span {
+    color: var(--color-white);
+    /* Restoring white for part of the brand name if split */
+}
+
+.description {
+    color: var(--color-light-gray);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    max-width: 320px;
+}
+
+.socials {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.heading {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--color-primary);
+}
+
+.links,
+.contactInfo {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.links a {
+    color: var(--color-light-gray);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.links a:hover {
+    color: var(--color-secondary);
+    padding-left: 0.25rem;
+}
+
+.contactInfo li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--color-light-gray);
+}
+
+.socialLink {
+    color: var(--color-light-gray);
+    transition: all 0.2s;
+    display: flex;
+    /* Ensure flex for consistent icon alignment */
+    align-items: center;
+    justify-content: center;
+}
+
+.socialLink {
+    color: #ffffff;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    /* Rounded square */
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+    /* Soft shadow */
+    position: relative;
+    overflow: hidden;
+    /* For gloss effect */
+}
+
+/* Ensure icon sits ABOVE the gloss overlay */
+.socialLink>* {
+    position: relative;
+    z-index: 10;
+}
+
+/* Gloss/Sheen Effect Overlay */
+.socialLink::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+    pointer-events: none;
+}
+
+.socialLink:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+}
+
+.facebook {
+    background: linear-gradient(180deg, #1877F2, #166fe5);
+    box-shadow: 0 4px 0 #0c5dc5;
+    /* Bevel/3D edge */
+}
+
+.facebook:hover {
+    box-shadow: 0 6px 0 #0c5dc5, 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+.twitter {
+    background: linear-gradient(180deg, #1DA1F2, #1a91da);
+    box-shadow: 0 4px 0 #137cb8;
+}
+
+.twitter:hover {
+    box-shadow: 0 6px 0 #137cb8, 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+.instagram {
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+    box-shadow: 0 4px 0 #a91e7e;
+}
+
+.instagram:hover {
+    box-shadow: 0 6px 0 #a91e7e, 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+.whatsapp {
+    background: linear-gradient(180deg, #25D366, #20bd5a);
+    box-shadow: 0 4px 0 #1da851;
+}
+
+.whatsapp:hover {
+    box-shadow: 0 6px 0 #1da851, 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* TikTok Specifics: Remove previous overrides and apply standard button style */
+.tiktok {
+    background: linear-gradient(135deg, rgba(0, 242, 234, 0.15) 0%, #000000 25%, #000000 75%, rgba(255, 0, 80, 0.15) 100%);
+    box-shadow: 0 4px 0 #222;
+    /* Dark gray bevel */
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tiktok:hover {
+    background: linear-gradient(135deg, rgba(0, 242, 234, 0.3) 0%, #000000 25%, #000000 75%, rgba(255, 0, 80, 0.3) 100%);
+    transform: translateY(-3px) scale(1.05) !important;
+    box-shadow: 0 6px 0 #222, 0 10px 15px rgba(0, 0, 0, 0.3);
+}
+
+
+
+.bottom {
+    border-top: 1px solid #1e293b;
+    padding: 1.5rem 0;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.875rem;
+}
