@@ -6,6 +6,8 @@ import DestinationCard from './components/DestinationCard';
 import hajjBg from './assets/hajj-bg.jpg';
 import kaabaCloseup from './assets/kaaba-closeup.jpg';
 import kaabaNight from './assets/kaaba-night.jpg';
+import medinaSunset from './assets/medina-sunset.png';
+import visaBg from './assets/visa-bg.jpg';
 
 function App() {
   const destinations = [
@@ -30,8 +32,8 @@ function App() {
     {
       id: 3,
       title: "Hajj & Umrah VIP Package",
-      location: "Mecca, Saudi Arabia",
-      image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      location: "Medina, Saudi Arabia",
+      image: medinaSunset,
       rating: 4.9,
       price: "₦8,200,000",
       duration: "14 Days"
@@ -40,7 +42,7 @@ function App() {
       id: 4,
       title: "Visa Assistance",
       location: "Global Coverage",
-      image: "https://images.unsplash.com/photo-1554466952-4a0048386b72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      image: visaBg,
       rating: 4.7,
       price: "Varies",
       duration: "Flexible"
