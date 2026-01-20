@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react';
+import { Search, Calendar } from 'lucide-react';
 import styles from './Hero.module.css';
 
 const Hero = () => {
@@ -17,12 +17,15 @@ const Hero = () => {
                 <div className={styles.searchBox}>
                     <div className={styles.inputGroup}>
                         <label>Destination</label>
-                        <input type="text" placeholder="Where do you want to go?" />
+                        <input type="text" placeholder="Mecca, Medina, or Holiday..." />
                     </div>
                     <div className={styles.divider}></div>
                     <div className={styles.inputGroup}>
                         <label>Date</label>
-                        <input type="date" />
+                        <div className={styles.dateWrapper}>
+                            <input type="date" />
+                            <Calendar className={styles.calendarIcon} size={24} />
+                        </div>
                     </div>
                     <button className={styles.searchButton}>
                         <Search size={20} />
