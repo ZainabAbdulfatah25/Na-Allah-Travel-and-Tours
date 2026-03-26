@@ -33,9 +33,8 @@ function AdminPanel() {
     const b = JSON.parse(localStorage.getItem('na_allah_bookings')) || [];
     const p = JSON.parse(localStorage.getItem('na_allah_packages')) || packages;
     const l = JSON.parse(localStorage.getItem('na_allah_licenses')) || [
-       { id: 1, title: 'CAC Official Corporate Affairs', link: '#', status: 'Official' },
-       { id: 2, title: 'NAHCON Official License 2026', link: '#', status: 'Verified' },
-       { id: 3, title: 'IATA Accredited Agency', link: '#', status: 'Official' }
+       { id: 1, title: 'CAC Official Registration', link: '#', status: 'Official' },
+       { id: 2, title: 'NAHCON License 2026', link: '#', status: 'Verified' }
     ];
     setBookings(b);
     setPackages(p);
@@ -83,19 +82,19 @@ function AdminPanel() {
 
   const handleLicenseDelete = (id) => save('na_allah_licenses', licenses.filter(l => l.id !== id));
 
-  const handleLogin = (e) => {
+  const login = (e) => {
     e.preventDefault();
     if (['2026', 'admin2026'].includes(passcode)) {
       setIsAuthenticated(true);
       sessionStorage.setItem('na_allah_auth', 'true');
-    } else setError('Passcode Error.');
+    } else setError('Incorrect PIN.');
   };
 
   if (!isAuthenticated) return (
-    <div style={styles.loginPage}><div style={styles.loginCard}><Logo size={80} /><h2 style={{color: 'var(--primary-navy)', marginTop: '20px'}}>Access Control</h2>
-      <form onSubmit={handleLogin} style={{textAlign: 'left', marginTop: '30px'}}><label style={styles.label}>Console PIN</label>
+    <div style={styles.loginPage}><div style={styles.loginCard}><Logo size={80} /><h2 style={{color: 'var(--primary-navy)', marginTop: '20px'}}>Internal Access</h2>
+      <form onSubmit={login} style={{textAlign: 'left', marginTop: '30px'}}><label style={styles.label}>Control PIN</label>
         <input type="password" value={passcode} onChange={e => setPasscode(e.target.value)} style={styles.input} placeholder="****" />
-        <button type="submit" className="btn btn-navy" style={{width: '100%', marginTop: '10px', padding: '16px'}}>Authorize Access</button>
+        {error && <p style={{color: 'red'}}>{error}</p>}<button type="submit" className="btn btn-navy" style={{width: '100%', marginTop: '10px', padding: '16px'}}>Authorize</button>
       </form>
     </div></div>
   );
@@ -105,7 +104,7 @@ function AdminPanel() {
       <aside style={styles.sidebar}>
         <div style={styles.sidebarHeader}><Logo size={60} /><p style={{color: 'var(--primary-gold)', fontWeight: 'bold', fontSize: '0.7rem', marginTop: '10px', letterSpacing: '2px'}}>NA-ALLAH CONSOLE</p></div>
         <ul style={{listStyle: 'none', padding: 0}}>
-          <li style={{...styles.navItem, ...(activeTab === 'dashboard' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('dashboard')}>📊 Summary</li>
+          <li style={{...styles.navItem, ...(activeTab === 'dashboard' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('dashboard')}>📊 Dashboard</li>
           <li style={{...styles.navItem, ...(activeTab === 'bookings' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('bookings')}>📝 Inquiries</li>
           <li style={{...styles.navItem, ...(activeTab === 'packages' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('packages')}>📦 Travel Plans</li>
           <li style={{...styles.navItem, ...(activeTab === 'licenses' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('licenses')}>📜 Credentials</li>
@@ -116,18 +115,22 @@ function AdminPanel() {
       <main style={styles.mainContent}>
         <header style={styles.topbar}>
           <button 
-            onClick={() => window.location.hash = activeTab === 'packages' ? '#all-packages' : activeTab === 'licenses' ? '#credentials' : ''} 
-            className="btn-outline" 
-            style={{padding: '10px 20px', borderRadius: '10px'}}
-          >← Redirect to Page</button>
-          <h3>ADMIN - {activeTab.toUpperCase()}</h3>
+            onClick={() => {
+              if (activeTab === 'packages') window.location.hash = '#all-packages';
+              else if (activeTab === 'licenses') window.location.hash = '#credentials';
+              else window.location.hash = '#';
+            }} 
+            className="btn btn-navy" 
+            style={{padding: '10px 20px', borderRadius: '10px', fontSize: '0.8rem'}}
+          >👀 View Dedicated Page</button>
+          <h3 style={{margin: 0}}>ADMINISTRATION: {activeTab.toUpperCase()}</h3>
         </header>
 
         <div style={styles.contentArea}>
-          {activeTab === 'dashboard' && <div style={styles.grid2}><div style={styles.statCard}><h3>Inquiries</h3><p style={styles.statNum}>{bookings.length}</p></div><div style={styles.statCard}><h3>Licenses</h3><p style={styles.statNum}>{licenses.length}</p></div></div>}
+          {activeTab === 'dashboard' && <div style={styles.grid2}><div style={styles.statCard}><h3>Inquiries</h3><p style={styles.statNum}>{bookings.length}</p></div><div style={styles.statCard}><h3>Credentials</h3><p style={styles.statNum}>{licenses.length}</p></div></div>}
 
           {activeTab === 'bookings' && (
-            <div style={styles.tableCard}><table style={styles.table}><thead><tr><th>Name</th><th>Request</th><th style={{width: '120px'}}>Action</th></tr></thead>
+            <div style={styles.tableCard}><table style={styles.table}><thead><tr><th>Customer Name</th><th>Requested Package</th><th style={{width: '120px'}}>Action</th></tr></thead>
               <tbody>{bookings.map(b => (
                 <tr key={b.id}><td><strong>{b.name}</strong></td><td>{b.package}</td><td><button onClick={() => setViewingBooking(b)} style={styles.btnSm}>Review</button></td></tr>
               ))}</tbody>
@@ -136,7 +139,10 @@ function AdminPanel() {
 
           {activeTab === 'packages' && (
             <div className="animate-fade-in">
-              <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '30px'}}><h3>Hajj & Umrah Management</h3><button onClick={() => setShowAddPackage(true)} className="btn btn-navy" style={{display: 'flex', alignItems: 'center', gap: '8px'}}><span style={{fontSize: '1.2rem'}}>✈️</span> + New Package</button></div>
+              <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '30px', alignItems: 'center'}}>
+                <h3 style={{margin: 0}}>Travel Package Management 2026</h3>
+                <button onClick={() => setShowAddPackage(true)} className="btn btn-navy" style={{display: 'flex', alignItems: 'center', gap: '8px'}}><span style={{fontSize: '1.2rem'}}>✈️</span> + New Package</button>
+              </div>
               <div style={styles.grid2}>{['ramadan', 'hajj'].map(cat => (
                 <div key={cat} style={styles.statCard}><h4 style={{textTransform: 'uppercase', marginBottom: '20px', color: 'var(--primary-gold)'}}>{cat} Pricing control</h4>
                   {packages[cat].map(p => (
@@ -155,18 +161,17 @@ function AdminPanel() {
 
           {activeTab === 'licenses' && (
             <div>
-              <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '30px'}}>
-                <h3>Documentation & Certificates</h3>
-                <button onClick={() => setShowAddLicense(true)} className="btn btn-navy"><span style={{fontSize: '1.2rem'}}>📜</span> + Upload License</button>
+              <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '30px', alignItems: 'center'}}>
+                <h3 style={{margin: 0}}>Credentials & Document Center</h3>
+                <button onClick={() => setShowAddLicense(true)} className="btn btn-navy" style={{display: 'flex', alignItems: 'center', gap: '8px'}}><span style={{fontSize: '1.2rem'}}>📜</span> + Upload License</button>
               </div>
-              <div style={styles.tableCard}><table style={styles.table}><thead><tr><th>Credential Name</th><th>Status</th><th style={{width: '200px'}}>Action Options</th></tr></thead>
+              <div style={styles.tableCard}><table style={styles.table}><thead><tr><th>Credential Name</th><th>Action Options</th></tr></thead>
                 <tbody>{licenses.map(l => (
                   <tr key={l.id}>
                     <td><strong>{l.title}</strong></td>
-                    <td><span style={{color: 'var(--primary-gold)', fontWeight: 'bold'}}>{l.status || 'Verified'}</span></td>
                     <td>
                        <div style={{display: 'flex', gap: '15px'}}>
-                          <a href={l.link} target="_blank" rel="noreferrer" style={{color: 'var(--primary-navy)', fontWeight: 'bold', fontSize: '0.8rem', textDecoration: 'none', borderBottom: '1px solid'}}>View</a>
+                          <a href={l.link} target="_blank" rel="noreferrer" style={{color: 'var(--primary-navy)', fontWeight: 'bold', fontSize: '0.8rem', textDecoration: 'none', borderBottom: '1px solid'}}>View Certificate</a>
                           <button onClick={() => handleLicenseDelete(l.id)} style={{color: '#ff7675', background: 'none', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.8rem'}}>Delete</button>
                        </div>
                     </td>
@@ -179,12 +184,12 @@ function AdminPanel() {
       </main>
 
       {/* MODALS */}
-      {viewingBooking && (<div style={styles.overlay} onClick={() => setViewingBooking(null)}><div style={styles.modal} onClick={e => e.stopPropagation()}><div style={styles.mHead}><h2>Inquiry Reference</h2></div><div style={styles.mBody}><p><strong>Cust:</strong> {viewingBooking.name}</p><p><strong>Email:</strong> {viewingBooking.email}</p><div style={styles.msg}>{viewingBooking.message}</div><button onClick={() => setViewingBooking(null)} className="btn btn-navy" style={{width: '100%', marginTop: '20px'}}>Done</button></div></div></div>)}
+      {viewingBooking && (<div style={styles.overlay} onClick={() => setViewingBooking(null)}><div style={styles.modal} onClick={e => e.stopPropagation()}><div style={styles.mHead}><h2>Ref: {viewingBooking.name}</h2></div><div style={styles.mBody}><p><strong>Email:</strong> {viewingBooking.email}</p><div style={styles.msg}>{viewingBooking.message}</div><button onClick={() => setViewingBooking(null)} className="btn btn-navy" style={{width: '100%', marginTop: '20px'}}>Got It</button></div></div></div>)}
       
       {showAddPackage && (<div style={styles.overlay} onClick={() => setShowAddPackage(false)}><div style={styles.modal} onClick={e => e.stopPropagation()}><div style={styles.mHead}><h2>📦 New Package</h2></div><div style={styles.mBody}><form onSubmit={handlePackageAdd}>
-        <label style={styles.label}>Title</label><input required style={styles.input} value={newPackage.title} onChange={e => setNewPackage({...newPackage, title: e.target.value})} /><label style={styles.label}>Price (₦)</label><input required style={styles.input} value={newPackage.price} onChange={e => setNewPackage({...newPackage, price: e.target.value})} /><label style={styles.label}>Type</label><select style={styles.input} value={newPackage.category} onChange={e => setNewPackage({...newPackage, category: e.target.value})}><option value="ramadan">Ramadan</option><option value="hajj">Hajj</option></select><button className="btn btn-navy" style={{width: '100%', marginTop: '20px'}}>🕋 Add Package</button></form></div></div></div>)}
+        <label style={styles.label}>Title</label><input required style={styles.input} value={newPackage.title} onChange={e => setNewPackage({...newPackage, title: e.target.value})} /><label style={styles.label}>Price (₦)</label><input required style={styles.input} value={newPackage.price} onChange={e => setNewPackage({...newPackage, price: e.target.value})} /><label style={styles.label}>Type</label><select style={styles.input} value={newPackage.category} onChange={e => setNewPackage({...newPackage, category: e.target.value})}><option value="ramadan">Ramadan</option><option value="hajj">Hajj</option></select><button className="btn btn-navy" style={{width: '100%', marginTop: '20px'}}>🕋 Finish & Add</button></form></div></div></div>)}
       
-      {showAddLicense && (<div style={styles.overlay} onClick={() => setShowAddLicense(false)}><div style={styles.modal} onClick={e => e.stopPropagation()}><div style={styles.mHead}><h2>📜 Upload Authority Doc</h2></div><div style={styles.mBody}><form onSubmit={handleLicenseAdd}><label style={styles.label}>Document Title</label><input required style={styles.input} value={newLicense.title} onChange={e => setNewLicense({...newLicense, title: e.target.value})} /><label style={styles.label}>Public Document URL (PDF/Web)</label><input required style={styles.input} value={newLicense.link} onChange={e => setNewLicense({...newLicense, link: e.target.value})} /><button className="btn btn-navy" style={{width: '100%', marginTop: '20px'}}>Add License</button></form></div></div></div>)}
+      {showAddLicense && (<div style={styles.overlay} onClick={() => setShowAddLicense(false)}><div style={styles.modal} onClick={e => e.stopPropagation()}><div style={styles.mHead}><h2>📜 New Doc Upload</h2></div><div style={styles.mBody}><form onSubmit={handleLicenseAdd}><label style={styles.label}>License Name</label><input required style={styles.input} value={newLicense.title} onChange={e => setNewLicense({...newLicense, title: e.target.value})} /><label style={styles.label}>Official Document Link</label><input required style={styles.input} value={newLicense.link} onChange={e => setNewLicense({...newLicense, link: e.target.value})} /><button className="btn btn-navy" style={{width: '100%', marginTop: '20px'}}>Publish License</button></form></div></div></div>)}
     </div>
   );
 }
