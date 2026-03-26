@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 function AdminPanel() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -25,24 +25,10 @@ function AdminPanel() {
     contactEmail: 'naallahtravels@gmail.com'
   });
 
-  useEffect(() => {
-    // Lock background scroll when modal is open
-    if (viewingBooking) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-  }, [viewingBooking]);
-
-  useEffect(() => {
-    const sessionAuth = sessionStorage.getItem('na_allah_auth');
-    if (sessionAuth === 'true') {
-      setIsAuthenticated(true);
-    }
-
+  const loadData = useCallback(() => {
     const savedBookings = JSON.parse(localStorage.getItem('na_allah_bookings')) || [
-      { id: 1, name: 'Ibrahim Musa', package: 'VIP Hajj', status: 'Pending', date: '2026-03-24', phone: '08034747257', email: 'ibrahim@example.com', message: 'I want to inquire about the VIP Hajj package for my whole family of 5. Please send the final quote.' },
-      { id: 2, name: 'Aisha Bello', package: 'Standard Ramadan', status: 'Confirmed', date: '2026-03-25', phone: '08123456789', email: 'aisha.b@mail.com', message: 'Already made the deposit for the Standard package. Finding my receipt attached for confirmation.' }
+      { id: 111, name: 'Ibrahim Musa', package: 'VIP Hajj', status: 'Pending', date: '2026-03-24', phone: '08034747257', email: 'ibrahim@example.com', message: 'I want to inquire about the VIP Hajj package for my whole family of 5. Please send the final quote.' },
+      { id: 222, name: 'Aisha Bello', package: 'Standard Ramadan', status: 'Confirmed', date: '2026-03-25', phone: '08123456789', email: 'aisha.b@mail.com', message: 'Already made the deposit for the Standard package. Finding my receipt attached for confirmation.' }
     ];
     const savedPackages = JSON.parse(localStorage.getItem('na_allah_packages'));
     const savedSettings = JSON.parse(localStorage.getItem('na_allah_settings'));
@@ -52,15 +38,34 @@ function AdminPanel() {
     if (savedSettings) setSettings(savedSettings);
   }, []);
 
+  useEffect(() => {
+    loadData();
+
+    // Auto-refresh when localStorage changes from other tabs
+    const handleStorageChange = (e) => {
+      if (e.key === 'na_allah_bookings' || e.key === 'na_allah_packages' || e.key === 'na_allah_settings') {
+        loadData();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    const sessionAuth = sessionStorage.getItem('na_allah_auth');
+    if (sessionAuth === 'true') setIsAuthenticated(true);
+
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [loadData]);
+
+  useEffect(() => {
+    if (viewingBooking) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = 'auto';
+  }, [viewingBooking]);
+
   const handleLogin = (e) => {
     e.preventDefault();
     if (passcode === '2026' || passcode === 'admin2026') {
       setIsAuthenticated(true);
       sessionStorage.setItem('na_allah_auth', 'true');
-      setError('');
-    } else {
-      setError('Invalid Passcode. Access Denied.');
-    }
+    } else setError('Access Denied. Invalid Passcode.');
   };
 
   const handleLogout = () => {
@@ -69,34 +74,24 @@ function AdminPanel() {
     window.location.hash = '';
   };
 
-  const saveToLocal = (key, data) => {
-    localStorage.setItem(key, JSON.stringify(data));
+  const handleUpdateStatus = (id, newStatus) => {
+    const updated = bookings.map(b => b.id === id ? { ...b, status: newStatus } : b);
+    setBookings(updated);
+    localStorage.setItem('na_allah_bookings', JSON.stringify(updated));
+    if(viewingBooking && viewingBooking.id === id) setViewingBooking({...viewingBooking, status: newStatus});
   };
 
   const handleUpdatePrice = (cat, id, newPrice) => {
     const updated = { ...packages };
     updated[cat] = updated[cat].map(p => p.id === id ? { ...p, price: newPrice } : p);
     setPackages(updated);
-    saveToLocal('na_allah_packages', updated);
-  };
-
-  const handleUpdateStatus = (id, newStatus) => {
-    const updated = bookings.map(b => b.id === id ? { ...b, status: newStatus } : b);
-    setBookings(updated);
-    saveToLocal('na_allah_bookings', updated);
-    if(viewingBooking && viewingBooking.id === id) setViewingBooking({...viewingBooking, status: newStatus});
-  };
-
-  const handleUpdateSettings = (key, val) => {
-    const updated = { ...settings, [key]: val };
-    setSettings(updated);
-    saveToLocal('na_allah_settings', updated);
+    localStorage.setItem('na_allah_packages', JSON.stringify(updated));
   };
 
   const handleDeleteBooking = (id) => {
     const updated = bookings.filter(b => b.id !== id);
     setBookings(updated);
-    saveToLocal('na_allah_bookings', updated);
+    localStorage.setItem('na_allah_bookings', JSON.stringify(updated));
     setViewingBooking(null);
   };
 
@@ -104,19 +99,13 @@ function AdminPanel() {
     return (
       <div style={styles.loginPage}>
         <div style={styles.loginCard}>
-          <div style={styles.loginHeader}>
-            <div style={styles.loginIcon}>🔒</div>
-            <h2>Admin Control Center</h2>
-            <p>Please enter your access passcode to continue.</p>
-          </div>
-          <form onSubmit={handleLogin} style={styles.loginForm}>
-            <div style={{marginBottom: '20px'}}>
-              <label style={styles.label}>Access Passcode</label>
-              <input type="password" placeholder="Enter passcode" value={passcode} onChange={(e) => setPasscode(e.target.value)} style={styles.input} autoFocus />
-            </div>
-            {error && <p style={styles.loginError}>{error}</p>}
-            <button type="submit" className="btn btn-navy" style={{width: '100%', padding: '15px'}}>Unlock Dashboard</button>
-            <button type="button" onClick={() => window.location.hash = ''} style={styles.guestBtn}>Cancel & Back Home</button>
+          <h2>Admin Console</h2>
+          <form onSubmit={handleLogin} style={{textAlign: 'left', marginTop: '30px'}}>
+            <label style={styles.label}>Control Passcode</label>
+            <input type="password" value={passcode} onChange={e => setPasscode(e.target.value)} style={styles.input} placeholder="****" autoFocus />
+            {error && <p style={{color: 'red', marginTop: '-10px', marginBottom: '15px'}}>{error}</p>}
+            <button type="submit" className="btn btn-navy" style={{width: '100%', padding: '15px'}}>Enter Console</button>
+            <button type="button" onClick={() => window.location.hash = ''} style={styles.guestBtn}>Cancel</button>
           </form>
         </div>
       </div>
@@ -127,60 +116,39 @@ function AdminPanel() {
     <div style={styles.adminContainer}>
       <aside style={styles.sidebar}>
         <div style={styles.sidebarHeader}>
-          <h2>Admin Console</h2>
-          <p style={{fontSize: '0.8rem', opacity: 0.7}}>{settings.companyName}</p>
+          <h2>Admin Control</h2>
+          <p style={{opacity: 0.7, fontSize: '0.8rem'}}>{settings.companyName}</p>
         </div>
         <ul style={styles.nav}>
           <li style={{...styles.navItem, ...(activeTab === 'dashboard' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('dashboard')}>📊 Dashboard</li>
           <li style={{...styles.navItem, ...(activeTab === 'bookings' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('bookings')}>📝 Inquiries</li>
           <li style={{...styles.navItem, ...(activeTab === 'packages' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('packages')}>📦 Packages</li>
-          <li style={{...styles.navItem, ...(activeTab === 'settings' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('settings')}>⚙️ Settings</li>
         </ul>
-        <div style={{marginTop: 'auto', padding: '20px'}}>
-          <button onClick={handleLogout} style={styles.logoutBtn}>Sign Out</button>
-        </div>
+        <div style={{marginTop: 'auto', padding: '20px'}}><button onClick={handleLogout} style={styles.logoutBtn}>Sign Out</button></div>
       </aside>
 
       <main style={styles.mainContent}>
         <header style={styles.topbar}>
           <div style={{display: 'flex', alignItems: 'center', gap: '20px'}}>
-            <button onClick={() => window.location.hash = ''} style={styles.backButtonTop}>← Back to Site</button>
-            <h1 style={{fontSize: '1.5rem', margin: 0}}>{activeTab.toUpperCase()}</h1>
+            <button onClick={() => window.location.hash = ''} style={styles.backButtonTop}>← Home</button>
+            <h1 style={{margin: 0, fontSize: '1.4rem'}}>{activeTab.toUpperCase()}</h1>
           </div>
-          <div style={styles.userProfile}>
-            <span style={styles.avatar}>A</span>
-            <span>Admin Control</span>
+          <div style={{display: 'flex', gap: '15px'}}>
+            <button onClick={loadData} style={styles.refreshBtn}>🔄 Refresh Data</button>
+            <div style={styles.avatar}>A</div>
           </div>
         </header>
 
         <div style={styles.contentArea}>
-          {activeTab === 'dashboard' && (
-            <div className="animate-fade-in">
-              <div style={styles.statsGrid}>
-                <div style={styles.statCard}><h3>Packages</h3><p style={styles.statNumber}>{packages.ramadan.length + packages.hajj.length}</p></div>
-                <div style={styles.statCard}><h3>New Inquiries</h3><p style={styles.statNumber}>{bookings.filter(b => b.status === 'Pending').length}</p></div>
-                <div style={styles.statCard}><h3>Forecast Revenue</h3><p style={styles.statNumber}>₦42.5M</p></div>
-              </div>
-            </div>
-          )}
-
           {activeTab === 'bookings' && (
             <div className="animate-fade-in">
-              <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '20px'}}>
-                <h3>Inquiry Tracking</h3>
-                <span>{bookings.length} inquiries found</span>
+              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px'}}>
+                 <h3>Inquiry Tracking</h3>
+                 <span style={{opacity: 0.6}}>{bookings.length} inquiries found</span>
               </div>
               <div style={styles.tableWrapper}>
                 <table style={styles.table}>
-                  <thead>
-                    <tr>
-                      <th style={styles.th}>Customer</th>
-                      <th style={styles.th}>Package</th>
-                      <th style={styles.th}>Date</th>
-                      <th style={styles.th}>Status</th>
-                      <th style={styles.th}>Actions</th>
-                    </tr>
-                  </thead>
+                  <thead><tr><th style={styles.th}>Customer</th><th style={styles.th}>Package</th><th style={styles.th}>Date</th><th style={styles.th}>Status</th><th style={styles.th}>Actions</th></tr></thead>
                   <tbody>
                     {bookings.map(b => (
                       <tr key={b.id}>
@@ -200,66 +168,49 @@ function AdminPanel() {
             </div>
           )}
 
-          {activeTab === 'packages' && (
-            <div style={styles.packageEditorGrid}>
-               <div style={styles.editorCard}>
-                  <h4 style={{marginBottom: '20px'}}>🌙 Ramadan Pricing</h4>
-                  {packages.ramadan.map(p => (
-                    <div key={p.id} style={styles.itemRow}><span>{p.title}</span><input defaultValue={p.price} onBlur={(e) => handleUpdatePrice('ramadan', p.id, e.target.value)} style={styles.inlineInput} /></div>
-                  ))}
-               </div>
-               <div style={styles.editorCard}>
-                  <h4 style={{marginBottom: '20px'}}>🕋 Hajj Pricing</h4>
-                  {packages.hajj.map(p => (
-                    <div key={p.id} style={styles.itemRow}><span>{p.title}</span><input defaultValue={p.price} onBlur={(e) => handleUpdatePrice('hajj', p.id, e.target.value)} style={styles.inlineInput} /></div>
-                  ))}
-               </div>
-            </div>
+          {activeTab === 'dashboard' && (
+             <div style={styles.statsGrid}>
+                <div style={styles.statCard}><h3>Inquiries</h3><p style={styles.statNumber}>{bookings.length}</p></div>
+                <div style={styles.statCard}><h3>Pending</h3><p style={styles.statNumber}>{bookings.filter(b => b.status === 'Pending').length}</p></div>
+             </div>
           )}
 
-          {activeTab === 'settings' && (
-            <div style={{maxWidth: '500px'}}>
-              <h3>Site Settings</h3>
-              <div style={styles.formGroup}><label>Company Name</label><input value={settings.companyName} onChange={e => handleUpdateSettings('companyName', e.target.value)} style={styles.input} /></div>
-              <div style={styles.formGroup}><label>Contact Phone</label><input value={settings.contactPhone} onChange={e => handleUpdateSettings('contactPhone', e.target.value)} style={styles.input} /></div>
-            </div>
+          {activeTab === 'packages' && (
+             <div style={styles.packageEditorGrid}>
+                <div style={styles.editorCard}>
+                   <h3>🌙 Ramadan Pricing</h3>
+                   {packages.ramadan.map(p => (
+                     <div key={p.id} style={styles.itemRow}><span>{p.title}</span><input defaultValue={p.price} onBlur={e => handleUpdatePrice('ramadan', p.id, e.target.value)} style={styles.inlineInput}/></div>
+                   ))}
+                </div>
+                <div style={styles.editorCard}>
+                   <h3>🕋 Hajj Pricing</h3>
+                   {packages.hajj.map(p => (
+                     <div key={p.id} style={styles.itemRow}><span>{p.title}</span><input defaultValue={p.price} onBlur={e => handleUpdatePrice('hajj', p.id, e.target.value)} style={styles.inlineInput}/></div>
+                   ))}
+                </div>
+             </div>
           )}
         </div>
       </main>
 
-      {/* MODAL SECTION - FIXED SCROLLING */}
       {viewingBooking && (
         <div style={styles.modalOverlay} onClick={() => setViewingBooking(null)}>
-          <div style={styles.modalScrollContainer}>
+           <div style={styles.modalScrollContainer}>
              <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
-                <div style={styles.modalHeader}>
-                  <h2 style={{color: 'white', margin: 0, fontSize: '1.4rem'}}>Full Inquiry Details</h2>
-                  <button onClick={() => setViewingBooking(null)} style={styles.closeBtn}>✕</button>
-                </div>
-                <div style={styles.modalBody}>
-                   <div style={styles.infoGrid}>
-                     <div style={styles.infoBox}><strong>Name:</strong><p>{viewingBooking.name}</p></div>
-                     <div style={styles.infoBox}><strong>Date:</strong><p>{viewingBooking.date}</p></div>
-                     <div style={styles.infoBox}><strong>Phone:</strong><p>{viewingBooking.phone}</p></div>
-                     <div style={styles.infoBox}><strong>Email:</strong><p>{viewingBooking.email}</p></div>
-                     <div style={{...styles.infoBox, gridColumn: 'span 2'}}><strong>Selected Package:</strong><p style={{color: 'var(--primary-navy)', fontWeight: 'bold'}}>{viewingBooking.package}</p></div>
-                     <div style={{...styles.infoBox, gridColumn: 'span 2'}}>
-                        <strong>Customer Message:</strong>
-                        <div style={styles.messageBox}>{viewingBooking.message}</div>
-                     </div>
-                   </div>
-                   <div style={styles.modalFooter}>
-                      <button 
-                        onClick={() => handleUpdateStatus(viewingBooking.id, viewingBooking.status === 'Pending' ? 'Confirmed' : 'Pending')} 
-                        style={{...styles.btnLarge, backgroundColor: viewingBooking.status === 'Pending' ? '#059669' : '#d97706'}}
-                      >
-                        {viewingBooking.status === 'Pending' ? 'Confirm Booking' : 'Set as Pending'}
-                      </button>
-                      <button onClick={() => handleDeleteBooking(viewingBooking.id)} style={{...styles.btnLarge, backgroundColor: '#ef4444'}}>Delete Forever</button>
-                   </div>
-                </div>
+               <div style={styles.modalHeader}><h2>Details</h2><button onClick={() => setViewingBooking(null)} style={styles.closeBtn}>✕</button></div>
+               <div style={styles.modalBody}>
+                  <div style={styles.infoGrid}>
+                    <div><strong>Name:</strong><p>{viewingBooking.name}</p></div>
+                    <div><strong>Email:</strong><p>{viewingBooking.email}</p></div>
+                    <div style={{gridColumn: 'span 2'}}><strong>Message:</strong><div style={styles.messageBox}>{viewingBooking.message}</div></div>
+                  </div>
+                  <div style={{marginTop: '30px', display: 'flex', gap: '15px'}}>
+                    <button onClick={() => handleUpdateStatus(viewingBooking.id, 'Confirmed')} className="btn btn-navy" style={{flex: 1, padding: '15px'}}>Mark Confirmed</button>
+                  </div>
+               </div>
              </div>
-          </div>
+           </div>
         </div>
       )}
     </div>
@@ -267,77 +218,46 @@ function AdminPanel() {
 }
 
 const styles = {
-  // Modal Overlays and Scroll management
-  modalOverlay: { 
-    position: 'fixed', 
-    top: 0, 
-    left: 0, 
-    right: 0, 
-    bottom: 0, 
-    backgroundColor: 'rgba(5, 15, 30, 0.9)', 
-    zIndex: 2000,
-    backdropFilter: 'blur(5px)'
-  },
-  modalScrollContainer: {
-    height: '100vh',
-    overflowY: 'auto',
-    display: 'flex',
-    justifyContent: 'center',
-    padding: '40px 0'
-  },
-  modalContent: { 
-    backgroundColor: 'white', 
-    width: '90%', 
-    maxWidth: '700px', 
-    borderRadius: '24px', 
-    overflow: 'hidden', 
-    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
-    margin: 'auto' // Important for centering in scroll container
-  },
-  modalHeader: { backgroundColor: 'var(--primary-navy)', padding: '25px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '4px solid var(--primary-gold)' },
-  closeBtn: { background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' },
-  modalBody: { padding: '40px' },
-  infoGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '25px' },
-  infoBox: { marginBottom: '5px' },
-  messageBox: { marginTop: '10px', padding: '20px', backgroundColor: '#f1f5f9', borderRadius: '15px', border: '1px solid #e2e8f0', minHeight: '100px', lineHeight: '1.7', color: '#334155' },
-  modalFooter: { marginTop: '50px', display: 'flex', gap: '20px' },
-  btnLarge: { flex: 1, padding: '18px', border: 'none', borderRadius: '12px', color: 'white', fontWeight: 'bold', cursor: 'pointer' },
-  
-  // Base styles
-  loginPage: { height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--primary-navy)', fontFamily: '"Outfit", sans-serif' },
-  loginCard: { backgroundColor: 'white', width: '100%', maxWidth: '450px', padding: '50px', borderRadius: '32px', textAlign: 'center' },
-  loginIcon: { fontSize: '3rem', marginBottom: '15px' },
-  label: { display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '800', color: 'var(--primary-navy)', textTransform: 'uppercase' },
-  input: { width: '100%', padding: '15px', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '1rem', marginBottom: '15px', boxSizing: 'border-box' },
-  guestBtn: { background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.9rem', width: '100%', marginTop: '10px' },
-  adminContainer: { display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: '"Outfit", sans-serif' },
-  sidebar: { width: '300px', backgroundColor: 'var(--primary-navy)', color: 'white', display: 'flex', flexDirection: 'column' },
+  adminContainer: { display: 'flex', minHeight: '100vh', backgroundColor: '#f4f7fa', fontFamily: '"Outfit", sans-serif' },
+  sidebar: { width: '280px', backgroundColor: 'var(--primary-navy)', color: 'white', display: 'flex', flexDirection: 'column' },
   sidebarHeader: { padding: '40px 30px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  nav: { listStyle: 'none', padding: '25px 0' },
-  navItem: { padding: '18px 30px', cursor: 'pointer', opacity: 0.65, fontWeight: '600', transition: '0.2s' },
-  activeNavItem: { backgroundColor: 'rgba(212, 175, 55, 0.15)', borderLeft: '6px solid var(--primary-gold)', opacity: 1, color: 'var(--primary-gold)' },
+  nav: { listStyle: 'none', padding: '20px 0' },
+  navItem: { padding: '18px 30px', cursor: 'pointer', opacity: 0.6, fontWeight: '600' },
+  activeNavItem: { backgroundColor: 'rgba(212, 175, 55, 0.1)', borderLeft: '6px solid var(--primary-gold)', opacity: 1, color: 'var(--primary-gold)' },
   mainContent: { flex: 1 },
-  topbar: { backgroundColor: 'white', height: '85px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', borderBottom: '1px solid #e2e8f0' },
-  contentArea: { padding: '50px' },
-  backButtonTop: { background: '#f1f5f9', border: 'none', padding: '12px 20px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' },
-  statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px', marginBottom: '40px' },
-  statCard: { backgroundColor: 'white', padding: '35px', borderRadius: '28px', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' },
-  statNumber: { fontSize: '3.5rem', fontWeight: '800', color: 'var(--primary-navy)', marginTop: '10px' },
-  tableWrapper: { backgroundColor: 'white', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' },
+  topbar: { backgroundColor: 'white', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', borderBottom: '1px solid #e2e8f0' },
+  avatar: { width: '40px', height: '40px', backgroundColor: 'var(--primary-gold)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800' },
+  refreshBtn: { background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '10px 18px', borderRadius: '10px', fontSize: '0.9rem', cursor: 'pointer', fontWeight: 'bold' },
+  contentArea: { padding: '40px' },
+  backButtonTop: { background: '#f1f5f9', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' },
+  tableWrapper: { backgroundColor: 'white', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' },
   table: { width: '100%', borderCollapse: 'collapse' },
-  th: { textAlign: 'left', padding: '22px', backgroundColor: '#f8fafc', color: '#64748b', fontWeight: '700' },
-  td: { padding: '22px', borderBottom: '1px solid #f1f5f9' },
-  statusPending: { backgroundColor: '#fffbeb', color: '#d97706', padding: '6px 16px', borderRadius: '30px', fontSize: '0.85rem', fontWeight: 'bold' },
-  statusConfirmed: { backgroundColor: '#ecfdf5', color: '#059669', padding: '6px 16px', borderRadius: '30px', fontSize: '0.85rem', fontWeight: 'bold' },
-  actionBtn: { background: '#f1f5f9', border: 'none', padding: '8px 16px', borderRadius: '10px', cursor: 'pointer', marginRight: '10px', fontWeight: '800' },
-  logoutBtn: { backgroundColor: 'rgba(255,255,255,0.05)', color: '#ff4d4d', border: 'none', padding: '15px', width: '100%', cursor: 'pointer', fontWeight: 'bold' },
-  packageEditorGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' },
-  editorCard: { backgroundColor: 'white', padding: '35px', borderRadius: '28px' },
-  itemRow: { display: 'flex', justifyContent: 'space-between', padding: '18px 0', borderBottom: '1px solid #f1f5f9' },
-  inlineInput: { border: '1px solid #cbd5e1', borderRadius: '10px', padding: '10px 15px', width: '160px', fontWeight: 'bold', textAlign: 'right' },
-  formGroup: { marginBottom: '25px' },
-  userProfile: { display: 'flex', alignItems: 'center', gap: '15px' },
-  avatar: { width: '45px', height: '45px', backgroundColor: '#d4af37', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: 'var(--primary-navy)' }
+  th: { textAlign: 'left', padding: '20px', backgroundColor: '#f8fafc', color: '#64748b' },
+  td: { padding: '20px', borderBottom: '1px solid #f1f5f9' },
+  statusPending: { backgroundColor: '#fffbeb', color: '#d97706', padding: '4px 12px', borderRadius: '20px', fontSize: '0.85rem' },
+  statusConfirmed: { backgroundColor: '#ecfdf5', color: '#059669', padding: '4px 12px', borderRadius: '20px', fontSize: '0.85rem' },
+  actionBtn: { background: '#f1f5f9', border: 'none', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', marginRight: '5px' },
+  statCard: { backgroundColor: 'white', padding: '30px', borderRadius: '24px', flex: 1 },
+  statsGrid: { display: 'flex', gap: '20px' },
+  statNumber: { fontSize: '2.5rem', fontWeight: '800', margin: '10px 0' },
+  packageEditorGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' },
+  editorCard: { backgroundColor: 'white', padding: '30px', borderRadius: '24px' },
+  itemRow: { display: 'flex', justifyContent: 'space-between', padding: '15px 0', borderBottom: '1px solid #f8fafc' },
+  inlineInput: { border: '1px solid #e2e8f0', borderRadius: '8px', padding: '6px 10px', width: '120px', textAlign: 'right' },
+  loginPage: { height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--primary-navy)', color: 'white' },
+  loginCard: { backgroundColor: 'white', color: 'var(--primary-navy)', padding: '50px', borderRadius: '32px', width: '90%', maxWidth: '400px', textAlign: 'center' },
+  input: { width: '100%', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', marginTop: '10px', marginBottom: '15px', boxSizing: 'border-box' },
+  label: { fontWeight: '700', fontSize: '0.9rem', color: '#64748b' },
+  guestBtn: { background: 'none', border: 'none', marginTop: '15px', cursor: 'pointer', color: '#64748b', width: '100%' },
+  logoutBtn: { background: 'rgba(255,255,255,0.05)', color: '#ff4d4d', border: 'none', padding: '12px', width: '100%', cursor: 'pointer' },
+  modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 1000 },
+  modalScrollContainer: { height: '100vh', overflowY: 'auto', display: 'flex', justifyContent: 'center', padding: '50px 0' },
+  modalContent: { backgroundColor: 'white', width: '90%', maxWidth: '600px', borderRadius: '24px', margin: 'auto' },
+  modalHeader: { backgroundColor: 'var(--primary-navy)', color: 'white', padding: '25px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  closeBtn: { background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' },
+  modalBody: { padding: '40px' },
+  infoGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' },
+  messageBox: { marginTop: '10px', padding: '20px', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0', minHeight: '100px' }
 };
 
 export default AdminPanel;
