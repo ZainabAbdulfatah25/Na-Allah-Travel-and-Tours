@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Services from './components/Services';
 import Packages from './components/Packages';
+import ContactForm from './components/ContactForm'; // New Component
 import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
 import Payment from './components/Payment';
@@ -13,7 +14,6 @@ function App() {
   useEffect(() => {
     const handleHashChange = () => {
       setCurrentHash(window.location.hash);
-      // Auto-scroll to top when hash changes
       window.scrollTo(0, 0);
     };
     window.addEventListener('hashchange', handleHashChange);
@@ -33,6 +33,7 @@ function App() {
       <div className="app-container">
         <Navbar />
         <Packages />
+        <ContactForm />
         <Footer />
       </div>
     );
@@ -43,8 +44,8 @@ function App() {
       <Navbar />
       <Hero />
       <Services />
-      {/* Featured Packages Section on Home */}
       <Packages />
+      <ContactForm />
       <Footer />
     </div>
   );
