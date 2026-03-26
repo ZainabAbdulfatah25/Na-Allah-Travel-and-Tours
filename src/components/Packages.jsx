@@ -51,8 +51,12 @@ function Packages() {
         <p style={{color: 'var(--text-muted)', fontSize: '1.2rem'}}>Religious Travel Packages for 2026</p>
       </div>
       <div style={styles.grid}>
-        {items.map((pkg) => (
-          <div key={pkg.id} style={styles.card} className="package-card animate-fade-in">
+        {items.map((pkg, idx) => (
+          <div 
+            key={pkg.id} 
+            style={{...styles.card, transitionDelay: `${idx * 0.1}s`}} 
+            className={`package-card animate-fade-in-up delay-${idx+1} hover-lift`}
+          >
             <div style={styles.cardHeader}><h3 style={{color: 'var(--clear-white)', fontSize: '1.4rem', margin: 0, textTransform: 'uppercase'}}>{pkg.title}</h3></div>
             <div style={styles.cardBody}>
                <div style={styles.priceRow}><p style={styles.priceLabel}>EXECUTIVE PACKAGE</p><p style={styles.priceValue}>₦{pkg.price}</p></div>
@@ -61,7 +65,7 @@ function Packages() {
                    <li key={i} style={styles.featureItem}><span style={{color: 'var(--primary-gold)', marginRight: '12px', fontWeight: 'bold'}}>✓</span>{feature}</li>
                  ))}
                </ul>
-               <a href={`#payment?pkg=${encodeURIComponent(pkg.title)}`} className="btn btn-navy" style={{width: '100%', marginTop: '30px', padding: '15px', fontWeight: 'bold'}}>Official Booking</a>
+               <a href={`#payment?pkg=${encodeURIComponent(pkg.title)}`} className="btn btn-navy hover-lift" style={{width: '100%', marginTop: '30px', padding: '15px', fontWeight: 'bold'}}>Official Booking</a>
             </div>
           </div>
         ))}

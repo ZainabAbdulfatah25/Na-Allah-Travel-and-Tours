@@ -18,7 +18,11 @@ function Services() {
         
         <div style={styles.grid}>
           {services.map((srv, idx) => (
-             <div key={idx} style={styles.card}>
+             <div 
+               key={idx} 
+               style={{...styles.card, transitionDelay: `${idx * 0.1}s`}} 
+               className={`animate-fade-in-up delay-${idx + 1} hover-lift`}
+             >
                <div style={styles.iconBox}>{srv.icon}</div>
                <h3 style={styles.title}>{srv.title}</h3>
                <p style={{color: 'var(--text-muted)'}}>{srv.desc}</p>

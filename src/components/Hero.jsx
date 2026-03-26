@@ -11,10 +11,10 @@ function Hero() {
   return (
     <section className="hero-section" style={styles.hero}>
       <div className="container" style={{textAlign: 'center', position: 'relative', zIndex: 1}}>
-        <h1 style={styles.heading}>Your Journey to the <span style={{color: 'var(--primary-gold)'}}>Holy Land</span> Begins Here.</h1>
-        <p style={styles.subtext}>Providing premium Hajj, Umrah, and Global travel solutions with over 15 years of excellence.</p>
+        <h1 style={styles.heading} className="animate-fade-in-up">Your Journey to the <span style={{color: 'var(--primary-gold)'}}>Holy Land</span> Begins Here.</h1>
+        <p style={styles.subtext} className="animate-fade-in-up delay-1">Providing premium Hajj, Umrah, and Global travel solutions with over 15 years of excellence.</p>
         
-        <form onSubmit={handleSearch} style={{maxWidth: '650px', margin: '0 auto'}}>
+        <form onSubmit={handleSearch} style={{maxWidth: '650px', margin: '0 auto'}} className="animate-fade-in-up delay-2">
           <select 
             style={styles.select} 
             value={destination} 
@@ -25,8 +25,8 @@ function Hero() {
              <option value="medina">Medina</option>
           </select>
           <div style={{display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center'}}>
-            <button type="submit" className="btn btn-navy" style={{padding: '16px 45px', fontSize: '1rem', fontWeight: 'bold'}}>Search Packages</button>
-            <a href="#all-packages" className="btn btn-primary" style={{padding: '16px 45px', fontSize: '1rem', fontWeight: 'bold', textDecoration: 'none'}}>Book Now</a>
+            <button type="submit" className="btn btn-navy hover-lift" style={{padding: '16px 45px', fontSize: '1rem', fontWeight: 'bold'}}>Search Packages</button>
+            <a href="#all-packages" className="btn btn-primary hover-lift" style={{padding: '16px 45px', fontSize: '1rem', fontWeight: 'bold', textDecoration: 'none'}}>Book Now</a>
           </div>
         </form>
       </div>
