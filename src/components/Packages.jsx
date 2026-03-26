@@ -2,63 +2,78 @@ import React, { useEffect, useState } from 'react';
 
 function Packages() {
   const [selectedDest, setSelectedDest] = useState('');
+  
+  // Dynamic package states
   const [ramadanPackages, setRamadanPackages] = useState([
-    { id: 1, title: "RAMADAN STANDARD", fullPrice: "4,000,000", halfPrice: "2,000,000", features: ["Visa Processing", "Economy Flight Ticket (Full)", "Transportation", "Accommodation"] },
-    { id: 2, title: "RAMADAN PREMIUM", fullPrice: "4,500,000", halfPrice: "2,400,000", features: ["Visa Processing", "Economy Flight Ticket (Full)", "Transportation", "Premium Accommodation"] },
-    { id: 3, title: "RAMADAN VIP", fullPrice: "5,000,000", halfPrice: "2,700,000", features: ["Visa Processing", "Economy Flight Ticket (Full)", "VIP Transportation", "VIP Accommodation"] }
+    { id: 1, title: "Standard Ramadan", price: "4,000,000", features: ["Visa Processing", "Economy Ticket", "Transportation", "Accommodation"] },
+    { id: 2, title: "Premium Ramadan", price: "4,500,000", features: ["Visa Processing", "Economy Ticket", "Transportation", "Premium Hotel"] },
+    { id: 3, title: "VIP Ramadan", price: "5,000,000", features: ["Visa Processing", "Economy Ticket", "VIP Transport", "VIP Suites"] }
   ]);
+  
   const [hajjPackages, setHajjPackages] = useState([
-    { id: 4, title: "HAJJ STANDARD", fullPrice: "6,500,000", features: ["Hajj Visa", "Round-trip Flight", "Mina/Arafat Tents", "Standard Hotel Rooms"] },
-    { id: 5, title: "HAJJ PREMIUM", fullPrice: "8,500,000", features: ["Hajj Visa", "Premium Flight", "VIP Tents in Mina", "5-Star Hotel (Closest to Haram)"] },
-    { id: 6, title: "HAJJ ROYAL", fullPrice: "12,000,000", features: ["VIP Hajj Visa", "Business Class Flight", "Luxury Private Tents", "Luxury Royal Suites"] }
+    { id: 4, title: "Standard Hajj", price: "7,000,000", features: ["Hajj Visa", "Round-trip Flight", "Mina/Arafat Tents", "Standard Hotel Rooms"] },
+    { id: 5, title: "Premium Hajj", price: "8,500,000", features: ["Hajj Visa", "Premium Flight", "VIP Tents in Mina", "5-Star Hotel"] },
+    { id: 6, title: "Royal Hajj", price: "12,000,000", features: ["VIP Hajj Visa", "Business Class", "Luxury Tents", "Royal Suites"] }
   ]);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('na_allah_packages'));
-    if (saved) {
-      setRamadanPackages(prev => prev.map(p => {
-        const match = saved.ramadan.find(s => s.id === p.id);
-        return match ? { ...p, fullPrice: match.price } : p;
-      }));
-      setHajjPackages(prev => prev.map(p => {
-        const match = saved.hajj.find(s => s.id === p.id);
-        return match ? { ...p, fullPrice: match.price } : p;
-      }));
-    }
+    const handleSync = () => {
+      const saved = JSON.parse(localStorage.getItem('na_allah_packages'));
+      if (saved) {
+        // We use the saved arrays directly so new items show up
+        // We map features back to them if they are missing (for newly added ones)
+        const defaultFeatures = ["Visa Processing", "Round-trip Flight", "Transportation", "Full Accommodation"];
+        
+        if (saved.ramadan) {
+          setRamadanPackages(saved.ramadan.map(p => ({
+            ...p,
+            features: p.features || defaultFeatures
+          })));
+        }
+        if (saved.hajj) {
+          setHajjPackages(saved.hajj.map(p => ({
+            ...p,
+            features: p.features || defaultFeatures
+          })));
+        }
+      }
+    };
+
+    handleSync();
+    window.addEventListener('storage', handleSync);
     const hash = window.location.hash;
     const match = hash.match(/\?dest=(.*)/);
     if (match) setSelectedDest(decodeURIComponent(match[1]));
+
+    return () => window.removeEventListener('storage', handleSync);
   }, []);
 
   const renderSection = (title, items) => (
     <div style={{marginBottom: '100px'}}>
       <div style={{marginBottom: '50px', borderLeft: '8px solid var(--primary-gold)', paddingLeft: '25px'}}>
         <h2 style={{fontSize: '2.5rem', color: 'var(--primary-navy)', marginBottom: '5px'}}>{title}</h2>
-        <p style={{color: 'var(--text-muted)', fontSize: '1.2rem'}}>Available Religious Travel Packages for 2026</p>
+        <p style={{color: 'var(--text-muted)', fontSize: '1.2rem'}}>Religious Travel Packages for 2026</p>
       </div>
       <div style={styles.grid}>
-        {items.map((pkg, idx) => (
-          <div key={idx} style={styles.card} className="package-card">
+        {items.map((pkg) => (
+          <div key={pkg.id} style={styles.card} className="package-card animate-fade-in">
             <div style={styles.cardHeader}>
-              <h3 style={{color: 'var(--clear-white)', fontSize: '1.5rem', margin: 0}}>{pkg.title}</h3>
+              <h3 style={{color: 'var(--clear-white)', fontSize: '1.4rem', margin: 0, textTransform: 'uppercase'}}>{pkg.title}</h3>
             </div>
             <div style={styles.cardBody}>
                <div style={styles.priceRow}>
-                 <p style={styles.priceLabel}>FULL PACKAGE</p>
-                 <p style={styles.priceValue}>₦{pkg.fullPrice}</p>
+                 <p style={styles.priceLabel}>EXECUTIVE PACKAGE</p>
+                 <p style={styles.priceValue}>₦{pkg.price}</p>
                </div>
-               {pkg.halfPrice && (
-                 <div style={{...styles.priceRow, borderBottom: '1px solid #eee', paddingBottom: '20px'}}>
-                   <p style={styles.priceLabel}>HALF PACKAGE</p>
-                   <p style={styles.priceValue}>₦{pkg.halfPrice}</p>
-                 </div>
-               )}
                <ul style={styles.featureList}>
                  {pkg.features.map((feature, i) => (
-                   <li key={i} style={styles.featureItem}><span style={{color: 'var(--primary-gold)', marginRight: '12px', fontWeight: 'bold'}}>✓</span>{feature}</li>
+                   <li key={i} style={styles.featureItem}>
+                     <span style={{color: 'var(--primary-gold)', marginRight: '12px', fontWeight: 'bold'}}>✓</span>
+                     {feature}
+                   </li>
                  ))}
                </ul>
-               <a href={`#payment?pkg=${encodeURIComponent(pkg.title + ' Package (Full)')}`} className="btn btn-navy" style={{width: '100%', marginTop: '30px', padding: '15px'}}>Book This Package</a>
+               <a href={`#payment?pkg=${encodeURIComponent(pkg.title)}`} className="btn btn-navy" style={{width: '100%', marginTop: '30px', padding: '18px', fontWeight: 'bold'}}>Book Now</a>
             </div>
           </div>
         ))}
@@ -70,12 +85,12 @@ function Packages() {
     <section id="packages-list" className="section-padding" style={styles.section}>
       <div className="container">
         {window.location.hash.startsWith('#all-packages') && (
-           <button onClick={() => window.location.hash = ''} style={styles.backButtonTop}>← Back to Home</button>
+           <button onClick={() => window.location.hash = ''} style={styles.backButtonTop}>← Home</button>
         )}
 
         <div style={{textAlign: 'center', marginBottom: '80px'}}>
-          <h1 style={{fontSize: '4rem', marginBottom: '15px'}}>All Travel Packages</h1>
-          <p style={{fontSize: '1.3rem', color: 'var(--text-muted)', maxWidth: '800px', margin: '0 auto'}}>Complete list of curated religious journeys for the 2026 season.</p>
+          <h1 style={{fontSize: '3.5rem', marginBottom: '15px'}}>Our 2026 Packages</h1>
+          <p style={{fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '800px', margin: '0 auto'}}>Complete list of seasonal travel arrangements for spiritual journeys.</p>
         </div>
 
         {selectedDest === 'mecca' ? (
@@ -91,11 +106,11 @@ function Packages() {
         )}
 
         <div style={styles.specialNote}>
-          <p style={{fontSize: '1.2rem'}}>Separate visa processing is available from <strong>₦1,200,000</strong>. Contact us for custom holiday deals.</p>
+          <p style={{fontSize: '1.3rem', fontWeight: 'bold'}}>Custom flight and hotel arrangements are available on request.</p>
           <div style={{display: 'flex', gap: '20px', justifyContent: 'center', marginTop: '30px'}}>
-            <a href="https://wa.me/message/4X32W3CFCBBNF1" className="btn btn-primary" style={{padding: '15px 40px'}}>WhatsApp Agent</a>
+            <a href="https://wa.me/message/4X32W3CFCBBNF1" className="btn btn-primary" style={{padding: '15px 40px'}}>Talk to Agent</a>
             {window.location.hash.startsWith('#all-packages') && (
-               <button onClick={() => window.location.hash = ''} className="btn btn-outline" style={{borderColor: 'white', color: 'white', padding: '15px 40px'}}>Back to Home</button>
+               <button onClick={() => window.location.hash = ''} className="btn btn-outline" style={{borderColor: 'white', color: 'white', padding: '15px 30px'}}>Back Home</button>
             )}
           </div>
         </div>
@@ -106,17 +121,17 @@ function Packages() {
 
 const styles = {
   section: { backgroundColor: '#fff', minHeight: '100vh', padding: '100px 0' },
-  backButtonTop: { background: '#f1f5f9', border: 'none', padding: '12px 25px', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '8px' },
+  backButtonTop: { background: '#f1f5f9', border: 'none', padding: '12px 25px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '40px' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px' },
-  card: { backgroundColor: 'white', borderRadius: '25px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', border: '1px solid #f1f5f9' },
+  card: { backgroundColor: 'white', borderRadius: '25px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.08)', border: '1px solid #f1f5f9' },
   cardHeader: { backgroundColor: 'var(--primary-navy)', padding: '25px', textAlign: 'center', borderBottom: '5px solid var(--primary-gold)' },
   cardBody: { padding: '40px' },
   priceRow: { marginBottom: '20px', textAlign: 'center' },
-  priceLabel: { fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: '800', marginBottom: '5px' },
-  priceValue: { fontSize: '2.8rem', color: 'var(--primary-navy)', fontWeight: '800' },
+  priceLabel: { fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '800', marginBottom: '5px' },
+  priceValue: { fontSize: '2.5rem', color: 'var(--primary-navy)', fontWeight: 'bold' },
   featureList: { marginTop: '25px' },
-  featureItem: { padding: '15px 0', color: 'var(--text-main)', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'baseline', fontSize: '1.1rem' },
-  specialNote: { marginTop: '100px', padding: '60px 40px', backgroundColor: 'var(--primary-navy)', color: 'white', borderRadius: '32px', textAlign: 'center', boxShadow: '0 30px 60px -12px rgba(10, 31, 61, 0.5)' }
+  featureItem: { padding: '12px 0', borderBottom: '1px solid #f8fafc', display: 'flex', alignItems: 'baseline', fontSize: '1rem', color: '#475569' },
+  specialNote: { marginTop: '100px', padding: '50px 40px', backgroundColor: 'var(--primary-navy)', color: 'white', borderRadius: '32px', textAlign: 'center' }
 };
 
 export default Packages;
