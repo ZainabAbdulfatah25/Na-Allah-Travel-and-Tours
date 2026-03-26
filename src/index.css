@@ -1,122 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
 :root {
-  /* Colors */
-  /* Colors */
-  --color-primary: #0e7490;
-  /* Deep Vibrant Cyan (matching secondary) */
-  --color-secondary: #06b6d4;
-  /* Brighter Vibrant Cyan */
-  --color-accent: #fbbf24;
-  /* Amber/Yellow */
-  --color-background: #ffffff;
-  --color-text: #020617;
-  /* Matching Footer Background */
-  --color-text-light: #64748b;
-  --color-white: #ffffff;
-  --color-light-gray: #f1f5f9;
-
-  /* Typography */
-  --font-heading: 'Outfit', sans-serif;
-  --font-body: 'Inter', sans-serif;
-
-  /* Spacing */
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 1rem;
-  --spacing-md: 2rem;
-  --spacing-lg: 4rem;
-  --spacing-xl: 8rem;
-
-  /* Border Radius */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 1rem;
+  /* Brand Colors from Flyers */
+  --primary-navy: #0a1f3d;
+  --secondary-navy: #15325c;
+  --primary-gold: #d4af37;
+  --accent-gold: #e6c86a;
+  --light-gold: #fdfaf0;
+  
+  /* Neutrals */
+  --clear-white: #ffffff;
+  --off-white: #fafafa;
+  --text-main: #333333;
+  --text-muted: #666666;
+  --text-light: #f5f5f5;
+  
+  /* Layout Constants */
+  --max-width: 1280px;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
   --radius-full: 9999px;
-
+  
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-gold: 0 8px 30px rgba(212, 175, 55, 0.3);
 }
 
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  font-family: var(--font-body);
-  background-color: var(--color-background);
-  color: var(--color-text);
+  font-family: 'Outfit', sans-serif;
+  color: var(--text-main);
+  background-color: var(--off-white);
   line-height: 1.6;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-heading);
-  color: var(--color-primary);
-  line-height: 1.2;
-  font-weight: 700;
 }
 
 a {
   text-decoration: none;
   color: inherit;
-  transition: color 0.2s;
+  transition: color var(--transition-fast);
+}
+
+ul {
+  list-style: none;
 }
 
 button {
+  font-family: 'Outfit', sans-serif;
   cursor: pointer;
   border: none;
   background: none;
-  font-family: inherit;
 }
 
-img {
-  max-width: 100%;
-  display: block;
+/* Typography Utility */
+h1, h2, h3, h4 {
+  font-weight: 700;
+  line-height: 1.2;
 }
 
-/* Utilities */
+h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+}
+
+h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 1rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Layout Core */
 .container {
-  max-width: 1200px;
+  max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 var(--spacing-sm);
+  padding: 0 5%;
 }
 
+.section-padding {
+  padding: 100px 0;
+}
+
+/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 1.5rem;
+  padding: 12px 28px;
   border-radius: var(--radius-full);
   font-weight: 600;
-  transition: all 0.2s;
+  font-size: 1rem;
+  transition: all var(--transition-smooth);
 }
 
 .btn-primary {
-  background-color: var(--color-secondary);
-  color: var(--color-white);
+  background-color: var(--primary-gold);
+  color: var(--primary-navy);
+  box-shadow: var(--shadow-gold);
 }
 
 .btn-primary:hover {
-  background-color: #d97706;
+  background-color: var(--accent-gold);
+  transform: translateY(-2px);
 }
 
 .btn-outline {
-  border: 2px solid var(--color-white);
-  color: var(--color-white);
+  border: 2px solid var(--primary-gold);
+  color: var(--primary-gold);
+  background-color: transparent;
 }
 
 .btn-outline:hover {
-  background-color: var(--color-white);
-  color: var(--color-primary);
+  background-color: var(--primary-gold);
+  color: var(--primary-navy);
 }
 
-.section-padding {
-  padding: var(--spacing-lg) 0;
+.btn-navy {
+  background-color: var(--primary-navy);
+  color: var(--clear-white);
+}
+
+.btn-navy:hover {
+  background-color: var(--secondary-navy);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(10, 31, 61, 0.4);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease forwards;
 }
