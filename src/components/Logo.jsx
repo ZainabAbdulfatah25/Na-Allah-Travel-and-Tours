@@ -1,20 +1,21 @@
 import React from 'react';
 
-function Logo({ size = 150, showText = false }) {
+function Logo({ size = 50, showText = false }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
       <img 
-        src="https://raw.githubusercontent.com/ZainabAbdulfatah25/Na-Allah-Travel-and-Tours/main/logo.png" 
-        alt="Na-Allah Travels Official Logo"
-        style={{ width: size, height: 'auto', borderRadius: '50%' }}
+        src="/logo.png" 
+        alt="Logo" 
+        style={{ width: size, height: 'auto', borderRadius: '50%' }} 
         onError={(e) => {
-          // Fallback if the logo is missing or loading from local path
-          e.target.src = "/logo.png"; 
+           // If logo.png is missing, we use the text version
+           e.target.style.display = 'none';
         }}
       />
       {showText && (
-        <div style={{ marginTop: '10px' }}>
-          <span style={{ fontWeight: 'bold', color: 'var(--primary-navy)' }}>OFFICIAL AGENCY</span>
+        <div>
+          <span style={{fontWeight: '900', color: 'var(--primary-navy)', fontSize: '1.2rem'}}>Na-Allah</span>
+          <span style={{color: 'var(--primary-gold)', fontSize: '0.65rem', display: 'block', fontWeight: '800'}}>TRAVELS & TOURS</span>
         </div>
       )}
     </div>

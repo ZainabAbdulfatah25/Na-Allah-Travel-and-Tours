@@ -20,31 +20,16 @@ function Packages() {
     const handleSync = () => {
       const saved = JSON.parse(localStorage.getItem('na_allah_packages'));
       if (saved) {
-        // We use the saved arrays directly so new items show up
-        // We map features back to them if they are missing (for newly added ones)
         const defaultFeatures = ["Visa Processing", "Round-trip Flight", "Transportation", "Full Accommodation"];
-        
-        if (saved.ramadan) {
-          setRamadanPackages(saved.ramadan.map(p => ({
-            ...p,
-            features: p.features || defaultFeatures
-          })));
-        }
-        if (saved.hajj) {
-          setHajjPackages(saved.hajj.map(p => ({
-            ...p,
-            features: p.features || defaultFeatures
-          })));
-        }
+        if (saved.ramadan) setRamadanPackages(saved.ramadan.map(p => ({...p, features: p.features || defaultFeatures})));
+        if (saved.hajj) setHajjPackages(saved.hajj.map(p => ({...p, features: p.features || defaultFeatures})));
       }
     };
-
     handleSync();
     window.addEventListener('storage', handleSync);
     const hash = window.location.hash;
     const match = hash.match(/\?dest=(.*)/);
     if (match) setSelectedDest(decodeURIComponent(match[1]));
-
     return () => window.removeEventListener('storage', handleSync);
   }, []);
 
@@ -57,23 +42,15 @@ function Packages() {
       <div style={styles.grid}>
         {items.map((pkg) => (
           <div key={pkg.id} style={styles.card} className="package-card animate-fade-in">
-            <div style={styles.cardHeader}>
-              <h3 style={{color: 'var(--clear-white)', fontSize: '1.4rem', margin: 0, textTransform: 'uppercase'}}>{pkg.title}</h3>
-            </div>
+            <div style={styles.cardHeader}><h3 style={{color: 'var(--clear-white)', fontSize: '1.4rem', margin: 0, textTransform: 'uppercase'}}>{pkg.title}</h3></div>
             <div style={styles.cardBody}>
-               <div style={styles.priceRow}>
-                 <p style={styles.priceLabel}>EXECUTIVE PACKAGE</p>
-                 <p style={styles.priceValue}>₦{pkg.price}</p>
-               </div>
+               <div style={styles.priceRow}><p style={styles.priceLabel}>EXECUTIVE PACKAGE</p><p style={styles.priceValue}>₦{pkg.price}</p></div>
                <ul style={styles.featureList}>
                  {pkg.features.map((feature, i) => (
-                   <li key={i} style={styles.featureItem}>
-                     <span style={{color: 'var(--primary-gold)', marginRight: '12px', fontWeight: 'bold'}}>✓</span>
-                     {feature}
-                   </li>
+                   <li key={i} style={styles.featureItem}><span style={{color: 'var(--primary-gold)', marginRight: '12px', fontWeight: 'bold'}}>✓</span>{feature}</li>
                  ))}
                </ul>
-               <a href={`#payment?pkg=${encodeURIComponent(pkg.title)}`} className="btn btn-navy" style={{width: '100%', marginTop: '30px', padding: '18px', fontWeight: 'bold'}}>Book Now</a>
+               <a href={`#payment?pkg=${encodeURIComponent(pkg.title)}`} className="btn btn-navy" style={{width: '100%', marginTop: '30px', padding: '15px', fontWeight: 'bold'}}>Official Booking</a>
             </div>
           </div>
         ))}
@@ -82,38 +59,18 @@ function Packages() {
   );
 
   return (
-    <section id="packages-list" className="section-padding" style={styles.section}>
+    <section id="all-packages" className="section-padding" style={styles.section}>
       <div className="container">
-        {window.location.hash.startsWith('#all-packages') && (
-           <button onClick={() => window.location.hash = ''} style={styles.backButtonTop}>← Home</button>
-        )}
-
+        {window.location.hash.includes('all-packages') && (<button onClick={() => window.location.hash = ''} style={styles.backButtonTop}>← Back to Home</button>)}
         <div style={{textAlign: 'center', marginBottom: '80px'}}>
           <h1 style={{fontSize: '3.5rem', marginBottom: '15px'}}>Our 2026 Packages</h1>
           <p style={{fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '800px', margin: '0 auto'}}>Complete list of seasonal travel arrangements for spiritual journeys.</p>
         </div>
-
         {selectedDest === 'mecca' ? (
-          <>
-            {renderSection("Ramadan Packages 2026", ramadanPackages)}
-            {renderSection("Hajj Packages 2026", hajjPackages)}
-          </>
+          <>{renderSection("Ramadan Packages 2026", ramadanPackages)}{renderSection("Hajj Packages 2026", hajjPackages)}</>
         ) : (
-          <>
-            {renderSection("Hajj Packages 2026", hajjPackages)}
-            {renderSection("Ramadan Packages 2026", ramadanPackages)}
-          </>
+          <>{renderSection("Hajj Packages 2026", hajjPackages)}{renderSection("Ramadan Packages 2026", ramadanPackages)}</>
         )}
-
-        <div style={styles.specialNote}>
-          <p style={{fontSize: '1.3rem', fontWeight: 'bold'}}>Custom flight and hotel arrangements are available on request.</p>
-          <div style={{display: 'flex', gap: '20px', justifyContent: 'center', marginTop: '30px'}}>
-            <a href="https://wa.me/message/4X32W3CFCBBNF1" className="btn btn-primary" style={{padding: '15px 40px'}}>Talk to Agent</a>
-            {window.location.hash.startsWith('#all-packages') && (
-               <button onClick={() => window.location.hash = ''} className="btn btn-outline" style={{borderColor: 'white', color: 'white', padding: '15px 30px'}}>Back Home</button>
-            )}
-          </div>
-        </div>
       </div>
     </section>
   );
@@ -130,8 +87,7 @@ const styles = {
   priceLabel: { fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '800', marginBottom: '5px' },
   priceValue: { fontSize: '2.5rem', color: 'var(--primary-navy)', fontWeight: 'bold' },
   featureList: { marginTop: '25px' },
-  featureItem: { padding: '12px 0', borderBottom: '1px solid #f8fafc', display: 'flex', alignItems: 'baseline', fontSize: '1rem', color: '#475569' },
-  specialNote: { marginTop: '100px', padding: '50px 40px', backgroundColor: 'var(--primary-navy)', color: 'white', borderRadius: '32px', textAlign: 'center' }
+  featureItem: { padding: '12px 0', borderBottom: '1px solid #f8fafc', display: 'flex', alignItems: 'baseline', fontSize: '1rem', color: '#475569' }
 };
 
 export default Packages;
