@@ -3,7 +3,8 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Services from './components/Services';
 import Packages from './components/Packages';
-import ContactForm from './components/ContactForm'; // New Component
+import ContactForm from './components/ContactForm';
+import Credentials from './components/Credentials'; // Updated Component
 import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
 import Payment from './components/Payment';
@@ -28,23 +29,13 @@ function App() {
     return <Payment />;
   }
 
-  if (currentHash.startsWith('#all-packages')) {
-    return (
-      <div className="app-container">
-        <Navbar />
-        <Packages />
-        <ContactForm />
-        <Footer />
-      </div>
-    );
-  }
-
   return (
     <div className="app-container">
       <Navbar />
       <Hero />
       <Services />
       <Packages />
+      <Credentials />
       <ContactForm />
       <Footer />
     </div>

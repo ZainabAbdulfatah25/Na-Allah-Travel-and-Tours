@@ -1,64 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Logo from './Logo';
 
 function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <nav className="navbar" style={styles.navbar}>
+    <nav style={styles.nav}>
       <div className="container" style={styles.container}>
-        <div className="logo" style={styles.logo}>
-          <img src="/logo.png" alt="Na-Allah Travels Logo" style={styles.logoImg} onError={(e) => {
-             e.target.onerror = null; 
-             e.target.style.display = 'none';
-             document.getElementById('fallback-logo-text').style.display = 'block';
-          }} />
-          <h2 id="fallback-logo-text" style={{display: 'none', color: 'var(--primary-gold)', margin: 0}}>Na-ALLAH Travels</h2>
+        <div style={styles.logoRow} onClick={() => window.location.hash = ''}>
+          <Logo size={40} showText={false} />
+          <div style={styles.logoText}>
+            <span style={{fontWeight: '900', color: 'var(--primary-navy)', fontSize: '1.2rem'}}>Na-Allah</span>
+            <span style={{color: 'var(--primary-gold)', fontSize: '0.65rem', letterSpacing: '1.5px', fontWeight: 'bold', display: 'block', marginTop: '-3px'}}>TRAVELS & TOURS</span>
+          </div>
         </div>
-        <ul className="nav-links" style={styles.navLinks}>
-          <li><a href="#hero">Home</a></li>
-          <li><a href="#services">Services</a></li>
-          <li><a href="#all-packages">Our Packages</a></li>
-          <li><a href="#contact">Contact</a></li>
+
+        {/* Hamburger */}
+        <div style={styles.hamburger} onClick={() => setIsOpen(!isOpen)}>
+          <div style={{...styles.line, ...(isOpen ? styles.line1 : {})}}></div>
+          <div style={{...styles.line, opacity: isOpen ? 0 : 1}}></div>
+          <div style={{...styles.line, ...(isOpen ? styles.line3 : {})}}></div>
+        </div>
+
+        <ul style={{...styles.navLinks, ...(isOpen ? styles.navLinksActive : {})}}>
+          <li><a href="#services" style={styles.link}>Services</a></li>
+          <li><a href="#all-packages" style={styles.link}>Our Packages</a></li>
+          <li><a href="#credentials" style={styles.link}>Credentials</a></li>
+          <li><a href="#contact-form" style={styles.link}>Inquiry</a></li>
+          <li><a href="#admin" style={styles.adminBtn}>Admin</a></li>
         </ul>
-        <div style={{display: 'flex', gap: '15px', alignItems: 'center'}}>
-          <a href="#all-packages" className="btn btn-primary" style={{padding: '10px 22px', fontSize: '0.9rem'}}>Book Now</a>
-        </div>
       </div>
     </nav>
   );
 }
 
 const styles = {
-  navbar: {
-    backgroundColor: 'var(--primary-navy)',
-    color: 'var(--clear-white)',
-    padding: '18px 0',
-    position: 'sticky',
-    top: 0,
-    zIndex: 1000,
-    boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-  },
-  container: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: '20px'
-  },
-  logo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    cursor: 'pointer'
-  },
-  logoImg: {
-    height: '55px',
-    width: 'auto',
-    objectFit: 'contain'
-  },
-  navLinks: {
-    display: 'flex',
-    gap: '40px',
-    fontWeight: 600,
-    fontSize: '1rem',
-    color: 'var(--text-light)'
+  nav: { backgroundColor: 'white', height: '80px', display: 'flex', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxShadow: '0 4px 6px rgba(0,0,0,0.03)' },
+  container: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 20px' },
+  logoRow: { display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' },
+  logoText: { display: 'flex', flexDirection: 'column' },
+  hamburger: { display: 'none', cursor: 'pointer', flexDirection: 'column', gap: '5px' },
+  line: { width: '22px', height: '2.5px', backgroundColor: 'var(--primary-navy)', transition: '0.3s' },
+  line1: { transform: 'rotate(45deg) translate(5px, 5px)' },
+  line3: { transform: 'rotate(-45deg) translate(5px, -5px)' },
+  navLinks: { display: 'flex', gap: '20px', listStyle: 'none', alignItems: 'center', margin: 0, padding: 0 },
+  link: { textDecoration: 'none', color: 'var(--primary-navy)', fontWeight: '700', fontSize: '0.9rem', transition: '0.2s', padding: '10px 15px', borderRadius: '10px' },
+  adminBtn: { textDecoration: 'none', backgroundColor: 'var(--primary-gold)', color: 'var(--primary-navy)', padding: '10px 20px', borderRadius: '10px', fontWeight: '900', fontSize: '0.85rem' },
+  
+  // Mobile Support
+  '@media (max-width: 768px)': {
+    hamburger: { display: 'flex' },
+    navLinks: { display: 'none' },
   }
 };
 
