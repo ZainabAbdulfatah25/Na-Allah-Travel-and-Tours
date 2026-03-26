@@ -11,9 +11,10 @@ function Navbar() {
         </div>
 
         {/* Navigation Links - Centered */}
-        <ul style={{display: 'flex', gap: '35px', alignItems: 'center', margin: 0, padding: 0, flex: '2', justifyContent: 'center'}}>
-          <li><a href="#services" style={{fontWeight: '900', color: 'var(--primary-navy)', fontSize: '0.9rem', textTransform: 'uppercase'}}>Services</a></li>
-          <li><a href="#all-packages" style={{fontWeight: '900', color: 'var(--primary-navy)', fontSize: '0.9rem', textTransform: 'uppercase'}}>Our Packages</a></li>
+        <ul style={{display: 'flex', gap: '25px', alignItems: 'center', margin: 0, padding: 0, flex: '2', justifyContent: 'center'}}>
+          <li><a href="#services" style={styles.navLink}>Services</a></li>
+          <li><a href="#all-packages" style={styles.navLink}>Our Packages</a></li>
+          <li><a href="#credentials" style={styles.navLink}>Certifications</a></li>
         </ul>
 
         {/* Global Action Button - Right */}
@@ -24,5 +25,9 @@ function Navbar() {
     </nav>
   );
 }
+
+const styles = {
+  navLink: { fontWeight: '900', color: 'var(--primary-navy)', fontSize: '0.85rem', textTransform: 'uppercase', textDecoration: 'none' }
+};
 
 export default Navbar;

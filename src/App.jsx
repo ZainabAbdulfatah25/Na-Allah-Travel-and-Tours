@@ -21,34 +21,24 @@ function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  // Dedicated Admin View
-  if (currentHash === '#admin') {
-    return <AdminPanel />;
-  }
+  // Dedicated Admin Console
+  if (currentHash === '#admin') return <AdminPanel />;
   
-  // Dedicated Payment View
+  // Dedicated Views (Focused Pages)
   if (currentHash.startsWith('#payment')) {
-    return (
-      <div className="app-container">
-        <Navbar />
-        <Payment />
-        <Footer />
-      </div>
-    );
+    return (<div className="app-container"><Navbar /><Payment /><Footer /></div>);
   }
 
-  // NEW: Dedicated Packages Page (Triggered by Book Now)
   if (currentHash.startsWith('#all-packages')) {
-    return (
-      <div className="app-container">
-        <Navbar />
-        <Packages />
-        <Footer />
-      </div>
-    );
+    return (<div className="app-container"><Navbar /><Packages /><Footer /></div>);
   }
 
-  // Default Landing Page Experience
+  // NEW: Dedicated Certifications Page
+  if (currentHash.startsWith('#credentials')) {
+    return (<div className="app-container"><Navbar /><Credentials /><Footer /></div>);
+  }
+
+  // Default Home Page
   return (
     <div className="app-container">
       <Navbar />

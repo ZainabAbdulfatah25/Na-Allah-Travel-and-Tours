@@ -2,23 +2,39 @@ import React, { useEffect, useState } from 'react';
 
 function Credentials() {
   const [licenses, setLicenses] = useState([]);
+  const [alertMsg, setAlertMsg] = useState('');
 
-  useEffect(() => {
+  const loadData = () => {
     const saved = JSON.parse(localStorage.getItem('na_allah_licenses')) || [
-      { id: 1, title: 'Corporate Affairs Commission (CAC)', link: '#', status: 'Official' },
-      { id: 2, title: 'NAHCON License 2026', link: '#', status: 'Active' },
-      { id: 3, title: 'IATA Accredited Agency', link: '#', status: 'Verified' }
+       { id: 1, title: 'CAC Official Corporate Affairs', link: '#', status: 'In Process' },
+       { id: 2, title: 'NAHCON Official License 2026', link: '#', status: 'Verified' },
+       { id: 3, title: 'IATA Accredited Agency', link: '#', status: 'Official' }
     ];
     setLicenses(saved);
+  };
+
+  useEffect(() => {
+    loadData();
+    const handleSync = (e) => { if (e.key === 'na_allah_licenses') loadData(); };
+    window.addEventListener('storage', handleSync);
+    return () => window.removeEventListener('storage', handleSync);
   }, []);
 
+  const handleView = (link) => {
+    if (!link || link === '#' || link === '') {
+      setAlertMsg('This document is currently undergoing verification. Please check back shortly.');
+    } else {
+      window.open(link, '_blank');
+    }
+  };
+
   return (
-    <section id="credentials" className="section-padding" style={styles.section}>
+    <section id="credentials" style={styles.section}>
       <div className="container" style={styles.container}>
         <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-          <h2 style={{ fontSize: '3rem', color: 'var(--primary-navy)', marginBottom: '15px' }}>Agency <span style={{ color: 'var(--primary-gold)' }}>Credentials</span></h2>
-          <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '700px', margin: '0 auto' }}>
-            Na-Allah Travels & Tours Ltd. is an officially recognized and licensed agency for Hajj, Umrah, and Global Flight bookings.
+          <h2 style={{ fontSize: '3.5rem', color: 'var(--primary-navy)', marginBottom: '15px' }}>Agency <span style={{ color: 'var(--primary-gold)' }}>Credentials</span></h2>
+          <p style={{ fontSize: '1.2rem', color: '#64748b', maxWidth: '750px', margin: '0 auto' }}>
+             Verifying our official status as a licensed agency for Hajj, Umrah, and Global Flight bookings.
           </p>
         </div>
 
@@ -28,11 +44,27 @@ function Credentials() {
               <div style={styles.iconBox}>📜</div>
               <h3 style={styles.licTitle}>{lic.title}</h3>
               <p style={styles.licStatus}>{lic.status}</p>
-              <a href={lic.link} target="_blank" rel="noreferrer" style={styles.docLink}>View Document →</a>
+              <button 
+                onClick={() => handleView(lic.link)} 
+                style={styles.docBtn}
+              >View Certificate →</button>
             </div>
           ))}
         </div>
 
+        {/* CUSTOM ALERT MODAL */}
+        {alertMsg && (
+          <div style={styles.overlay} onClick={() => setAlertMsg('')}>
+             <div style={styles.modal} onClick={e => e.stopPropagation()}>
+                <div style={styles.mHead}>🔔 Notice</div>
+                <div style={styles.mBody}>
+                   <p style={{marginBottom: '25px', color: '#4b5563', lineHeight: '1.6'}}>{alertMsg}</p>
+                   <button onClick={() => setAlertMsg('')} className="btn btn-navy" style={{width: '100%', padding: '15px'}}>Got it, Thanks!</button>
+                </div>
+             </div>
+          </div>
+        )}
+        
         <div style={styles.footerNote}>
           <p>Verified RC: 2012044 | Registered under Nigerian Tourism Development Authority</p>
         </div>
@@ -42,15 +74,19 @@ function Credentials() {
 }
 
 const styles = {
-  section: { backgroundColor: '#f8fafc', padding: '100px 0' },
-  container: { maxWidth: '1100px' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px' },
-  card: { backgroundColor: 'white', padding: '40px', borderRadius: '24px', textAlign: 'center', boxShadow: '0 10px 15px -1px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' },
-  iconBox: { fontSize: '2.5rem', marginBottom: '20px' },
-  licTitle: { color: 'var(--primary-navy)', fontSize: '1.3rem', marginBottom: '10px', fontWeight: '800' },
-  licStatus: { display: 'inline-block', backgroundColor: '#ecfdf5', color: '#059669', padding: '5px 15px', borderRadius: '15px', fontSize: '0.8rem', fontWeight: 'bold' },
-  docLink: { display: 'block', marginTop: '25px', color: 'var(--primary-navy)', fontWeight: 'bold', textDecoration: 'none', borderBottom: '1px solid currentColor', width: 'fit-content', margin: '25px auto 0 auto' },
-  footerNote: { marginTop: '80px', textAlign: 'center', padding: '25px', border: '1px dashed #cbd5e1', borderRadius: '12px', color: '#64748b', fontSize: '1rem', fontWeight: '600' }
+  section: { backgroundColor: '#f9fafb', padding: '120px 0', minHeight: '80vh' },
+  container: { maxWidth: '1100px', margin: '0 auto' },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' },
+  card: { backgroundColor: 'white', padding: '50px 40px', borderRadius: '32px', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', border: '1px solid #f1f5f9' },
+  iconBox: { fontSize: '3rem', marginBottom: '15px' },
+  licTitle: { color: 'var(--primary-navy)', fontSize: '1.25rem', marginBottom: '12px', fontWeight: '800' },
+  licStatus: { display: 'inline-block', backgroundColor: '#f1f5f9', color: 'var(--primary-gold)', padding: '6px 18px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '25px' },
+  docBtn: { display: 'block', margin: '0 auto', background: 'none', border: 'none', color: 'var(--primary-navy)', fontWeight: 'bold', cursor: 'pointer', borderBottom: '2px solid' },
+  overlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 },
+  modal: { background: 'white', width: '380px', borderRadius: '25px', overflow: 'hidden', textAlign: 'center' },
+  mHead: { background: 'var(--primary-navy)', color: 'white', padding: '15px', fontWeight: 'bold' },
+  mBody: { padding: '30px' },
+  footerNote: { marginTop: '100px', textAlign: 'center', padding: '30px', border: '1px dashed #cbd5e1', borderRadius: '20px', color: '#64748b' }
 };
 
 export default Credentials;
