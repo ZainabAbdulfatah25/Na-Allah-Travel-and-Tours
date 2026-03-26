@@ -12,7 +12,7 @@ function AdminPanel() {
   const [showAddLicense, setShowAddLicense] = useState(false);
   
   const [newPackage, setNewPackage] = useState({ title: '', price: '', category: 'ramadan' });
-  const [newLicense, setNewLicense] = useState({ title: '', link: '', status: 'Active' });
+  const [newLicense, setNewLicense] = useState({ title: '', link: '', status: 'Official' });
   
   const [bookings, setBookings] = useState([]);
   const [packages, setPackages] = useState({ 
@@ -33,10 +33,10 @@ function AdminPanel() {
     const b = JSON.parse(localStorage.getItem('na_allah_bookings')) || [];
     const p = JSON.parse(localStorage.getItem('na_allah_packages')) || packages;
     const l = JSON.parse(localStorage.getItem('na_allah_licenses')) || [
-       { id: 1, title: 'CAC Official Registration', link: '#', status: 'Official' },
-       { id: 2, title: 'NAHCON License 2026', link: '#', status: 'Verified' }
+       { id: 1, title: 'CAC Official Corporate Affairs', link: '#', status: 'Official' },
+       { id: 2, title: 'NAHCON Official License 2026', link: '#', status: 'Verified' },
+       { id: 3, title: 'IATA Accredited Agency', link: '#', status: 'Official' }
     ];
-
     setBookings(b);
     setPackages(p);
     setLicenses(l);
@@ -44,10 +44,10 @@ function AdminPanel() {
 
   useEffect(() => {
     loadData();
-    const sync = (e) => { if (e.key && e.key.startsWith('na_allah_')) loadData(); };
-    window.addEventListener('storage', sync);
+    const handleSync = (e) => { if (e.key && e.key.startsWith('na_allah_')) loadData(); };
+    window.addEventListener('storage', handleSync);
     if (sessionStorage.getItem('na_allah_auth') === 'true') setIsAuthenticated(true);
-    return () => window.removeEventListener('storage', sync);
+    return () => window.removeEventListener('storage', handleSync);
   }, [loadData]);
 
   const save = (key, data) => { localStorage.setItem(key, JSON.stringify(data)); loadData(); };
@@ -78,22 +78,22 @@ function AdminPanel() {
     const updated = [...licenses, { id: Date.now(), ...newLicense }];
     save('na_allah_licenses', updated);
     setShowAddLicense(false);
-    setNewLicense({ title: '', link: '', status: 'Active' });
+    setNewLicense({ title: '', link: '', status: 'Official' });
   };
 
   const handleLicenseDelete = (id) => save('na_allah_licenses', licenses.filter(l => l.id !== id));
 
-  const login = (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     if (['2026', 'admin2026'].includes(passcode)) {
       setIsAuthenticated(true);
       sessionStorage.setItem('na_allah_auth', 'true');
-    } else setError('Invalid Passcode.');
+    } else setError('Passcode Error.');
   };
 
   if (!isAuthenticated) return (
     <div style={styles.loginPage}><div style={styles.loginCard}><Logo size={80} /><h2 style={{color: 'var(--primary-navy)', marginTop: '20px'}}>Access Control</h2>
-      <form onSubmit={login} style={{textAlign: 'left', marginTop: '30px'}}><label style={styles.label}>Console PIN</label>
+      <form onSubmit={handleLogin} style={{textAlign: 'left', marginTop: '30px'}}><label style={styles.label}>Console PIN</label>
         <input type="password" value={passcode} onChange={e => setPasscode(e.target.value)} style={styles.input} placeholder="****" />
         <button type="submit" className="btn btn-navy" style={{width: '100%', marginTop: '10px', padding: '16px'}}>Authorize Access</button>
       </form>
@@ -103,10 +103,10 @@ function AdminPanel() {
   return (
     <div style={styles.adminContainer}>
       <aside style={styles.sidebar}>
-        <div style={styles.sidebarHeader}><Logo size={60} /><p style={{color: 'var(--primary-gold)', fontWeight: 'bold', fontSize: '0.7rem', marginTop: '10px'}}>NA-ALLAH CONSOLE</p></div>
+        <div style={styles.sidebarHeader}><Logo size={60} /><p style={{color: 'var(--primary-gold)', fontWeight: 'bold', fontSize: '0.7rem', marginTop: '10px', letterSpacing: '2px'}}>NA-ALLAH CONSOLE</p></div>
         <ul style={{listStyle: 'none', padding: 0}}>
-          <li style={{...styles.navItem, ...(activeTab === 'dashboard' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('dashboard')}>📊 Overall Stats</li>
-          <li style={{...styles.navItem, ...(activeTab === 'bookings' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('bookings')}>📝 Latest Inquiries</li>
+          <li style={{...styles.navItem, ...(activeTab === 'dashboard' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('dashboard')}>📊 Summary</li>
+          <li style={{...styles.navItem, ...(activeTab === 'bookings' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('bookings')}>📝 Inquiries</li>
           <li style={{...styles.navItem, ...(activeTab === 'packages' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('packages')}>📦 Travel Plans</li>
           <li style={{...styles.navItem, ...(activeTab === 'licenses' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('licenses')}>📜 Credentials</li>
         </ul>
@@ -114,26 +114,29 @@ function AdminPanel() {
       </aside>
 
       <main style={styles.mainContent}>
-        <header style={styles.topbar}><button onClick={() => window.location.hash = ''} className="btn-outline" style={{padding: '10px 20px', borderRadius: '10px'}}>← Back to Site</button><h3>Admin Dashboard: {activeTab.toUpperCase()}</h3></header>
+        <header style={styles.topbar}>
+          <button 
+            onClick={() => window.location.hash = activeTab === 'packages' ? '#all-packages' : activeTab === 'licenses' ? '#credentials' : ''} 
+            className="btn-outline" 
+            style={{padding: '10px 20px', borderRadius: '10px'}}
+          >← Redirect to Page</button>
+          <h3>ADMIN - {activeTab.toUpperCase()}</h3>
+        </header>
+
         <div style={styles.contentArea}>
-          {activeTab === 'dashboard' && <div style={styles.grid2}><div style={styles.statCard}><h3>Inquiries (Total)</h3><p style={styles.statNum}>{bookings.length}</p></div><div style={styles.statCard}><h3>Active Licenses</h3><p style={styles.statNum}>{licenses.length}</p></div></div>}
+          {activeTab === 'dashboard' && <div style={styles.grid2}><div style={styles.statCard}><h3>Inquiries</h3><p style={styles.statNum}>{bookings.length}</p></div><div style={styles.statCard}><h3>Licenses</h3><p style={styles.statNum}>{licenses.length}</p></div></div>}
 
           {activeTab === 'bookings' && (
-            <div style={styles.tableCard}><table style={styles.table}><thead><tr><th>Name</th><th>Requested Package</th><th>Action</th></tr></thead>
+            <div style={styles.tableCard}><table style={styles.table}><thead><tr><th>Name</th><th>Request</th><th style={{width: '120px'}}>Action</th></tr></thead>
               <tbody>{bookings.map(b => (
-                <tr key={b.id}><td><strong>{b.name}</strong></td><td>{b.package}</td><td><button onClick={() => setViewingBooking(b)} style={styles.btnSm}>View Details</button></td></tr>
+                <tr key={b.id}><td><strong>{b.name}</strong></td><td>{b.package}</td><td><button onClick={() => setViewingBooking(b)} style={styles.btnSm}>Review</button></td></tr>
               ))}</tbody>
             </table></div>
           )}
 
           {activeTab === 'packages' && (
             <div className="animate-fade-in">
-              <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '40px', alignItems: 'center'}}>
-                <h3 style={{margin: 0}}>Hajj & Umrah Travel Plans</h3>
-                <button onClick={() => setShowAddPackage(true)} className="btn btn-navy" style={{padding: '12px 25px', display: 'flex', alignItems: 'center', gap: '8px'}}>
-                   <span style={{fontSize: '1.2rem'}}>✈️</span> + New Package
-                </button>
-              </div>
+              <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '30px'}}><h3>Hajj & Umrah Management</h3><button onClick={() => setShowAddPackage(true)} className="btn btn-navy" style={{display: 'flex', alignItems: 'center', gap: '8px'}}><span style={{fontSize: '1.2rem'}}>✈️</span> + New Package</button></div>
               <div style={styles.grid2}>{['ramadan', 'hajj'].map(cat => (
                 <div key={cat} style={styles.statCard}><h4 style={{textTransform: 'uppercase', marginBottom: '20px', color: 'var(--primary-gold)'}}>{cat} Pricing control</h4>
                   {packages[cat].map(p => (
@@ -151,32 +154,37 @@ function AdminPanel() {
           )}
 
           {activeTab === 'licenses' && (
-             <div style={styles.tableCard}><table style={styles.table}><thead><tr><th>Credential Name</th><th>Action</th></tr></thead>
+            <div>
+              <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '30px'}}>
+                <h3>Documentation & Certificates</h3>
+                <button onClick={() => setShowAddLicense(true)} className="btn btn-navy"><span style={{fontSize: '1.2rem'}}>📜</span> + Upload License</button>
+              </div>
+              <div style={styles.tableCard}><table style={styles.table}><thead><tr><th>Credential Name</th><th>Status</th><th style={{width: '200px'}}>Action Options</th></tr></thead>
                 <tbody>{licenses.map(l => (
-                  <tr key={l.id}><td>{l.title}</td><td><a href={l.link} target="_blank" rel="noreferrer" style={{color: 'var(--primary-navy)', fontWeight: 'bold', fontSize: '0.8rem'}}>View</a></td></tr>
+                  <tr key={l.id}>
+                    <td><strong>{l.title}</strong></td>
+                    <td><span style={{color: 'var(--primary-gold)', fontWeight: 'bold'}}>{l.status || 'Verified'}</span></td>
+                    <td>
+                       <div style={{display: 'flex', gap: '15px'}}>
+                          <a href={l.link} target="_blank" rel="noreferrer" style={{color: 'var(--primary-navy)', fontWeight: 'bold', fontSize: '0.8rem', textDecoration: 'none', borderBottom: '1px solid'}}>View</a>
+                          <button onClick={() => handleLicenseDelete(l.id)} style={{color: '#ff7675', background: 'none', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.8rem'}}>Delete</button>
+                       </div>
+                    </td>
+                  </tr>
                 ))}</tbody>
-             </table></div>
+              </table></div>
+            </div>
           )}
         </div>
       </main>
 
       {/* MODALS */}
-      {viewingBooking && (<div style={styles.overlay} onClick={() => setViewingBooking(null)}><div style={styles.modal} onClick={e => e.stopPropagation()}><div style={styles.mHead}><h2>Reference Inquiry</h2></div><div style={styles.mBody}>
-        <p><strong>Cust:</strong> {viewingBooking.name}</p><p><strong>Email:</strong> {viewingBooking.email}</p><div style={styles.msg}>{viewingBooking.message}</div><button onClick={() => setViewingBooking(null)} className="btn btn-navy" style={{width: '100%', marginTop: '20px'}}>Dismiss</button></div></div></div>)}
+      {viewingBooking && (<div style={styles.overlay} onClick={() => setViewingBooking(null)}><div style={styles.modal} onClick={e => e.stopPropagation()}><div style={styles.mHead}><h2>Inquiry Reference</h2></div><div style={styles.mBody}><p><strong>Cust:</strong> {viewingBooking.name}</p><p><strong>Email:</strong> {viewingBooking.email}</p><div style={styles.msg}>{viewingBooking.message}</div><button onClick={() => setViewingBooking(null)} className="btn btn-navy" style={{width: '100%', marginTop: '20px'}}>Done</button></div></div></div>)}
       
-      {showAddPackage && (<div style={styles.overlay} onClick={() => setShowAddPackage(false)}><div style={styles.modal} onClick={e => e.stopPropagation()}>
-        <div style={styles.mHead}>
-           <h2 style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px'}}>
-              <span style={{fontSize: '2rem'}}>📦</span> New Package
-           </h2>
-        </div>
-        <div style={styles.mBody}><form onSubmit={handlePackageAdd}>
-           <label style={styles.label}>Package Title</label><input required style={styles.input} value={newPackage.title} onChange={e => setNewPackage({...newPackage, title: e.target.value})} />
-           <label style={styles.label}>Price (₦)</label><input required style={styles.input} value={newPackage.price} onChange={e => setNewPackage({...newPackage, price: e.target.value})} />
-           <label style={styles.label}>Category</label><select style={styles.input} value={newPackage.category} onChange={e => setNewPackage({...newPackage, category: e.target.value})}><option value="ramadan">Ramadan</option><option value="hajj">Hajj</option></select>
-           <button type="submit" className="btn btn-navy" style={{width: '100%', marginTop: '30px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '1rem'}}>
-              <span style={{fontSize: '1.4rem'}}>🕋</span> Add Package
-           </button></form></div></div></div>)}
+      {showAddPackage && (<div style={styles.overlay} onClick={() => setShowAddPackage(false)}><div style={styles.modal} onClick={e => e.stopPropagation()}><div style={styles.mHead}><h2>📦 New Package</h2></div><div style={styles.mBody}><form onSubmit={handlePackageAdd}>
+        <label style={styles.label}>Title</label><input required style={styles.input} value={newPackage.title} onChange={e => setNewPackage({...newPackage, title: e.target.value})} /><label style={styles.label}>Price (₦)</label><input required style={styles.input} value={newPackage.price} onChange={e => setNewPackage({...newPackage, price: e.target.value})} /><label style={styles.label}>Type</label><select style={styles.input} value={newPackage.category} onChange={e => setNewPackage({...newPackage, category: e.target.value})}><option value="ramadan">Ramadan</option><option value="hajj">Hajj</option></select><button className="btn btn-navy" style={{width: '100%', marginTop: '20px'}}>🕋 Add Package</button></form></div></div></div>)}
+      
+      {showAddLicense && (<div style={styles.overlay} onClick={() => setShowAddLicense(false)}><div style={styles.modal} onClick={e => e.stopPropagation()}><div style={styles.mHead}><h2>📜 Upload Authority Doc</h2></div><div style={styles.mBody}><form onSubmit={handleLicenseAdd}><label style={styles.label}>Document Title</label><input required style={styles.input} value={newLicense.title} onChange={e => setNewLicense({...newLicense, title: e.target.value})} /><label style={styles.label}>Public Document URL (PDF/Web)</label><input required style={styles.input} value={newLicense.link} onChange={e => setNewLicense({...newLicense, link: e.target.value})} /><button className="btn btn-navy" style={{width: '100%', marginTop: '20px'}}>Add License</button></form></div></div></div>)}
     </div>
   );
 }
@@ -191,7 +199,7 @@ const styles = {
   topbar: { backgroundColor: 'white', height: '70px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', borderBottom: '1px solid #e1e1e1' },
   contentArea: { padding: '40px' },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' },
-  statCard: { backgroundColor: 'white', padding: '25px', borderRadius: '15px' },
+  statCard: { backgroundColor: 'white', padding: '25px', borderRadius: '15px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' },
   statNum: { fontSize: '3rem', margin: '15px 0', color: 'var(--primary-navy)', fontWeight: 'bold' },
   tableCard: { backgroundColor: 'white', borderRadius: '15px', padding: '20px', overflow: 'hidden' },
   table: { width: '100%', borderCollapse: 'collapse', textAlign: 'left' },
