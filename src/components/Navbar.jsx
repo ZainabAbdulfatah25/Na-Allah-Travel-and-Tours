@@ -12,7 +12,7 @@ function Navbar() {
         <ul style={{display: 'flex', gap: '30px', alignItems: 'center', margin: 0, padding: 0}}>
           <li><a href="#services" style={{fontWeight: 'bold', color: '#0a1f3d'}}>Services</a></li>
           <li><a href="#all-packages" style={{fontWeight: 'bold', color: '#0a1f3d'}}>Our Packages</a></li>
-          <li><a href="#admin" className="btn btn-navy" style={{padding: '10px 20px', fontSize: '0.85rem'}}>Admin Panel</a></li>
+          {/* Admin removed as requested */}
         </ul>
       </div>
     </nav>
