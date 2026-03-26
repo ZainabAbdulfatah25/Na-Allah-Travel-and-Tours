@@ -27,10 +27,21 @@ function Packages() {
     };
     handleSync();
     window.addEventListener('storage', handleSync);
-    const hash = window.location.hash;
-    const match = hash.match(/\?dest=(.*)/);
-    if (match) setSelectedDest(decodeURIComponent(match[1]));
-    return () => window.removeEventListener('storage', handleSync);
+    
+    const checkHash = () => {
+      const h = window.location.hash;
+      const match = h.match(/\?dest=(.*)/);
+      if (match) setSelectedDest(decodeURIComponent(match[1]));
+      else setSelectedDest('');
+    };
+    
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('hashchange', checkHash);
+    };
   }, []);
 
   const renderSection = (title, items) => (
