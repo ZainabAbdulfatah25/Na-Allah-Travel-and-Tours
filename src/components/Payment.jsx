@@ -68,14 +68,20 @@ function Payment() {
   }
 
   return (
-    <div style={styles.page}>
-      <div className="container" style={styles.container}>
+    <div style={{...styles.page, position: 'relative', overflow: 'hidden'}}>
+      {/* 3D background elements */}
+      <div style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0}}>
+        <div style={{...styles.blurBlob, top: '5%', left: '15%', background: 'rgba(212, 175, 55, 0.15)'}}></div>
+        <div style={{...styles.blurBlob, bottom: '5%', right: '15%', background: 'rgba(var(--primary-navy-rgb), 0.1)', animationDelay: '-8s'}}></div>
+      </div>
+
+      <div className="container" style={{...styles.container, position: 'relative', zIndex: 1}}>
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px'}}>
-           <button onClick={() => window.location.hash = ''} style={styles.backButtonTop}>← Home</button>
+           <button onClick={() => window.location.hash = ''} style={styles.backButtonTop} className="hover-lift">← Home</button>
            <h3 style={{color: 'var(--primary-navy)', margin: 0, fontWeight: '800'}}>Booking & Inquiries</h3>
         </div>
         
-        <div style={styles.card}>
+        <div style={styles.card} className="animate-fade-in-up glass-panel">
           <div style={styles.header}>
             <h2 style={{color: 'white', marginBottom: '10px'}}>Complete Your Trip</h2>
             <p style={{opacity: 0.9, fontSize: '0.9rem'}}>Official reservation form for Hajj & Umrah 2026.</p>
@@ -123,17 +129,17 @@ function Payment() {
                   <textarea placeholder="Tell us what you need to know..." style={styles.textarea} value={inquiryMsg} onChange={e => setInquiryMsg(e.target.value)} />
                   {inquirySent && <p style={styles.successMsg}>✓ Inquiry sent to Admin! We will email you.</p>}
                   <div style={{display: 'flex', gap: '10px', marginTop: '15px'}}>
-                    <button onClick={handleSubmitInquiry} className="btn btn-navy" style={{flex: 1, padding: '15px'}}>Submit Question</button>
-                    <button onClick={handleWhatsAppInquiry} style={styles.waBtnSimple}>WhatsApp Chat</button>
+                    <button onClick={handleSubmitInquiry} className="btn btn-navy hover-lift" style={{flex: 1, padding: '15px'}}>Submit Question</button>
+                    <button onClick={handleWhatsAppInquiry} style={styles.waBtnSimple} className="hover-lift">WhatsApp Chat</button>
                   </div>
                   <button onClick={() => setShowInquiryForm(false)} style={styles.cancelLink}>← Back to Booking</button>
                 </div>
               ) : (
                 <div style={styles.buttonStack}>
-                  <button onClick={handleConfirmBooking} className="btn btn-navy" style={{flex: 2, padding: '20px', borderRadius: '15px', fontWeight: 'bold'}}>
+                  <button onClick={handleConfirmBooking} className="btn btn-navy hover-lift" style={{flex: 2, padding: '20px', borderRadius: '15px', fontWeight: 'bold'}}>
                     Confirm My Booking
                   </button>
-                  <button onClick={() => setShowInquiryForm(true)} style={styles.inquireBtn}>
+                  <button onClick={() => setShowInquiryForm(true)} style={styles.inquireBtn} className="hover-lift">
                     <span style={{fontSize: '1.4rem'}}>❓</span> Inquiry / Help
                   </button>
                 </div>
@@ -174,7 +180,8 @@ const styles = {
   inquireBtn: { flex: 1, backgroundColor: '#fff', border: '1px solid #cbd5e1', borderRadius: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '5px', color: 'var(--primary-navy)' },
   waBtnSimple: { flex: 1, backgroundColor: '#25D366', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' },
   cancelLink: { border: 'none', background: 'none', marginTop: '15px', cursor: 'pointer', fontSize: '0.9rem', color: '#64748b' },
-  successMsg: { color: '#059669', padding: '10px 0', fontWeight: 'bold', fontSize: '0.9rem' }
+  successMsg: { color: '#059669', padding: '10px 0', fontWeight: 'bold', fontSize: '0.9rem' },
+  blurBlob: { position: 'absolute', width: '500px', height: '500px', borderRadius: '50%', filter: 'blur(100px)', animation: 'floatElement 20s ease-in-out infinite' }
 };
 
 export default Payment;

@@ -2,8 +2,6 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Footer from './components/Footer';
 import DestinationCard from './components/DestinationCard';
-
-import hajjBg from './assets/hajj-bg.jpg';
 import kaabaCloseup from './assets/kaaba-closeup.jpg';
 import kaabaNight from './assets/kaaba-night.jpg';
 import medinaSunset from './assets/medina-sunset.png';

@@ -74,10 +74,16 @@ function Packages() {
   );
 
   return (
-    <section id="all-packages" className="section-padding" style={styles.section}>
-      <div className="container">
+    <section id="all-packages" className="section-padding" style={{...styles.section, position: 'relative', overflow: 'hidden'}}>
+      {/* 3D Particle effect to make the page unique */}
+      <div style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0}}>
+        <div style={{...styles.blurBlob, top: '10%', left: '10%', background: 'rgba(212, 175, 55, 0.15)'}}></div>
+        <div style={{...styles.blurBlob, bottom: '20%', right: '5%', background: 'rgba(0, 162, 232, 0.1)'}}></div>
+      </div>
+
+      <div className="container" style={{position: 'relative', zIndex: 1}}>
         {window.location.hash.includes('all-packages') && (<button onClick={() => window.location.hash = ''} style={styles.backButtonTop}>← Back to Home</button>)}
-        <div style={{textAlign: 'center', marginBottom: '80px'}}>
+        <div style={{textAlign: 'center', marginBottom: '80px'}} className="animate-fade-in-up">
           <h1 style={{fontSize: '3.5rem', marginBottom: '15px'}}>Our 2026 Packages</h1>
           <p style={{fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '800px', margin: '0 auto'}}>Complete list of seasonal travel arrangements for spiritual journeys.</p>
         </div>
@@ -92,7 +98,8 @@ function Packages() {
 }
 
 const styles = {
-  section: { backgroundColor: '#fff', minHeight: '100vh', padding: '100px 0' },
+  section: { backgroundColor: 'var(--off-white)', minHeight: '100vh', padding: '100px 0' },
+  blurBlob: { position: 'absolute', width: '500px', height: '500px', borderRadius: '50%', filter: 'blur(100px)', animation: 'floatElement 15s ease-in-out infinite' },
   backButtonTop: { background: '#f1f5f9', border: 'none', padding: '12px 25px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '40px' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px' },
   card: { backgroundColor: 'white', borderRadius: '25px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.08)', border: '1px solid #f1f5f9' },

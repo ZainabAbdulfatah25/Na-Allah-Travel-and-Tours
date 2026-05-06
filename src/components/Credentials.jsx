@@ -1,101 +1,76 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function Credentials() {
-  const [licenses, setLicenses] = useState([]);
-  const [alertMsg, setAlertMsg] = useState('');
+  const [licenses, setLicenses] = useState([
+     { id: 1, title: 'Corporate Affairs Commission', status: 'Official' },
+     { id: 2, title: 'IATA Approved Agency', status: 'Verified' }
+  ]);
 
-  const loadData = () => {
-    const saved = JSON.parse(localStorage.getItem('na_allah_licenses')) || [
-       { id: 1, title: 'Corporate Affairs Commission', status: 'Official' },
-       { id: 2, title: 'NAHCON License 2026', status: 'Verified' },
-       { id: 3, title: 'IATA Travel Agency', status: 'Authorized' }
-    ];
-    setLicenses(saved);
+  const loadLicenses = () => {
+    const saved = JSON.parse(localStorage.getItem('na_allah_licenses'));
+    if (saved) setLicenses(saved);
   };
 
   useEffect(() => {
-    loadData();
-    const handleSync = (e) => { if (e.key === 'na_allah_licenses') loadData(); };
+    loadLicenses();
+    const handleSync = (e) => { if (e.key === 'na_allah_licenses') loadLicenses(); };
     window.addEventListener('storage', handleSync);
     return () => window.removeEventListener('storage', handleSync);
   }, []);
 
-  const handleOpenDoc = (dataUri) => {
-    if (!dataUri || dataUri === '#' || dataUri === '') {
-      setAlertMsg('This document is currently undergoing verification. Please check back shortly.');
-      return;
-    }
-
-    if (dataUri.startsWith('data:')) {
+  const openDoc = (link) => {
+    if (!link || link === '#') return alert('No file attached.');
+    if (link.startsWith('data:')) {
       try {
-        const type = dataUri.split(';')[0].split(':')[1];
-        const byteCharacters = atob(dataUri.split(',')[1]);
-        const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: type });
-        const fileURL = URL.createObjectURL(blob);
-        window.open(fileURL, '_blank');
-      } catch (e) { window.open(dataUri, '_blank'); }
-    } else {
-      window.open(dataUri, '_blank');
-    }
+        const type = link.split(';')[0].split(':')[1];
+        const bytes = atob(link.split(',')[1]);
+        const arr = new Uint8Array(bytes.length).map((_, i) => bytes.charCodeAt(i));
+        const blob = new Blob([arr], { type: type });
+        window.open(URL.createObjectURL(blob), '_blank');
+      } catch (e) { window.open(link, '_blank'); }
+    } else { window.open(link, '_blank'); }
   };
 
   return (
-    <section id="credentials" style={styles.section} className="animate-fade-in">
-      <div className="container" style={styles.container}>
-        <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-          <h2 style={{ fontSize: '2.8rem', color: 'var(--primary-navy)', marginBottom: '10px' }}>Agency <span style={{ color: 'var(--primary-gold)' }}>Trust Center</span></h2>
-          <p style={{ fontSize: '1rem', color: '#64748b', maxWidth: '600px', margin: '0 auto' }}>Official regulatory licenses verifying our status as a premier Hajj & Umrah provider.</p>
-        </div>
+    <section id="credentials" className="section-padding" style={{backgroundColor: 'var(--off-white)', position: 'relative', overflow: 'hidden'}}>
+      {/* Dynamic 3D elements for uniqueness */}
+      <div style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0}}>
+        <div style={{...styles.blurBlob, top: '20%', left: '-5%', background: 'rgba(212, 175, 55, 0.08)'}}></div>
+        <div style={{...styles.blurBlob, bottom: '10%', right: '-5%', background: 'rgba(5, 16, 36, 0.05)', animationDelay: '-5s'}}></div>
+      </div>
 
+      <div className="container" style={{position: 'relative', zIndex: 1}}>
+        <div style={{textAlign: 'center', marginBottom: '60px'}} className="animate-fade-in-up">
+          <h2 style={{color: 'var(--primary-navy)'}}>Official Authority Credentials</h2>
+          <p style={{color: '#64748b', fontSize: '1rem', marginTop: '5px'}}>Fully licensed for global and religious travel operations.</p>
+          <div style={{width: '60px', height: '4px', backgroundColor: 'var(--primary-gold)', margin: '15px auto 40px auto'}}></div>
+        </div>
+        
         <div style={styles.grid}>
-          {licenses.map((lic, index) => (
-            <div 
-              key={lic.id} 
-              style={{...styles.card, animationDelay: `${index * 0.15}s`}} 
-              className="cred-card-mini animate-up"
-            >
-              <div style={styles.iconBox}>📜</div>
-              <h3 style={styles.licTitle}>{lic.title}</h3>
-              <p style={styles.licStatus}>{lic.status || 'Verified'}</p>
-              <button 
-                onClick={() => handleOpenDoc(lic.link)} 
-                style={styles.docBtn}
-              >View Certificate →</button>
-            </div>
+          {licenses.map((l, idx) => (
+             <div 
+               key={l.id} 
+               style={{...styles.card, transitionDelay: `${idx * 0.1}s`}} 
+               className="animate-fade-in-up hover-lift glass-panel"
+             >
+               <div style={styles.badge}>{l.status || 'OFFICIAL'}</div>
+               <h3 style={styles.title}>{l.title}</h3>
+               <button onClick={() => openDoc(l.link)} className="btn-outline" style={styles.viewBtn}>Review Certification</button>
+             </div>
           ))}
         </div>
-
-        {alertMsg && (
-          <div style={styles.overlay} onClick={() => setAlertMsg('')}>
-             <div style={styles.modal} onClick={e => e.stopPropagation()}>
-                <div style={styles.mHead}>Notice</div>
-                <div style={styles.mBody}>
-                   <p style={{color: '#4b5563', fontSize: '0.9rem'}}>{alertMsg}</p>
-                   <button onClick={() => setAlertMsg('')} className="btn btn-navy" style={{width: '100%', marginTop: '20px', padding: '12px'}}>Got it</button>
-                </div>
-             </div>
-          </div>
-        )}
       </div>
     </section>
   );
 }
 
 const styles = {
-  section: { backgroundColor: '#fcfcfc', padding: '100px 0', minHeight: '80vh' },
-  container: { maxWidth: '1000px', margin: '0 auto', padding: '0 20px' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '25px' },
-  card: { backgroundColor: 'white', padding: '35px 25px', borderRadius: '24px', textAlign: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #f1f5f9', cursor: 'default' },
-  iconBox: { fontSize: '2rem', marginBottom: '10px' },
-  licTitle: { color: 'var(--primary-navy)', fontSize: '1rem', marginBottom: '8px', fontWeight: '800' },
-  licStatus: { display: 'inline-block', backgroundColor: '#f8fafc', color: 'var(--primary-gold)', padding: '4px 14px', borderRadius: '15px', fontSize: '0.75rem', fontWeight: 'bold', marginBottom: '20px' },
-  docBtn: { display: 'block', margin: '0 auto', background: 'none', border: 'none', color: 'var(--primary-navy)', fontSize: '0.85rem', fontWeight: 'bold', cursor: 'pointer', borderBottom: '2px solid' },
-  overlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 },
-  modal: { background: 'white', width: '340px', borderRadius: '20px', overflow: 'hidden', textAlign: 'center' },
-  mHead: { background: 'var(--primary-navy)', color: 'white', padding: '12px', fontWeight: 'bold' },
-  mBody: { padding: '25px' }
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px', maxWidth: '1000px', margin: '0 auto' },
+  card: { padding: '40px 30px', backgroundColor: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(10px)', borderRadius: 'var(--radius-lg)', textAlign: 'center', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.05)', border: '1px solid rgba(255,255,255,0.4)', position: 'relative' },
+  badge: { position: 'absolute', top: '20px', right: '20px', fontSize: '0.6rem', color: 'var(--primary-gold)', fontWeight: '900', letterSpacing: '2px', border: '1px solid var(--primary-gold)', padding: '4px 10px', borderRadius: '5px' },
+  title: { color: 'var(--primary-navy)', marginBottom: '30px', fontSize: '1.2rem', fontWeight: '800' },
+  viewBtn: { padding: '10px 20px', fontSize: '0.8rem', fontWeight: '800', width: '100%', borderRadius: '10px' },
+  blurBlob: { position: 'absolute', width: '400px', height: '400px', borderRadius: '50%', filter: 'blur(80px)', animation: 'floatElement 20s ease-in-out infinite' }
 };
 
 export default Credentials;

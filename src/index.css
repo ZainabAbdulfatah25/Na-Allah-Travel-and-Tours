@@ -1,42 +1,39 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  /* Brand Colors from Flyers */
-  --primary-navy: #0a1f3d;
-  --secondary-navy: #15325c;
-  --primary-gold: #d4af37;
-  --accent-gold: #e6c86a;
+  /* Premium Brand Colors (Derived from Logo) */
+  --primary-navy: #2e3192; /* Deep Royal Blue from logo top arc */
+  --secondary-navy: #1a1c5b; /* Darker shade for depth */
+  --primary-accent: #00a2e8; /* Sky Blue from logo bottom arc */
+  --primary-gold: #f39c12; /* Warm orange/gold accent (complements blue, matches plane stripe) */
+  --accent-gold: #f1c40f;
   --light-gold: #fdfaf0;
   
   /* Neutrals */
   --clear-white: #ffffff;
-  --off-white: #fafafa;
-  --text-main: #333333;
-  --text-muted: #666666;
-  --text-light: #f5f5f5;
-  
-  /* Layout Constants */
-  --max-width: 1280px;
-  --radius-sm: 8px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
+  --off-white: #f8fafc;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-light: rgba(255,255,255,0.1);
+  --border-dark: #e2e8f0;
+
+  /* Geometry & Effects */
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 32px;
   --radius-full: 9999px;
   
-  /* Transitions */
-  --transition-fast: 0.2s ease;
-  --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 15px 35px -5px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 30px 60px -15px rgba(0, 0, 0, 0.1);
+  --shadow-gold: 0 10px 30px -10px rgba(212, 175, 55, 0.5);
+  --shadow-navy: 0 15px 40px -10px rgba(5, 16, 36, 0.5);
   
-  /* Shadows */
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-gold: 0 8px 30px rgba(212, 175, 55, 0.3);
+  /* Transitions */
+  --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: 'Outfit', sans-serif;
@@ -45,110 +42,84 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  cursor: default;
 }
 
-a {
-  text-decoration: none;
-  color: inherit;
-  transition: color var(--transition-fast);
-}
+a { text-decoration: none; color: inherit; transition: var(--transition-smooth); }
+ul { list-style: none; }
+button { font-family: 'Outfit', sans-serif; cursor: pointer; border: none; background: none; }
 
-ul {
-  list-style: none;
-}
+/* Typography */
+h1, h2, h3, h4 { font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; }
+h1 { font-size: clamp(3rem, 6vw, 5.5rem); }
+h2 { font-size: clamp(2.5rem, 4.5vw, 4rem); margin-bottom: 1.5rem; }
 
-button {
-  font-family: 'Outfit', sans-serif;
-  cursor: pointer;
-  border: none;
-  background: none;
-}
-
-/* Typography Utility */
-h1, h2, h3, h4 {
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-h1 {
-  font-size: clamp(2.5rem, 5vw, 4rem);
-}
-
-h2 {
-  font-size: clamp(2rem, 4vw, 3rem);
-  margin-bottom: 1rem;
-}
-
-h3 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-/* Layout Core */
-.container {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0 5%;
-}
-
-.section-padding {
-  padding: 100px 0;
-}
+.container { max-width: 1400px; margin: 0 auto; padding: 0 5%; }
+.section-padding { padding: 120px 0; }
 
 /* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 28px;
+  padding: 16px 36px;
   border-radius: var(--radius-full);
-  font-weight: 600;
-  font-size: 1rem;
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
   transition: all var(--transition-smooth);
 }
 
-.btn-primary {
-  background-color: var(--primary-gold);
-  color: var(--primary-navy);
-  box-shadow: var(--shadow-gold);
+.btn-primary { 
+  background: linear-gradient(135deg, var(--primary-gold), #b38b22); 
+  color: var(--clear-white); 
+  box-shadow: var(--shadow-gold); 
+}
+.btn-primary:hover { 
+  transform: translateY(-4px) scale(1.02); 
+  box-shadow: 0 20px 40px -10px rgba(212, 175, 55, 0.6); 
 }
 
-.btn-primary:hover {
-  background-color: var(--accent-gold);
-  transform: translateY(-2px);
+.btn-outline { 
+  border: 2px solid var(--primary-gold); 
+  color: var(--primary-gold); 
+}
+.btn-outline:hover { 
+  background-color: var(--primary-gold); 
+  color: var(--clear-white); 
 }
 
-.btn-outline {
-  border: 2px solid var(--primary-gold);
-  color: var(--primary-gold);
-  background-color: transparent;
+.btn-navy { 
+  background: linear-gradient(135deg, var(--primary-navy), var(--secondary-navy)); 
+  color: var(--clear-white); 
+  box-shadow: var(--shadow-navy); 
+}
+.btn-navy:hover { 
+  transform: translateY(-4px) scale(1.02); 
+  box-shadow: 0 20px 40px -10px rgba(5, 16, 36, 0.6); 
 }
 
-.btn-outline:hover {
-  background-color: var(--primary-gold);
-  color: var(--primary-navy);
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-lg);
 }
 
-.btn-navy {
-  background-color: var(--primary-navy);
-  color: var(--clear-white);
+.glass-panel-dark {
+  background: rgba(5, 16, 36, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow-lg);
 }
 
-.btn-navy:hover {
-  background-color: var(--secondary-navy);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(10, 31, 61, 0.4);
-}
-
-/* 🎭 Na-Allah Professional Motion Design System */
+/* Motion Design System */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(40px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.92); }
-  to { opacity: 1; transform: scale(1); }
 }
 
 @keyframes slideDown {
@@ -156,38 +127,52 @@ h3 {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.animate-fade-in-up {
-  opacity: 0;
-  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+@keyframes pulseGold {
+  0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+  70% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
 }
 
-.animate-scale {
+@keyframes floatElement {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(3deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes textShine {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-fade-in-up {
   opacity: 0;
-  animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-slide-down {
   opacity: 0;
-  animation: slideDown 0.6s ease-out forwards;
+  animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.delay-1 { animation-delay: 0.1s; }
-.delay-2 { animation-delay: 0.2s; }
-.delay-3 { animation-delay: 0.3s; }
-.delay-4 { animation-delay: 0.4s; }
-.delay-5 { animation-delay: 0.5s; }
+.delay-1 { animation-delay: 0.15s; }
+.delay-2 { animation-delay: 0.3s; }
+.delay-3 { animation-delay: 0.45s; }
+.delay-4 { animation-delay: 0.6s; }
 
+/* 🌟 Hover Physics */
 .hover-lift {
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.5s ease;
 }
 
 .hover-lift:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 40px rgba(10, 31, 61, 0.12);
+  transform: translateY(-12px);
+  box-shadow: var(--shadow-lg);
 }
 
 .nav-link-hover {
   position: relative;
+  overflow: hidden;
 }
 
 .nav-link-hover::after {
@@ -203,14 +188,4 @@ h3 {
 
 .nav-link-hover:hover::after {
   width: 100%;
-}
-
-/* Original Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.8s ease forwards;
 }

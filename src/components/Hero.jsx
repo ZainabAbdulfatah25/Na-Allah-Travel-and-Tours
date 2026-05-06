@@ -1,8 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import HeroParticles from './HeroParticles';
 
 function Hero() {
   const [destination, setDestination] = useState('');
+  const [slogan, setSlogan] = useState('Experience the Ultimate Spiritual Journey with Luxury & Comfort.');
   
+  const loadSlogan = () => {
+    const saved = JSON.parse(localStorage.getItem('na_allah_settings'));
+    if (saved && saved.heroSlogan) setSlogan(saved.heroSlogan);
+  };
+
+  useEffect(() => {
+    loadSlogan();
+    const handleSync = (e) => { if (e.key === 'na_allah_settings') loadSlogan(); };
+    window.addEventListener('storage', handleSync);
+    return () => window.removeEventListener('storage', handleSync);
+  }, []);
+
   const handleSearch = (e) => {
     e.preventDefault();
     window.location.hash = destination ? `#all-packages?dest=${encodeURIComponent(destination.toLowerCase())}` : '#all-packages';
@@ -10,25 +24,35 @@ function Hero() {
 
   return (
     <section className="hero-section" style={styles.hero}>
-      <div className="container" style={{textAlign: 'center', position: 'relative', zIndex: 1}}>
-        <h1 style={styles.heading} className="animate-fade-in-up">Your Journey to the <span style={{color: 'var(--primary-gold)'}}>Holy Land</span> Begins Here.</h1>
-        <p style={styles.subtext} className="animate-fade-in-up delay-1">Providing premium Hajj, Umrah, and Global travel solutions with over 15 years of excellence.</p>
+      <HeroParticles />
+      <div className="container" style={styles.containerGrid}>
         
-        <form onSubmit={handleSearch} style={{maxWidth: '650px', margin: '0 auto'}} className="animate-fade-in-up delay-2">
-          <select 
-            style={styles.select} 
-            value={destination} 
-            onChange={(e) => setDestination(e.target.value)}
-          >
-             <option value="">Where are you going?</option>
-             <option value="mecca">Mecca (Hajj/Umrah)</option>
-             <option value="medina">Medina</option>
-          </select>
-          <div style={{display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center'}}>
-            <button type="submit" className="btn btn-navy hover-lift" style={{padding: '16px 45px', fontSize: '1rem', fontWeight: 'bold'}}>Search Packages</button>
-            <a href="#all-packages" className="btn btn-primary hover-lift" style={{padding: '16px 45px', fontSize: '1rem', fontWeight: 'bold', textDecoration: 'none'}}>Book Now</a>
-          </div>
-        </form>
+        <div style={styles.textSide}>
+          <h1 style={styles.heading} className="animate-fade-in-up">
+            Your Journey to the <br/>
+            <span style={styles.gradientText}>Holy Land</span> Begins Here.
+          </h1>
+          <p style={styles.subtext} className="animate-fade-in-up delay-1">{slogan}</p>
+        </div>
+        
+        <div style={styles.widgetSide} className="animate-fade-in-up delay-2">
+          <form onSubmit={handleSearch} className="glass-panel-dark" style={styles.searchWidget}>
+            <div style={{flex: '1', textAlign: 'left', width: '100%'}}>
+              <label style={styles.label}>Select Destination</label>
+              <select 
+                style={styles.select} 
+                value={destination} 
+                onChange={(e) => setDestination(e.target.value)}
+              >
+                 <option value="" style={{color: '#333'}}>Where to?</option>
+                 <option value="mecca" style={{color: '#333'}}>Mecca (Hajj/Umrah)</option>
+                 <option value="medina" style={{color: '#333'}}>Medina</option>
+              </select>
+            </div>
+            <button type="submit" className="btn btn-primary hover-lift" style={{padding: '18px 40px', width: '100%', marginTop: '20px'}}>Search Packages</button>
+          </form>
+        </div>
+        
       </div>
     </section>
   );
@@ -36,19 +60,47 @@ function Hero() {
 
 const styles = {
   hero: { 
-    minHeight: '85vh', 
+    minHeight: '100vh', 
     display: 'flex', 
     alignItems: 'center', 
     backgroundColor: 'var(--primary-navy)',
-    backgroundImage: 'linear-gradient(rgba(10, 31, 61, 0.8), rgba(10, 31, 61, 0.8)), url("https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?auto=format&fit=crop&q=80&w=2070")',
+    backgroundImage: 'linear-gradient(to right, rgba(5, 16, 36, 0.95) 20%, rgba(5, 16, 36, 0.6) 100%), url("https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?auto=format&fit=crop&q=80&w=2070")',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
+    backgroundAttachment: 'fixed',
     color: 'white',
-    paddingTop: '60px'
+    paddingTop: '80px',
+    position: 'relative'
   },
-  heading: { fontSize: '4.2rem', fontWeight: '900', lineHeight: '1.1', marginBottom: '20px' },
-  subtext: { fontSize: '1.4rem', color: 'rgba(255,255,255,0.7)', marginBottom: '50px', maxWidth: '750px', margin: '0 auto 60px auto' },
-  select: { width: '100%', padding: '18px 25px', borderRadius: '15px', border: 'none', marginBottom: '25px', fontSize: '1rem', color: 'var(--primary-navy)', fontWeight: 'bold' }
+  containerGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 400px',
+    gap: '60px',
+    alignItems: 'center',
+    position: 'relative',
+    zIndex: 1,
+    width: '100%'
+  },
+  textSide: { textAlign: 'left', paddingRight: '40px' },
+  heading: { fontSize: 'clamp(4rem, 7vw, 6.5rem)', fontWeight: '900', lineHeight: '0.95', marginBottom: '30px', letterSpacing: '-0.04em', textTransform: 'uppercase' },
+  gradientText: { 
+    background: 'linear-gradient(135deg, var(--primary-accent), var(--primary-gold))', 
+    WebkitBackgroundClip: 'text', 
+    WebkitTextFillColor: 'transparent',
+    display: 'inline-block'
+  },
+  subtext: { fontSize: 'clamp(1.2rem, 2vw, 1.5rem)', color: 'rgba(255,255,255,0.7)', marginBottom: '0', maxWidth: '600px', fontWeight: '500', lineHeight: '1.6' },
+  widgetSide: { position: 'relative' },
+  searchWidget: { 
+    display: 'flex', 
+    flexDirection: 'column',
+    padding: '40px', 
+    borderRadius: 'var(--radius-lg)',
+    boxShadow: 'var(--shadow-lg)',
+    transform: 'translateY(20px)'
+  },
+  label: { display: 'block', fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.7)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '15px' },
+  select: { width: '100%', padding: '18px 25px', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(255,255,255,0.05)', fontSize: '1.2rem', color: 'white', fontWeight: '700', outline: 'none', backdropFilter: 'blur(10px)', transition: 'all 0.3s' }
 };
 
 export default Hero;

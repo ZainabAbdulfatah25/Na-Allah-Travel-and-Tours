@@ -18,8 +18,25 @@ function App() {
       window.scrollTo(0, 0); 
     };
     window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+
+    // 🎭 Na-Allah Motion Activation Engine
+    const observerOptions = { threshold: 0.15, rootMargin: '0px 0px -50px 0px' };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, observerOptions);
+
+    const animatedElements = document.querySelectorAll('.animate-fade-in-up, .animate-scale, .animate-slide-down');
+    animatedElements.forEach(el => observer.observe(el));
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      observer.disconnect();
+    };
+  }, [currentHash]);
 
   // Dedicated Admin Console
   if (currentHash === '#admin') return <AdminPanel />;
