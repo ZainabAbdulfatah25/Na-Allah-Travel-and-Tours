@@ -13,11 +13,11 @@ function Navbar() {
 
   return (
     <>
-      <div style={{...styles.logoContainer, color: 'white'}}>
+      <div className="nav-logo-container" style={{...styles.logoContainer, color: 'white'}}>
         <Logo size={80} showText={true} />
       </div>
 
-      <nav className="glass-panel" style={{...styles.pillNav, width: menuOpen ? '320px' : '180px', height: menuOpen ? 'auto' : '65px', padding: menuOpen ? '20px' : '0 20px', borderRadius: menuOpen ? '30px' : '35px'}}>
+      <nav className="glass-panel nav-pill-container" style={{...styles.pillNav, width: menuOpen ? '320px' : '180px', height: menuOpen ? 'auto' : '65px', padding: menuOpen ? '20px' : '0 20px', borderRadius: menuOpen ? '30px' : '35px'}}>
         <div style={styles.pillHeader} onClick={() => setMenuOpen(!menuOpen)}>
            <span style={{fontWeight: '800', fontSize: '1rem', color: 'var(--primary-navy)'}}>{menuOpen ? 'CLOSE' : 'MENU'}</span>
            <div style={styles.burger}>

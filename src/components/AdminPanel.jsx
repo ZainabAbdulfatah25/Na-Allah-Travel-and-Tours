@@ -171,7 +171,7 @@ function AdminPanel() {
   );
 
   return (
-    <div style={styles.adminContainer}>
+    <div style={styles.adminContainer} className="mobile-stack">
       <aside style={styles.sidebar}>
         <div style={styles.sidebarHeader}><Logo size={60} /><p style={{color: 'var(--primary-gold)', fontWeight: 'bold', fontSize: '0.7rem', marginTop: '12px', letterSpacing: '2.5px'}}>NA-ALLAH CONSOLE</p></div>
         <ul style={{listStyle: 'none', padding: 0}}>

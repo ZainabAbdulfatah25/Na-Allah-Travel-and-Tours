@@ -189,3 +189,46 @@ h2 { font-size: clamp(2.5rem, 4.5vw, 4rem); margin-bottom: 1.5rem; }
 .nav-link-hover:hover::after {
   width: 100%;
 }
+
+/* 📱 Responsive Adjustments */
+@media (max-width: 868px) {
+  .container { padding: 0 20px; }
+  .section-padding { padding: 60px 0; }
+  h1 { font-size: 2.2rem; }
+  h2 { font-size: 2rem; }
+  
+  /* Force flex/grid wrappers to stack on mobile */
+  .mobile-stack { flex-direction: column !important; }
+  
+  /* Make all auto-fit grids respect screen width */
+  div[style*="minmax("] { grid-template-columns: 1fr !important; gap: 20px !important; }
+  
+  /* Fix hardcoded form grids and hero grids */
+  form[style*="grid"],
+  div[style*="1fr 400px"] { grid-template-columns: 1fr !important; gap: 20px !important; }
+  
+  /* Fix padding for main content areas */
+  div[style*="padding: 50px"], 
+  div[style*="padding: 60px"] { padding: 25px !important; }
+
+  /* Ensure fixed width elements shrink */
+  div[style*="width: 500px"], 
+  div[style*="width: 420px"], 
+  div[style*="width: 280px"] {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  /* Navbar specific fixes */
+  .nav-logo-container { top: 15px !important; left: 15px !important; }
+  .nav-logo-container svg { width: 50px !important; height: 50px !important; }
+  .nav-logo-container span { font-size: 1rem !important; }
+  .nav-pill-container { top: 15px !important; right: 15px !important; width: 140px !important; height: 50px !important; }
+  .nav-pill-container > div { height: 50px !important; }
+  
+  /* Admin Topbar fixes */
+  header[style*="height: 80px"] { padding: 0 20px !important; }
+  
+  /* Table responsive wrapper */
+  table { display: block; overflow-x: auto; white-space: nowrap; }
+}
