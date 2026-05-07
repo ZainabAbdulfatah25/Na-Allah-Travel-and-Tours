@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../supabaseClient';
 
 function Payment() {
   const [formData, setFormData] = useState({ name: '', email: '', packageDetails: 'Standard Ramadan Package (Full)' });
@@ -13,8 +14,7 @@ function Payment() {
     if (match) setFormData(prev => ({...prev, packageDetails: decodeURIComponent(match[1])}));
   }, []);
 
-  const saveToAdmin = (type, message) => {
-    const currentBookings = JSON.parse(localStorage.getItem('na_allah_bookings')) || [];
+  const saveToAdmin = async (type, message) => {
     const newEntry = {
       id: Date.now(),
       ...formData,
@@ -24,7 +24,28 @@ function Payment() {
       phone: 'Web User',
       message: type === 'booking' ? `OFFICIAL BOOKING: ${formData.packageDetails}` : `INQUIRY: ${message}`
     };
+    
+    // Local fallback
+    const currentBookings = JSON.parse(localStorage.getItem('na_allah_bookings')) || [];
     localStorage.setItem('na_allah_bookings', JSON.stringify([newEntry, ...currentBookings]));
+    
+    // Cloud sync
+    try {
+      const { error } = await supabase
+        .from('na_allah_bookings')
+        .insert([{ 
+           name: newEntry.name, 
+           phone: newEntry.phone, 
+           email: newEntry.email, 
+           package: newEntry.package, 
+           message: newEntry.message,
+           status: newEntry.status,
+           date: newEntry.date
+        }]);
+      if (error) console.error("Error saving to Supabase:", error);
+    } catch (err) {
+      console.error("Supabase connection error:", err);
+    }
   };
 
   const handleConfirmBooking = (e) => {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../supabaseClient';
 
 function ContactForm() {
   const [formData, setFormData] = useState({ name: '', phone: '', email: '', package: 'General Inquiry', message: '' });
@@ -17,11 +18,32 @@ function ContactForm() {
     return () => window.removeEventListener('storage', handleSync);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const currentBookings = JSON.parse(localStorage.getItem('na_allah_bookings')) || [];
     const newInquiry = { id: Date.now(), ...formData, status: 'Pending', date: new Date().toISOString().split('T')[0] };
+    
+    // Local fallback
+    const currentBookings = JSON.parse(localStorage.getItem('na_allah_bookings')) || [];
     localStorage.setItem('na_allah_bookings', JSON.stringify([newInquiry, ...currentBookings]));
+    
+    // Cloud sync
+    try {
+      const { error } = await supabase
+        .from('na_allah_bookings')
+        .insert([{ 
+           name: formData.name, 
+           phone: formData.phone, 
+           email: formData.email, 
+           package: formData.package, 
+           message: formData.message,
+           status: 'Pending',
+           date: new Date().toISOString().split('T')[0]
+        }]);
+      if (error) console.error("Error saving to Supabase:", error);
+    } catch (err) {
+      console.error("Supabase connection error:", err);
+    }
+
     setSubmitted(true);
     setFormData({ name: '', phone: '', email: '', package: 'General Inquiry', message: '' });
   };

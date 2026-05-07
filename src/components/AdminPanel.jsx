@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { supabase } from '../supabaseClient';
 import Logo from './Logo';
 
 function AdminPanel() {
@@ -94,6 +95,27 @@ function AdminPanel() {
     setDestinations(dst);
     setServices(sv);
     setAdmins(ad);
+
+    // Sync with Cloud (Supabase)
+    const fetchCloudData = async () => {
+      try {
+        const { data: bookingsData, error: bErr } = await supabase.from('na_allah_bookings').select('*').order('id', { ascending: false });
+        if (bookingsData && !bErr && bookingsData.length > 0) {
+          setBookings(bookingsData);
+          localStorage.setItem('na_allah_bookings', JSON.stringify(bookingsData));
+        }
+
+        const { data: adminsData, error: aErr } = await supabase.from('na_allah_admins').select('*').order('id', { ascending: true });
+        if (adminsData && !aErr && adminsData.length > 0) {
+          setAdmins(adminsData);
+          localStorage.setItem('na_allah_admins', JSON.stringify(adminsData));
+        }
+      } catch (err) {
+        console.error("Supabase fetch error:", err);
+      }
+    };
+    fetchCloudData();
+    
   }, []);
 
   useEffect(() => {
@@ -180,12 +202,21 @@ function AdminPanel() {
     alert('Global Systems Synced. Branding and contact details updated across the site.');
   };
 
-  const handleAdminCreate = (e) => {
+  const handleAdminCreate = async (e) => {
     e.preventDefault();
     if (newAdminData.pin.length < 4) return alert('PIN must be at least 4 digits');
     if (admins.some(a => a.email === newAdminData.email)) return alert('An admin with this email already exists.');
     
     const newAdmin = { id: Date.now(), email: newAdminData.email, pin: newAdminData.pin, role: 'Admin', date: new Date().toISOString().split('T')[0] };
+    
+    // Cloud sync
+    try {
+      const { error } = await supabase.from('na_allah_admins').insert([newAdmin]);
+      if (error) console.error('Error syncing admin to Supabase:', error);
+    } catch (err) {
+      console.error(err);
+    }
+
     const updatedAdmins = [...admins, newAdmin];
     setAdmins(updatedAdmins);
     save('na_allah_admins', updatedAdmins);
@@ -195,21 +226,27 @@ function AdminPanel() {
     alert(`Admin account successfully created for ${newAdminData.email}!`);
   };
 
-  const handleAuth = (e) => {
+  const handleAuth = async (e) => {
     e.preventDefault();
     if (authMode === 'signin') {
-      const user = admins.find(a => a.email === email && a.pin === passcode);
+      setIsLoading(true);
+      let user = admins.find(a => a.email === email && a.pin === passcode);
+      
+      try {
+         const { data, error } = await supabase.from('na_allah_admins').select('*').eq('email', email).eq('pin', passcode).single();
+         if (data && !error) user = data;
+      } catch (err) { console.error('Supabase auth error:', err); }
+
       if (user || (['2026', settings.adminPin].includes(passcode) && email === 'admin@naallahtravels.com')) { 
-        setIsLoading(true);
         setTimeout(() => {
           setIsAuthenticated(true); 
           setCurrentUser(email);
           sessionStorage.setItem('na_allah_auth', 'true'); 
           sessionStorage.setItem('na_allah_user', email); 
           setIsLoading(false);
-        }, 1500);
+        }, 1000);
       }
-      else setError('Invalid Email or PIN Error.');
+      else { setError('Invalid Email or PIN Error.'); setIsLoading(false); }
     } else if (authMode === 'forgot') {
       if (!email) { setError('Email is required'); return; }
       if (passcode.length < 4) { setError('New PIN must be at least 4 digits'); return; }
@@ -217,11 +254,14 @@ function AdminPanel() {
       const userIndex = admins.findIndex(a => a.email === email);
       if (userIndex !== -1) {
          setIsLoading(true);
-         setTimeout(() => {
+         setTimeout(async () => {
            const updatedAdmins = [...admins];
            updatedAdmins[userIndex].pin = passcode;
            setAdmins(updatedAdmins);
            save('na_allah_admins', updatedAdmins);
+           
+           try { await supabase.from('na_allah_admins').update({ pin: passcode }).eq('email', email); } catch(err) {}
+
            setAuthMode('signin');
            setPasscode('');
            setError('PIN Reset Successful! Please login with your new PIN.');
@@ -274,7 +314,7 @@ function AdminPanel() {
     setError(`New PIN generated successfully!`);
   };
 
-  const handleChangeMyPin = (e) => {
+  const handleChangeMyPin = async (e) => {
     e.preventDefault();
     if (newPersonalPin.length < 4) return alert('PIN must be at least 4 digits');
     
@@ -288,6 +328,7 @@ function AdminPanel() {
         updatedAdmins[userIndex].pin = newPersonalPin;
         setAdmins(updatedAdmins);
         save('na_allah_admins', updatedAdmins);
+        try { await supabase.from('na_allah_admins').update({ pin: newPersonalPin }).eq('email', currentUser); } catch(err) {}
       }
     }
     alert('Personal PIN updated successfully!');
@@ -523,10 +564,11 @@ function AdminPanel() {
                 <tbody>{admins.map(a => (
                   <tr key={a.id}><td><strong>{a.email}</strong></td><td><span style={{color: a.role === 'Super Admin' ? 'var(--primary-gold)' : 'var(--primary-navy)', fontWeight: 'bold', background: 'rgba(0,0,0,0.05)', padding: '5px 10px', borderRadius: '10px'}}>{a.role}</span></td><td>{a.date}</td><td>
                     {a.role !== 'Super Admin' && (
-                      <button onClick={() => {
+                      <button onClick={async () => {
                         const updated = admins.filter(ax => ax.id !== a.id);
                         setAdmins(updated);
                         save('na_allah_admins', updated);
+                        try { await supabase.from('na_allah_admins').delete().eq('id', a.id); } catch(err) {}
                       }} style={{color: '#ff7675', background: 'rgba(255,118,117,0.1)', border: '1px solid rgba(255,118,117,0.3)', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.8rem', padding: '8px 15px', borderRadius: '8px'}}>Revoke Access</button>
                     )}
                   </td></tr>
