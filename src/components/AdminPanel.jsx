@@ -15,6 +15,8 @@ function AdminPanel() {
   const [showAddPackage, setShowAddPackage] = useState(false);
   const [showAddLicense, setShowAddLicense] = useState(false);
   const [showAddService, setShowAddService] = useState(false);
+  const [showAddAdmin, setShowAddAdmin] = useState(false);
+  const [pinPopup, setPinPopup] = useState(null);
   
   const [editingLicense, setEditingLicense] = useState(null);
   const [editingPackage, setEditingPackage] = useState(null);
@@ -39,6 +41,7 @@ function AdminPanel() {
   const [newPackage, setNewPackage] = useState({ title: '', price: '', category: 'ramadan' });
   const [newLicense, setNewLicense] = useState({ title: '', link: '', status: 'Official' });
   const [newService, setNewService] = useState({ title: '', icon: '✈️', desc: '' });
+  const [newAdminData, setNewAdminData] = useState({ email: '', pin: '' });
   
   const [bookings, setBookings] = useState([]);
   const [packages, setPackages] = useState({ ramadan: [], hajj: [] });
@@ -153,6 +156,21 @@ function AdminPanel() {
     alert('Global Systems Synced. Branding and contact details updated across the site.');
   };
 
+  const handleAdminCreate = (e) => {
+    e.preventDefault();
+    if (newAdminData.pin.length < 4) return alert('PIN must be at least 4 digits');
+    if (admins.some(a => a.email === newAdminData.email)) return alert('An admin with this email already exists.');
+    
+    const newAdmin = { id: Date.now(), email: newAdminData.email, pin: newAdminData.pin, role: 'Admin', date: new Date().toISOString().split('T')[0] };
+    const updatedAdmins = [...admins, newAdmin];
+    setAdmins(updatedAdmins);
+    save('na_allah_admins', updatedAdmins);
+    
+    setShowAddAdmin(false);
+    setNewAdminData({ email: '', pin: '' });
+    alert(`Admin account successfully created for ${newAdminData.email}!`);
+  };
+
   const handleAuth = (e) => {
     e.preventDefault();
     if (authMode === 'signin') {
@@ -226,10 +244,8 @@ function AdminPanel() {
     const randomPin = Math.floor(1000 + Math.random() * 9000).toString();
     setPasscode(randomPin);
     
-    const mailtoLink = `mailto:${email}?cc=${settings.email}&subject=Secure Admin PIN - Na-Allah Travels&body=Hello!%0A%0AYour generated Admin Control PIN for Na-Allah Travels is: ${randomPin}%0A%0APlease keep this secure and do not share it.`;
-    window.location.href = mailtoLink;
-    
-    setError(`New PIN generated! Securely emailing to ${email} and HQ...`);
+    setPinPopup({ email, pin: randomPin });
+    setError(`New PIN generated successfully!`);
   };
 
   if (!isAuthenticated) return (
@@ -397,7 +413,7 @@ function AdminPanel() {
           )}
 
           {activeTab === 'users' && (
-             <div className="animate-fade-in"><div style={styles.tableCard}><div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '20px'}}><h3 style={{margin: 0}}>Admin Directory</h3></div><table style={styles.table}><thead><tr><th>Email</th><th>Role</th><th>Date Added</th><th>Options</th></tr></thead>
+             <div className="animate-fade-in"><div style={styles.tableCard}><div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '20px'}}><h3 style={{margin: 0}}>Admin Directory</h3><button onClick={() => setShowAddAdmin(true)} className="btn btn-navy">👥 + Create Admin</button></div><table style={styles.table}><thead><tr><th>Email</th><th>Role</th><th>Date Added</th><th>Options</th></tr></thead>
                 <tbody>{admins.map(a => (
                   <tr key={a.id}><td><strong>{a.email}</strong></td><td><span style={{color: a.role === 'Super Admin' ? 'var(--primary-gold)' : 'var(--primary-navy)', fontWeight: 'bold', background: 'rgba(0,0,0,0.05)', padding: '5px 10px', borderRadius: '10px'}}>{a.role}</span></td><td>{a.date}</td><td>
                     {a.role !== 'Super Admin' && (
@@ -456,8 +472,54 @@ function AdminPanel() {
 
       {viewingBooking && (<div style={styles.overlay} onClick={() => setViewingBooking(null)}><div style={styles.modal} onClick={e => e.stopPropagation()}><div style={styles.mHead}><h2>Private Inquiry Detail</h2></div><div style={styles.mBody}><div style={styles.msg}>{viewingBooking.message}</div><button onClick={() => setViewingBooking(null)} className="btn btn-navy" style={{width: '100%', marginTop: '30px'}}>Noted</button></div></div></div>)}
       
+      {showAddAdmin && (
+        <div style={styles.overlay}>
+          <div style={styles.modal}>
+            <div style={styles.mHead}><h2>👥 Create New Admin</h2></div>
+            <div style={styles.mBody}>
+              <form onSubmit={handleAdminCreate} style={{textAlign: 'left'}}>
+                <label style={styles.label}>Admin Email</label>
+                <input required type="email" style={{...styles.input, marginBottom: '20px'}} value={newAdminData.email} onChange={e => setNewAdminData({...newAdminData, email: e.target.value})} placeholder="new.admin@naallahtravels.com" />
+                
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
+                   <label style={styles.label}>Control PIN</label>
+                   <button type="button" onClick={() => {
+                     const gen = Math.floor(1000 + Math.random() * 9000).toString();
+                     setNewAdminData({...newAdminData, pin: gen});
+                     setPinPopup({ email: newAdminData.email || 'New Admin', pin: gen });
+                   }} style={{color: 'var(--primary-gold)', border: 'none', background: 'none', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer', paddingBottom: '5px'}}>Auto-Generate</button>
+                </div>
+                <input required type="text" style={{...styles.input, marginBottom: '20px'}} value={newAdminData.pin} onChange={e => setNewAdminData({...newAdminData, pin: e.target.value})} placeholder="****" />
+                
+                <div style={{display: 'flex', gap: '15px', marginTop: '10px'}}>
+                  <button type="submit" className="btn btn-navy hover-lift" style={{flex: 1, padding: '16px'}}>Authorize & Create</button>
+                  <button type="button" onClick={() => {setShowAddAdmin(false); setNewAdminData({ email: '', pin: '' });}} className="btn btn-outline hover-lift" style={{padding: '16px'}}>Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       {(showAddPackage || editingPackage) && (<div style={styles.overlay}><div style={styles.modal}><div style={styles.mHead}><h2>📦 {editingPackage ? 'Edit' : 'New'} Plan</h2></div><div style={styles.mBody}><form onSubmit={handlePackageSave}><label style={styles.label}>Plan Title</label><input required style={styles.input} value={editingPackage ? editingPackage.title : newPackage.title} onChange={e => editingPackage ? setEditingPackage({...editingPackage, title: e.target.value}) : setNewPackage({...newPackage, title: e.target.value})} /><label style={styles.label}>Price (₦)</label><input required style={styles.input} value={editingPackage ? editingPackage.price : newPackage.price} onChange={e => editingPackage ? setEditingPackage({...editingPackage, price: e.target.value}) : setNewPackage({...newPackage, price: e.target.value})} /><label style={styles.label}>Spiritual Category</label><select disabled={!!editingPackage} style={styles.input} value={editingPackage ? editingPackage.category : newPackage.category} onChange={e => setNewPackage({...newPackage, category: e.target.value})}><option value="ramadan">Ramadan</option><option value="hajj">Hajj</option></select><div style={{display: 'flex', gap: '15px', marginTop: '30px'}}><button type="submit" className="btn btn-navy" style={{flex: 1, padding: '16px'}}>🕋 {editingPackage ? 'Update' : 'Publish'}</button><button type="button" onClick={() => {setShowAddPackage(false); setEditingPackage(null);}} className="btn btn-outline" style={{padding: '16px'}}>Cancel</button></div></form></div></div></div>)}
       {(showAddLicense || editingLicense) && (<div style={styles.overlay}><div style={styles.modal}><div style={styles.mHead}><h2>📜 {editingLicense ? 'Edit' : 'Upload'} Doc</h2></div><div style={styles.mBody}><form onSubmit={handleLicenseSave}><label style={styles.label}>Document Title</label><input required style={styles.input} value={editingLicense ? editingLicense.title : newLicense.title} onChange={e => editingLicense ? setEditingLicense({...editingLicense, title: e.target.value}) : setNewLicense({...newLicense, title: e.target.value})} /><label style={styles.label}>Attach Official Certificate (PDF/JPG)</label><div style={styles.fileBox}><input type="file" accept="application/pdf,image/*" onChange={handleFileUpload} style={{width: '100%'}} />{(editingLicense?.link || newLicense.link) && <p style={{color: 'green', fontSize: '0.75rem', marginTop: '10px'}}>✅ Registered</p>}</div><div style={{display: 'flex', gap: '15px', marginTop: '30px'}}><button type="submit" className="btn btn-navy" style={{flex: 1, padding: '16px'}}>{editingLicense ? 'Update' : 'Store'}</button><button type="button" onClick={() => {setShowAddLicense(false); setEditingLicense(null);}} className="btn btn-outline" style={{padding: '16px'}}>Cancel</button></div></form></div></div></div>)}
+
+      {pinPopup && (
+        <div style={styles.overlay} onClick={() => setPinPopup(null)}>
+          <div style={{...styles.modal, maxWidth: '400px'}} onClick={e => e.stopPropagation()} className="animate-fade-in-up">
+            <div style={styles.modalIcon}>🔑</div>
+            <h3 style={{color: 'var(--primary-navy)', marginBottom: '10px'}}>PIN Generated!</h3>
+            <p style={{color: '#64748b', marginBottom: '20px', lineHeight: '1.5', fontSize: '0.95rem'}}>
+              A new secure PIN has been successfully generated for <strong>{pinPopup.email}</strong>.
+            </p>
+            <div style={{background: 'rgba(212, 175, 55, 0.1)', padding: '20px', borderRadius: '15px', marginBottom: '25px', border: '1px dashed var(--primary-gold)'}}>
+               <h1 style={{margin: 0, color: 'var(--primary-gold)', fontSize: '3rem', letterSpacing: '5px'}}>{pinPopup.pin}</h1>
+            </div>
+            <p style={{color: '#e74c3c', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '20px'}}>⚠️ Please copy this PIN now and share it securely. It will not be shown again.</p>
+            <button onClick={() => setPinPopup(null)} className="btn btn-navy hover-lift" style={{width: '100%', padding: '14px', borderRadius: '15px'}}>I have copied the PIN</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
