@@ -100,9 +100,23 @@ function AdminPanel() {
     const fetchCloudData = async () => {
       try {
         const { data: bookingsData, error: bErr } = await supabase.from('na_allah_bookings').select('*').order('id', { ascending: false });
-        if (bookingsData && !bErr && bookingsData.length > 0) {
-          setBookings(bookingsData);
-          localStorage.setItem('na_allah_bookings', JSON.stringify(bookingsData));
+        if (!bErr) {
+          const cloudBookings = bookingsData || [];
+          const localBookings = JSON.parse(localStorage.getItem('na_allah_bookings')) || [];
+          
+          // Merge local bookings that failed to upload
+          const cloudIds = new Set(cloudBookings.map(b => b.id));
+          const unsyncedBookings = localBookings.filter(b => !cloudIds.has(b.id));
+          
+          if (unsyncedBookings.length > 0) {
+            try {
+              await supabase.from('na_allah_bookings').insert(unsyncedBookings);
+            } catch (err) { console.error("Error syncing local bookings:", err); }
+          }
+          
+          const combinedBookings = [...unsyncedBookings, ...cloudBookings].sort((a, b) => b.id - a.id);
+          setBookings(combinedBookings);
+          localStorage.setItem('na_allah_bookings', JSON.stringify(combinedBookings));
         }
 
         const { data: adminsData, error: aErr } = await supabase.from('na_allah_admins').select('*').order('id', { ascending: true });
@@ -543,13 +557,31 @@ function AdminPanel() {
 
           {activeTab === 'bookings' && (
             <div style={styles.tableCard}><table style={styles.table}>
-              <thead><tr><th>Date</th><th>Visitor</th><th>Email</th><th>Inquiry</th><th style={{width: '120px'}}>Control</th></tr></thead>
+              <thead><tr><th>Date</th><th>Visitor</th><th>Email</th><th>Inquiry</th><th>Status</th><th style={{width: '120px'}}>Control</th></tr></thead>
               <tbody>{bookings.map(b => (
                 <tr key={b.id}>
                   <td style={{color: '#64748b'}}>{b.date || 'Today'}</td>
                   <td><strong>{b.name || 'Unknown'}</strong></td>
                   <td>{b.email || 'N/A'}</td>
                   <td>{b.package || 'General'}</td>
+                  <td>
+                    <select 
+                      value={b.status || 'Pending'} 
+                      onChange={async (e) => {
+                        const newStatus = e.target.value;
+                        const updated = bookings.map(bx => bx.id === b.id ? { ...bx, status: newStatus } : bx);
+                        setBookings(updated);
+                        save('na_allah_bookings', updated);
+                        try { await supabase.from('na_allah_bookings').update({ status: newStatus }).eq('id', b.id); } catch (err) {}
+                      }}
+                      style={{padding: '5px', borderRadius: '5px', border: '1px solid #cbd5e1', outline: 'none', background: b.status === 'Confirmed' ? '#e6f4ea' : b.status === 'Paid' ? '#e8f0fe' : '#fff'}}
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Confirmed">Confirmed</option>
+                      <option value="Paid">Paid</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </td>
                   <td><button onClick={() => setViewingBooking(b)} style={styles.btnSm}>Review</button></td>
                 </tr>
               ))}</tbody>
@@ -676,7 +708,8 @@ function AdminPanel() {
                   <p style={{margin: '0 0 10px 0'}}><strong>👤 Name:</strong> {viewingBooking.name}</p>
                   <p style={{margin: '0 0 10px 0'}}><strong>📧 Email:</strong> {viewingBooking.email}</p>
                   <p style={{margin: '0 0 10px 0'}}><strong>📞 Phone:</strong> {viewingBooking.phone}</p>
-                  <p style={{margin: '0'}}><strong>🕋 Interest:</strong> {viewingBooking.package}</p>
+                  <p style={{margin: '0 0 10px 0'}}><strong>🕋 Interest:</strong> {viewingBooking.package}</p>
+                  <p style={{margin: '0'}}><strong>📊 Status:</strong> {viewingBooking.status || 'Pending'}</p>
                </div>
 
                <div style={{...styles.msg, background: 'rgba(212, 175, 55, 0.05)', borderColor: 'rgba(212, 175, 55, 0.2)'}}>
