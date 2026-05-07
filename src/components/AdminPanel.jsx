@@ -292,8 +292,15 @@ function AdminPanel() {
                    <div><label style={styles.label}>Twitter Link/Username</label><input style={styles.input} value={settings.twitter || ''} onChange={e => setSettings({...settings, twitter: e.target.value})} /></div>
 
                    <div style={{gridColumn: 'span 2'}}><label style={styles.label}>Hero Attraction Slogan</label><textarea style={{...styles.input, height: '80px'}} value={settings.heroSlogan} onChange={e => setSettings({...settings, heroSlogan: e.target.value})} /></div>
-                   <div style={{gridColumn: 'span 2'}}><label style={styles.label}>Registration PIN (Secure Access)</label><input type="password" style={{...styles.input, border: '1px solid orange'}} placeholder="Modify Admin PIN" onChange={e => setSettings({...settings, adminPin: e.target.value})} /></div>
-                   <div style={{gridColumn: 'span 2'}}><button className="btn btn-navy" style={{width: '100%', padding: '18px', fontWeight: 'bold'}}>SYNC SITE CONTENT</button></div>
+                   <div style={{gridColumn: 'span 2'}}>
+                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
+                       <label style={styles.label}>Master PIN (HQ Authorization)</label>
+                       <button type="button" onClick={() => setSettings({...settings, adminPin: Math.floor(1000 + Math.random() * 9000).toString()})} style={{color: 'var(--primary-gold)', border: 'none', background: 'none', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer', paddingBottom: '5px'}}>Auto-Generate Master PIN</button>
+                     </div>
+                     <input type="text" value={settings.adminPin} style={{...styles.input, border: '2px solid var(--primary-gold)', fontWeight: 'bold', color: 'var(--primary-navy)'}} placeholder="Modify Master PIN" onChange={e => setSettings({...settings, adminPin: e.target.value})} />
+                     <p style={{fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px'}}>This is the Master PIN required to authorize the creation of new admin accounts.</p>
+                   </div>
+                   <div style={{gridColumn: 'span 2'}}><button className="btn btn-navy hover-lift" style={{width: '100%', padding: '18px', fontWeight: 'bold'}}>SYNC GLOBAL SETTINGS</button></div>
                 </form>
              </div></div>
           )}
