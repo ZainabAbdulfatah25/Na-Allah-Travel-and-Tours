@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../supabaseClient';
 
 function Services() {
   const [services, setServices] = useState([
@@ -7,9 +8,17 @@ function Services() {
     { id: 3, title: "Customized Tours", icon: "🗺️", desc: "Tailor-made travel itineraries to suit your family's specific needs." }
   ]);
 
-  const loadServices = () => {
+  const loadServices = async () => {
     const saved = JSON.parse(localStorage.getItem('na_allah_services'));
     if (saved) setServices(saved);
+    
+    try {
+      const { data, error } = await supabase.from('na_allah_services').select('*').order('id', { ascending: true });
+      if (data && !error && data.length > 0) {
+         setServices(data);
+         localStorage.setItem('na_allah_services', JSON.stringify(data));
+      }
+    } catch (err) {}
   };
 
   useEffect(() => {

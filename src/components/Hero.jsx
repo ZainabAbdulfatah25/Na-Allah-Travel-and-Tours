@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../supabaseClient';
 import HeroParticles from './HeroParticles';
 
 function Hero() {
@@ -9,12 +10,20 @@ function Hero() {
     { id: 2, name: 'Medina', val: 'medina' }
   ]);
   
-  const loadSettings = () => {
+  const loadSettings = async () => {
     const saved = JSON.parse(localStorage.getItem('na_allah_settings'));
     if (saved && saved.heroSlogan) setSlogan(saved.heroSlogan);
     
     const savedDest = JSON.parse(localStorage.getItem('na_allah_destinations'));
     if (savedDest) setDestinations(savedDest);
+    
+    try {
+      const { data, error } = await supabase.from('na_allah_destinations').select('*').order('id', { ascending: true });
+      if (data && !error && data.length > 0) {
+        setDestinations(data);
+        localStorage.setItem('na_allah_destinations', JSON.stringify(data));
+      }
+    } catch(err) {}
   };
 
   useEffect(() => {

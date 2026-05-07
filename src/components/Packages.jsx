@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { supabase } from '../supabaseClient';
 
 function Packages() {
   const [selectedDest, setSelectedDest] = useState('');
@@ -17,16 +18,32 @@ function Packages() {
   ]);
 
   useEffect(() => {
-    const handleSync = () => {
+    const handleSync = async () => {
       const saved = JSON.parse(localStorage.getItem('na_allah_packages'));
-      if (saved) {
-        const defaultFeatures = ["Visa Processing", "Round-trip Flight", "Transportation", "Full Accommodation"];
-        if (saved.ramadan) setRamadanPackages(saved.ramadan.map(p => ({...p, features: p.features || defaultFeatures})));
-        if (saved.hajj) setHajjPackages(saved.hajj.map(p => ({...p, features: p.features || defaultFeatures})));
-      }
+      const defaultFeatures = ["Visa Processing", "Round-trip Flight", "Transportation", "Full Accommodation"];
+      
+      const applyPackages = (data) => {
+         if (data.ramadan) setRamadanPackages(data.ramadan.map(p => ({...p, features: p.features || defaultFeatures})));
+         if (data.hajj) setHajjPackages(data.hajj.map(p => ({...p, features: p.features || defaultFeatures})));
+      };
+      
+      if (saved) applyPackages(saved);
+      
+      try {
+        const { data, error } = await supabase.from('na_allah_packages').select('*').order('id', { ascending: true });
+        if (data && !error && data.length > 0) {
+          // Parse back to ramadan/hajj object format used locally
+          const pObj = { ramadan: [], hajj: [] };
+          data.forEach(p => { if (p.category === 'ramadan') pObj.ramadan.push(p); else if (p.category === 'hajj') pObj.hajj.push(p); });
+          applyPackages(pObj);
+          localStorage.setItem('na_allah_packages', JSON.stringify(pObj));
+        }
+      } catch (err) {}
     };
     handleSync();
-    window.addEventListener('storage', handleSync);
+    
+    const handleStorageSync = (e) => { if (e.key === 'na_allah_packages') handleSync(); };
+    window.addEventListener('storage', handleStorageSync);
     
     const checkHash = () => {
       const h = window.location.hash;
@@ -39,7 +56,7 @@ function Packages() {
     window.addEventListener('hashchange', checkHash);
 
     return () => {
-      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('storage', handleStorageSync);
       window.removeEventListener('hashchange', checkHash);
     };
   }, []);

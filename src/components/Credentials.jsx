@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../supabaseClient';
 
 function Credentials() {
   const [licenses, setLicenses] = useState([
@@ -6,9 +7,17 @@ function Credentials() {
      { id: 2, title: 'IATA Approved Agency', status: 'Verified' }
   ]);
 
-  const loadLicenses = () => {
+  const loadLicenses = async () => {
     const saved = JSON.parse(localStorage.getItem('na_allah_licenses'));
     if (saved) setLicenses(saved);
+    
+    try {
+      const { data, error } = await supabase.from('na_allah_licenses').select('*').order('id', { ascending: true });
+      if (data && !error && data.length > 0) {
+        setLicenses(data);
+        localStorage.setItem('na_allah_licenses', JSON.stringify(data));
+      }
+    } catch(err) {}
   };
 
   useEffect(() => {
