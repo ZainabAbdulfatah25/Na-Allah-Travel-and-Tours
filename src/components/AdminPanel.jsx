@@ -6,6 +6,8 @@ function AdminPanel() {
   const [passcode, setPasscode] = useState('');
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [authMode, setAuthMode] = useState('signin');
+  const [email, setEmail] = useState('');
   
   const [viewingBooking, setViewingBooking] = useState(null);
   const [showAddPackage, setShowAddPackage] = useState(false);
@@ -144,10 +146,25 @@ function AdminPanel() {
     alert('Global Systems Synced. Branding and contact details updated across the site.');
   };
 
-  const login = (e) => {
+  const handleAuth = (e) => {
     e.preventDefault();
-    if (['2026', settings.adminPin].includes(passcode)) { setIsAuthenticated(true); sessionStorage.setItem('na_allah_auth', 'true'); }
-    else setError('PIN Encryption Error.');
+    if (authMode === 'signin') {
+      if (['2026', settings.adminPin].includes(passcode)) { setIsAuthenticated(true); sessionStorage.setItem('na_allah_auth', 'true'); }
+      else setError('Invalid Email or PIN Error.');
+    } else {
+      if (!email) { setError('Email is required'); return; }
+      if (passcode.length < 4) { setError('PIN must be at least 4 digits'); return; }
+      setSettings({...settings, adminPin: passcode});
+      save('na_allah_settings', {...settings, adminPin: passcode});
+      setIsAuthenticated(true);
+      sessionStorage.setItem('na_allah_auth', 'true');
+    }
+  };
+
+  const generatePin = () => {
+    const randomPin = Math.floor(1000 + Math.random() * 9000).toString();
+    setPasscode(randomPin);
+    setError('New PIN generated. Please copy it and save safely.');
   };
 
   if (!isAuthenticated) return (
@@ -159,12 +176,32 @@ function AdminPanel() {
       </div>
       <div style={{...styles.loginCard, position: 'relative', zIndex: 1}} className="animate-fade-in-up glass-panel">
         <Logo size={80} />
-        <h2 style={{color: 'var(--primary-navy)', marginTop: '30px'}}>Admin Console</h2>
-        <form onSubmit={login} style={{textAlign: 'left', marginTop: '30px'}}>
-          <label style={styles.label}>Control PIN</label>
-          <input type="password" value={passcode} onChange={e => setPasscode(e.target.value)} style={styles.input} placeholder="****" autoFocus />
-          {error && <p style={{color: 'red', fontSize: '0.8rem', marginTop: '10px'}}>{error}</p>}
-          <button type="submit" className="btn btn-navy hover-lift" style={{width: '100%', marginTop: '15px', padding: '16px'}}>Login</button>
+        <h3 style={{color: 'var(--primary-navy)', marginTop: '20px', fontSize: '1.8rem', letterSpacing: '-0.5px'}}>Admin Console</h3>
+        
+        <div style={{display: 'flex', gap: '10px', marginTop: '15px', justifyContent: 'center'}}>
+           <button type="button" onClick={() => {setAuthMode('signin'); setError('');}} style={{...styles.tabBtn, ...(authMode === 'signin' ? styles.activeTabBtn : {})}}>Sign In</button>
+           <button type="button" onClick={() => {setAuthMode('signup'); setError('');}} style={{...styles.tabBtn, ...(authMode === 'signup' ? styles.activeTabBtn : {})}}>Sign Up</button>
+        </div>
+
+        <form onSubmit={handleAuth} style={{textAlign: 'left', marginTop: '20px'}}>
+          {authMode === 'signup' && (
+            <>
+              <label style={styles.label}>Admin Email</label>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{...styles.input, marginBottom: '15px'}} placeholder="admin@naallahtravels.com" />
+            </>
+          )}
+
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
+             <label style={styles.label}>Control PIN</label>
+             {authMode === 'signup' && (
+               <button type="button" onClick={generatePin} style={{color: 'var(--primary-gold)', border: 'none', background: 'none', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer', paddingBottom: '5px'}}>Auto-Generate</button>
+             )}
+          </div>
+          <input type={authMode === 'signin' ? "password" : "text"} value={passcode} onChange={e => setPasscode(e.target.value)} style={styles.input} placeholder="****" autoFocus />
+          {error && <p style={{color: error.includes('safely') ? '#27ae60' : 'red', fontSize: '0.8rem', marginTop: '10px'}}>{error}</p>}
+          <button type="submit" className="btn btn-navy hover-lift" style={{width: '100%', marginTop: '15px', padding: '16px'}}>
+            {authMode === 'signin' ? 'Login' : 'Create Admin Account'}
+          </button>
         </form>
       </div>
     </div>
@@ -245,7 +282,7 @@ function AdminPanel() {
           )}
 
           {activeTab === 'packages' && (
-            <div className="animate-fade-in"><div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '30px', alignItems: 'center'}}><h3 style={{margin: 0}}>Travel Package Console</h3><button onClick={() => setShowAddPackage(true)} className="btn btn-navy">✈️ + New Draft</button></div>
+            <div className="animate-fade-in"><div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '30px', alignItems: 'center'}}><h3 style={{margin: 0}}>Travel Package Console</h3><button onClick={() => setShowAddPackage(true)} className="btn btn-navy">✈️ + New Package</button></div>
               <div style={styles.grid2}>{['ramadan', 'hajj'].map(cat => (
                 <div key={cat} style={styles.statCard}><h4 style={{textTransform: 'uppercase', marginBottom: '20px', color: 'var(--primary-gold)'}}>{cat} control</h4>
                   {packages[cat].map(p => (
@@ -349,7 +386,9 @@ const styles = {
   msg: { marginTop: '20px', padding: '25px', background: 'var(--off-white)', borderRadius: '15px', minHeight: '100px', border: '1px solid var(--border-dark)', textAlign: 'left', lineHeight: '1.6' },
   label: { fontWeight: '800', color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block', marginBottom: '5px', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '1px' },
   fileBox: { marginTop: '10px', padding: '20px', border: '2px dashed #cbd5e1', borderRadius: '15px', textAlign: 'center', background: 'var(--off-white)', cursor: 'pointer' },
-  blurBlob: { position: 'absolute', width: '500px', height: '500px', borderRadius: '50%', filter: 'blur(100px)', animation: 'floatElement 20s ease-in-out infinite' }
+  blurBlob: { position: 'absolute', width: '500px', height: '500px', borderRadius: '50%', filter: 'blur(100px)', animation: 'floatElement 20s ease-in-out infinite' },
+  tabBtn: { padding: '8px 16px', borderRadius: '20px', fontSize: '0.9rem', fontWeight: '800', cursor: 'pointer', border: 'none', background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.3s' },
+  activeTabBtn: { background: 'rgba(212, 175, 55, 0.15)', color: 'var(--primary-gold)' }
 };
 
 export default AdminPanel;

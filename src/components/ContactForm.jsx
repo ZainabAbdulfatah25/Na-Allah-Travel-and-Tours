@@ -53,12 +53,25 @@ function ContactForm() {
               <div style={styles.inputGroup}><label style={styles.label}>Full Name</label><input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} style={styles.input} placeholder="Your name" /></div>
               <div style={styles.row}><div style={styles.inputGroup}><label style={styles.label}>Phone Number</label><input required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} style={styles.input} placeholder="+234..." /></div><div style={styles.inputGroup}><label style={styles.label}>Interest</label><select value={formData.package} onChange={e => setFormData({...formData, package: e.target.value})} style={styles.input}><option value="General">General Inquiry</option><option value="Ramadan">Ramadan 2026</option><option value="Hajj">Hajj 2026</option></select></div></div>
               <div style={styles.inputGroup}><label style={styles.label}>Inquiry Details</label><textarea required value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} style={{...styles.input, minHeight: '100px'}} placeholder="How can we help?"></textarea></div>
-              {submitted && <p style={styles.success}>✓ Successfully sent to Desk!</p>}
               <button type="submit" className="btn btn-navy hover-lift" style={{width: '100%', padding: '15px'}}>Submit Inquiry</button>
             </form>
           </div>
         </div>
       </div>
+
+      {/* SUCCESS MODAL POPUP */}
+      {submitted && (
+        <div style={styles.overlay} onClick={() => setSubmitted(false)}>
+          <div style={styles.modal} onClick={e => e.stopPropagation()} className="animate-fade-in-up">
+            <div style={styles.modalIcon}>✅</div>
+            <h3 style={{color: 'var(--primary-navy)', marginBottom: '10px'}}>Inquiry Received!</h3>
+            <p style={{color: '#64748b', marginBottom: '25px', lineHeight: '1.5', fontSize: '0.95rem'}}>
+              Thank you for choosing Na-Allah Travels & Tours. Our team has received your message and will reach out to you shortly.
+            </p>
+            <button onClick={() => setSubmitted(false)} className="btn btn-navy hover-lift" style={{width: '100%', padding: '14px', borderRadius: '15px'}}>Close</button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -75,10 +88,12 @@ const styles = {
   label: { display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: '800', color: 'var(--primary-navy)', textTransform: 'uppercase', letterSpacing: '1px' },
   input: { width: '100%', padding: '18px', borderRadius: '15px', border: '1px solid #e1e1e1', fontSize: '1rem', outline: 'none', boxSizing: 'border-box' },
   row: { display: 'flex', gap: '20px', flexWrap: 'wrap' },
-  success: { padding: '12px', backgroundColor: '#ecfdf5', color: '#059669', borderRadius: '10px', marginBottom: '15px', fontWeight: 'bold' },
   contactDetails: { marginTop: '30px', display: 'flex', flexDirection: 'column', gap: '15px' },
   detailItem: { padding: '20px', backgroundColor: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(5px)', borderRadius: '20px', color: 'var(--primary-navy)', fontSize: '0.95rem', boxShadow: '0 5px 15px rgba(0,0,0,0.02)', border: '1px solid rgba(255,255,255,0.4)' },
-  blurBlob: { position: 'absolute', width: '500px', height: '500px', borderRadius: '50%', filter: 'blur(90px)', animation: 'floatElement 25s ease-in-out infinite' }
+  blurBlob: { position: 'absolute', width: '500px', height: '500px', borderRadius: '50%', filter: 'blur(90px)', animation: 'floatElement 25s ease-in-out infinite' },
+  overlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(5, 16, 36, 0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
+  modal: { background: 'white', width: '90%', maxWidth: '420px', borderRadius: '30px', padding: '40px', textAlign: 'center', boxShadow: '0 30px 60px -12px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.8)' },
+  modalIcon: { fontSize: '4rem', marginBottom: '20px', animation: 'floatElement 3s ease-in-out infinite' }
 };
 
 export default ContactForm;
