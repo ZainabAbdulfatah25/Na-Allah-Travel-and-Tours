@@ -98,7 +98,7 @@ function Payment() {
       </div>
 
       <div className="container" style={{...styles.container, position: 'relative', zIndex: 1}}>
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px'}}>
+        <div style={{display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px'}}>
            <button onClick={() => window.location.hash = ''} style={styles.backButtonTop} className="hover-lift">← Home</button>
            <h3 style={{color: 'var(--primary-navy)', margin: 0, fontWeight: '800'}}>Booking & Inquiries</h3>
         </div>
@@ -150,14 +150,14 @@ function Payment() {
                   <label style={styles.label}>Ask Your Question</label>
                   <textarea placeholder="Tell us what you need to know..." style={styles.textarea} value={inquiryMsg} onChange={e => setInquiryMsg(e.target.value)} />
                   {inquirySent && <p style={styles.successMsg}>✓ Inquiry sent to Admin! We will email you.</p>}
-                  <div style={{display: 'flex', gap: '10px', marginTop: '15px'}}>
+                  <div style={{display: 'flex', gap: '10px', marginTop: '15px'}} className="mobile-stack">
                     <button onClick={handleSubmitInquiry} className="btn btn-navy hover-lift" style={{flex: 1, padding: '15px'}}>Submit Question</button>
                     <button onClick={handleWhatsAppInquiry} style={styles.waBtnSimple} className="hover-lift">WhatsApp Chat</button>
                   </div>
                   <button onClick={() => setShowInquiryForm(false)} style={styles.cancelLink}>← Back to Booking</button>
                 </div>
               ) : (
-                <div style={styles.buttonStack}>
+                <div style={styles.buttonStack} className="mobile-stack">
                   <button onClick={handleConfirmBooking} className="btn btn-navy hover-lift" style={{flex: 2, padding: '20px', borderRadius: '15px', fontWeight: 'bold'}}>
                     Confirm My Booking
                   </button>
@@ -188,8 +188,8 @@ const styles = {
   bankTitle: { color: 'var(--primary-navy)', fontSize: '1.5rem', marginBottom: '30px', fontWeight: '800' },
   bankWrapper: { backgroundColor: '#f8fafc', padding: '35px', borderRadius: '24px', border: '2px dashed #cbd5e1' },
   bankLabel: { fontSize: '0.8rem', opacity: 0.6, marginBottom: '5px', textTransform: 'uppercase', fontWeight: 'bold' },
-  bankName: { fontSize: '1.4rem', fontWeight: '800', color: 'var(--primary-navy)', marginBottom: '20px' },
-  accNumber: { color: 'var(--primary-gold)', fontSize: '2.8rem', letterSpacing: '4px', fontWeight: 'bold' },
+  bankName: { fontSize: 'clamp(1.2rem, 5vw, 1.4rem)', fontWeight: '800', color: 'var(--primary-navy)', marginBottom: '20px' },
+  accNumber: { color: 'var(--primary-gold)', fontSize: 'clamp(1.5rem, 6vw, 2.8rem)', letterSpacing: 'clamp(1px, 2vw, 4px)', fontWeight: 'bold', wordBreak: 'break-all' },
   accName: { fontSize: '1.2rem', fontWeight: '700', color: 'var(--primary-navy)', marginTop: '20px' },
   actionContainer: { padding: '0 40px 50px 40px', textAlign: 'center' },
   formOuter: { backgroundColor: '#f8fafc', padding: '35px', borderRadius: '28px', border: '1px solid #e2e8f0' },
@@ -199,7 +199,7 @@ const styles = {
   textarea: { width: '100%', padding: '16px', minHeight: '120px', borderRadius: '12px', border: '1px solid #cbd5e1', fontSize: '1rem', boxSizing: 'border-box' },
   inquirySection: { marginTop: '20px', textAlign: 'left', borderTop: '1px solid #e2e8f0', paddingTop: '20px' },
   buttonStack: { display: 'flex', gap: '15px', marginTop: '30px' },
-  inquireBtn: { flex: 1, backgroundColor: '#fff', border: '1px solid #cbd5e1', borderRadius: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '5px', color: 'var(--primary-navy)' },
+  inquireBtn: { flex: 1, backgroundColor: '#fff', border: '1px solid #cbd5e1', borderRadius: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '5px', color: 'var(--primary-navy)', padding: '15px' },
   waBtnSimple: { flex: 1, backgroundColor: '#25D366', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' },
   cancelLink: { border: 'none', background: 'none', marginTop: '15px', cursor: 'pointer', fontSize: '0.9rem', color: '#64748b' },
   successMsg: { color: '#059669', padding: '10px 0', fontWeight: 'bold', fontSize: '0.9rem' },

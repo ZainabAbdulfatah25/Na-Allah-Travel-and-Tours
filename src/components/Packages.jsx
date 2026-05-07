@@ -63,8 +63,8 @@ function Packages() {
 
   const renderSection = (title, items) => (
     <div style={{marginBottom: '100px'}}>
-      <div style={{marginBottom: '50px', borderLeft: '8px solid var(--primary-gold)', paddingLeft: '25px'}}>
-        <h2 style={{fontSize: '2.5rem', color: 'var(--primary-navy)', marginBottom: '5px'}}>{title}</h2>
+      <div style={{marginBottom: '50px', borderLeft: '8px solid var(--primary-gold)', paddingLeft: 'clamp(15px, 3vw, 25px)'}}>
+        <h2 style={{fontSize: 'clamp(1.8rem, 5vw, 2.5rem)', color: 'var(--primary-navy)', marginBottom: '5px'}}>{title}</h2>
         <p style={{color: 'var(--text-muted)', fontSize: '1.2rem'}}>Religious Travel Packages for 2026</p>
       </div>
       <div style={styles.grid}>
@@ -100,8 +100,8 @@ function Packages() {
 
       <div className="container" style={{position: 'relative', zIndex: 1}}>
         {window.location.hash.includes('all-packages') && (<button onClick={() => window.location.hash = ''} style={styles.backButtonTop}>← Back to Home</button>)}
-        <div style={{textAlign: 'center', marginBottom: '80px'}} className="animate-fade-in-up">
-          <h1 style={{fontSize: '3.5rem', marginBottom: '15px'}}>Our 2026 Packages</h1>
+        <div style={{textAlign: 'center', marginBottom: 'clamp(40px, 8vw, 80px)'}} className="animate-fade-in-up">
+          <h1 style={{fontSize: 'clamp(2rem, 8vw, 3.5rem)', marginBottom: '15px'}}>Our 2026 Packages</h1>
           <p style={{fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '800px', margin: '0 auto'}}>Complete list of seasonal travel arrangements for spiritual journeys.</p>
         </div>
         {selectedDest === 'mecca' ? (
@@ -121,10 +121,10 @@ const styles = {
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px' },
   card: { backgroundColor: 'white', borderRadius: '25px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.08)', border: '1px solid #f1f5f9' },
   cardHeader: { backgroundColor: 'var(--primary-navy)', padding: '25px', textAlign: 'center', borderBottom: '5px solid var(--primary-gold)' },
-  cardBody: { padding: '40px' },
+  cardBody: { padding: 'clamp(20px, 5vw, 40px)' },
   priceRow: { marginBottom: '20px', textAlign: 'center' },
   priceLabel: { fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '800', marginBottom: '5px' },
-  priceValue: { fontSize: '2.5rem', color: 'var(--primary-navy)', fontWeight: 'bold' },
+  priceValue: { fontSize: 'clamp(1.8rem, 6vw, 2.5rem)', color: 'var(--primary-navy)', fontWeight: 'bold' },
   featureList: { marginTop: '25px' },
   featureItem: { padding: '12px 0', borderBottom: '1px solid #f8fafc', display: 'flex', alignItems: 'baseline', fontSize: '1rem', color: '#475569' }
 };

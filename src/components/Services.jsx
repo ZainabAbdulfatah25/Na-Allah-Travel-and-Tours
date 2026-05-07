@@ -42,8 +42,8 @@ function Services() {
       <div style={{position: 'absolute', bottom: '-10%', left: '-5%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(46, 49, 146, 0.05), transparent 70%)', pointerEvents: 'none'}} />
 
       <div className="container" style={{position: 'relative', zIndex: 1}}>
-        <div style={{textAlign: 'center', marginBottom: '80px'}} className="animate-fade-in-up">
-          <h2 style={{color: 'var(--primary-navy)'}}>Our Premium Services</h2>
+        <div style={{textAlign: 'center', marginBottom: 'clamp(40px, 8vw, 80px)'}} className="animate-fade-in-up">
+          <h2 style={{color: 'var(--primary-navy)', fontSize: 'clamp(2rem, 6vw, 3rem)'}}>Our Premium Services</h2>
           <p style={{color: 'var(--text-muted)', maxWidth: '650px', margin: '15px auto 30px auto', fontSize: '1.1rem'}}>We provide comprehensive religious and global travel solutions with unshakeable integrity and world-class comfort.</p>
           <div style={{width: '80px', height: '4px', backgroundColor: 'var(--primary-accent)', margin: '0 auto', borderRadius: '2px'}}></div>
         </div>
@@ -52,7 +52,7 @@ function Services() {
           {services.map((srv, idx) => (
              <div 
                key={srv.id} 
-               style={{...styles.card, animationDelay: `${idx * 0.15}s`, marginTop: idx % 2 !== 0 ? '40px' : '0'}} 
+               style={{...styles.card, animationDelay: `${idx * 0.15}s`}} 
                className="animate-fade-in-up hover-lift"
              >
                <div style={styles.iconBox}>{renderIcon(srv.icon)}</div>
@@ -67,8 +67,8 @@ function Services() {
 }
 
 const styles = {
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px' },
-  card: { padding: '50px 40px', backgroundColor: 'var(--clear-white)', borderRadius: 'var(--radius-lg)', textAlign: 'center', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-dark)', position: 'relative', overflow: 'hidden' },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '40px' },
+  card: { padding: 'clamp(30px, 6vw, 50px) clamp(20px, 5vw, 40px)', backgroundColor: 'var(--clear-white)', borderRadius: 'var(--radius-lg)', textAlign: 'center', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-dark)', position: 'relative', overflow: 'hidden' },
   iconBox: { color: 'var(--primary-accent)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '20px', background: 'rgba(0, 162, 232, 0.08)', borderRadius: '50%', marginBottom: '25px', width: '90px', height: '90px' },
   title: { color: 'var(--primary-navy)', marginBottom: '15px', fontWeight: '800', fontSize: '1.4rem' }
 };

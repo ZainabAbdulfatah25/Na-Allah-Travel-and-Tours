@@ -80,7 +80,7 @@ function Footer() {
 }
 
 const styles = {
-  footer: { backgroundColor: 'var(--primary-navy)', color: 'white', padding: '100px 0 40px 0' },
+  footer: { backgroundColor: 'var(--primary-navy)', color: 'white', padding: 'clamp(50px, 10vw, 100px) 0 40px 0' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '50px' },
   desc: { color: 'rgba(255,255,255,0.7)', marginTop: '25px', fontSize: '0.95rem', lineHeight: '1.8' },
   heading: { color: 'var(--primary-gold)', marginBottom: '25px', textTransform: 'uppercase', fontSize: '0.9rem', letterSpacing: '2px', fontWeight: '800' },

@@ -100,7 +100,7 @@ const styles = {
     zIndex: 1,
     width: '100%'
   },
-  textSide: { textAlign: 'left', paddingRight: '40px' },
+  textSide: { textAlign: 'left' },
   heading: { fontSize: 'clamp(4rem, 7vw, 6.5rem)', fontWeight: '900', lineHeight: '0.95', marginBottom: '30px', letterSpacing: '-0.04em', textTransform: 'uppercase' },
   gradientText: { 
     background: 'linear-gradient(135deg, var(--primary-accent), var(--primary-gold))', 
@@ -113,7 +113,7 @@ const styles = {
   searchWidget: { 
     display: 'flex', 
     flexDirection: 'column',
-    padding: '40px', 
+    padding: 'clamp(25px, 5vw, 40px)', 
     borderRadius: 'var(--radius-lg)',
     boxShadow: 'var(--shadow-lg)',
     transform: 'translateY(20px)'
