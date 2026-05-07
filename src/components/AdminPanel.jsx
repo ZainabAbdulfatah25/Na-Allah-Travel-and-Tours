@@ -410,7 +410,25 @@ function AdminPanel() {
              </div>
           )}
 
-          {activeTab === 'dashboard' && <div style={styles.grid2}><div style={styles.statCard}><h3>Inquiries</h3><p style={styles.statNum}>{bookings.length}</p></div><div style={styles.statCard}><h3>Travel Plans</h3><p style={styles.statNum}>{packages.ramadan.length + packages.hajj.length}</p></div></div>}
+          {activeTab === 'dashboard' && (
+            <div className="animate-fade-in" style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '25px', marginBottom: '30px'}}>
+              <div style={{...styles.statCard, cursor: 'pointer', padding: '25px'}} onClick={() => setActiveTab('bookings')} className="hover-lift">
+                <h3 style={{margin:0, fontSize: '1.2rem', color: 'var(--text-muted)'}}>Inquiries</h3><p style={{...styles.statNum, fontSize: '3.5rem'}}>{bookings.length}</p>
+              </div>
+              <div style={{...styles.statCard, cursor: 'pointer', padding: '25px'}} onClick={() => setActiveTab('packages')} className="hover-lift">
+                <h3 style={{margin:0, fontSize: '1.2rem', color: 'var(--text-muted)'}}>Travel Plans</h3><p style={{...styles.statNum, fontSize: '3.5rem'}}>{packages.ramadan.length + packages.hajj.length}</p>
+              </div>
+              <div style={{...styles.statCard, cursor: 'pointer', padding: '25px'}} onClick={() => setActiveTab('services')} className="hover-lift">
+                <h3 style={{margin:0, fontSize: '1.2rem', color: 'var(--text-muted)'}}>Core Services</h3><p style={{...styles.statNum, fontSize: '3.5rem'}}>{services.length}</p>
+              </div>
+              <div style={{...styles.statCard, cursor: 'pointer', padding: '25px'}} onClick={() => setActiveTab('licenses')} className="hover-lift">
+                <h3 style={{margin:0, fontSize: '1.2rem', color: 'var(--text-muted)'}}>Credentials</h3><p style={{...styles.statNum, fontSize: '3.5rem'}}>{licenses.length}</p>
+              </div>
+              <div style={{...styles.statCard, cursor: 'pointer', padding: '25px'}} onClick={() => setActiveTab('users')} className="hover-lift">
+                <h3 style={{margin:0, fontSize: '1.2rem', color: 'var(--text-muted)'}}>Team Access</h3><p style={{...styles.statNum, fontSize: '3.5rem'}}>{admins.length}</p>
+              </div>
+            </div>
+          )}
 
           {activeTab === 'bookings' && (
             <div style={styles.tableCard}><table style={styles.table}><thead><tr><th>Visitor</th><th>Inquiry</th><th style={{width: '120px'}}>Control</th></tr></thead>
