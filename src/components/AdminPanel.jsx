@@ -44,6 +44,7 @@ function AdminPanel() {
   const [packages, setPackages] = useState({ ramadan: [], hajj: [] });
   const [licenses, setLicenses] = useState([]);
   const [services, setServices] = useState([]);
+  const [admins, setAdmins] = useState([]);
 
   const loadData = useCallback(() => {
     const s = JSON.parse(localStorage.getItem('na_allah_settings')) || settings;
@@ -69,11 +70,15 @@ function AdminPanel() {
        { id: 2, title: 'Hajj & Umrah Tours', icon: '🕌', desc: 'Expertly guided spiritual journeys with local scholars.' },
        { id: 3, title: 'Visa Processing', icon: '🛂', desc: 'Swift and reliable visa assistance for Saudi Arabia.' }
     ];
+    const ad = JSON.parse(localStorage.getItem('na_allah_admins')) || [
+       { id: 1, email: 'admin@naallahtravels.com', pin: '2026', role: 'Super Admin', date: new Date().toISOString().split('T')[0] }
+    ];
     setSettings(s);
     setBookings(b);
     setPackages(p);
     setLicenses(l);
     setServices(sv);
+    setAdmins(ad);
   }, []);
 
   useEffect(() => {
@@ -151,7 +156,8 @@ function AdminPanel() {
   const handleAuth = (e) => {
     e.preventDefault();
     if (authMode === 'signin') {
-      if (['2026', settings.adminPin].includes(passcode)) { 
+      const user = admins.find(a => a.email === email && a.pin === passcode);
+      if (user || (['2026', settings.adminPin].includes(passcode) && email === 'admin@naallahtravels.com')) { 
         setIsLoading(true);
         setTimeout(() => {
           setIsAuthenticated(true); 
@@ -170,8 +176,10 @@ function AdminPanel() {
       
       setIsLoading(true);
       setTimeout(() => {
-        setSettings({...settings, adminPin: passcode});
-        save('na_allah_settings', {...settings, adminPin: passcode});
+        const newAdmin = { id: Date.now(), email, pin: passcode, role: 'Admin', date: new Date().toISOString().split('T')[0] };
+        const updatedAdmins = [...admins, newAdmin];
+        setAdmins(updatedAdmins);
+        save('na_allah_admins', updatedAdmins);
         setIsAuthenticated(true);
         sessionStorage.setItem('na_allah_auth', 'true');
         setIsLoading(false);
@@ -210,11 +218,11 @@ function AdminPanel() {
         </div>
 
         <form onSubmit={handleAuth} style={{textAlign: 'left', marginTop: '20px'}}>
+          <label style={styles.label}>Admin Email</label>
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{...styles.input, marginBottom: '15px'}} placeholder="admin@naallahtravels.com" />
+          
           {authMode === 'signup' && (
             <>
-              <label style={styles.label}>Admin Email</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{...styles.input, marginBottom: '15px'}} placeholder="admin@naallahtravels.com" />
-              
               <label style={styles.label}>Master PIN (Authorization)</label>
               <input type="password" value={masterPin} onChange={e => setMasterPin(e.target.value)} style={{...styles.input, marginBottom: '15px'}} placeholder="Enter current HQ PIN" />
             </>
@@ -252,6 +260,7 @@ function AdminPanel() {
           <li style={{...styles.navItem, ...(activeTab === 'packages' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('packages')}>📦 Travel Plans</li>
           <li style={{...styles.navItem, ...(activeTab === 'services' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('services')}>🛠️ Core Services</li>
           <li style={{...styles.navItem, ...(activeTab === 'licenses' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('licenses')}>📜 Credentials</li>
+          <li style={{...styles.navItem, ...(activeTab === 'users' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('users')}>👥 Team Access</li>
           <li style={{...styles.navItem, ...(activeTab === 'settings' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('settings')}>⚙️ Global Control</li>
         </ul>
         <button onClick={() => {sessionStorage.removeItem('na_allah_auth'); setIsAuthenticated(false);}} style={styles.logoutBtn}>Sign Out</button>
@@ -341,6 +350,22 @@ function AdminPanel() {
                   <tr key={l.id}><td><strong>{l.title}</strong></td><td><span style={{color: 'var(--primary-gold)', fontWeight: 'bold'}}>{l.status || 'Verified'}</span></td><td><div style={{display: 'flex', gap: '15px'}}><button onClick={() => openSecureView(l.link)} style={{color: 'var(--primary-navy)', fontWeight: 'bold', fontSize: '0.8rem', border: 'none', background: 'none', cursor: 'pointer', borderBottom: '1px solid'}}>View</button><button onClick={() => setEditingLicense(l)} style={{color: 'var(--primary-gold)', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer', fontSize: '0.8rem'}}>Edit</button><button onClick={() => save('na_allah_licenses', licenses.filter(lx => lx.id !== l.id))} style={{color: '#ff7675', background: 'none', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.8rem'}}>Delete</button></div></td></tr>
                 ))}</tbody>
              </table></div>
+          )}
+
+          {activeTab === 'users' && (
+             <div className="animate-fade-in"><div style={styles.tableCard}><div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '20px'}}><h3 style={{margin: 0}}>Admin Directory</h3></div><table style={styles.table}><thead><tr><th>Email</th><th>Role</th><th>Date Added</th><th>Options</th></tr></thead>
+                <tbody>{admins.map(a => (
+                  <tr key={a.id}><td><strong>{a.email}</strong></td><td><span style={{color: a.role === 'Super Admin' ? 'var(--primary-gold)' : 'var(--primary-navy)', fontWeight: 'bold', background: 'rgba(0,0,0,0.05)', padding: '5px 10px', borderRadius: '10px'}}>{a.role}</span></td><td>{a.date}</td><td>
+                    {a.role !== 'Super Admin' && (
+                      <button onClick={() => {
+                        const updated = admins.filter(ax => ax.id !== a.id);
+                        setAdmins(updated);
+                        save('na_allah_admins', updated);
+                      }} style={{color: '#ff7675', background: 'rgba(255,118,117,0.1)', border: '1px solid rgba(255,118,117,0.3)', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.8rem', padding: '8px 15px', borderRadius: '8px'}}>Revoke Access</button>
+                    )}
+                  </td></tr>
+                ))}</tbody>
+             </table></div></div>
           )}
         </div>
       </main>
