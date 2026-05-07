@@ -10,13 +10,16 @@ function AdminPanel() {
   const [email, setEmail] = useState('');
   const [masterPin, setMasterPin] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState('');
   
   const [viewingBooking, setViewingBooking] = useState(null);
   const [showAddPackage, setShowAddPackage] = useState(false);
   const [showAddLicense, setShowAddLicense] = useState(false);
   const [showAddService, setShowAddService] = useState(false);
   const [showAddAdmin, setShowAddAdmin] = useState(false);
+  const [showChangePin, setShowChangePin] = useState(false);
   const [pinPopup, setPinPopup] = useState(null);
+  const [newPersonalPin, setNewPersonalPin] = useState('');
   
   const [editingLicense, setEditingLicense] = useState(null);
   const [editingPackage, setEditingPackage] = useState(null);
@@ -88,7 +91,10 @@ function AdminPanel() {
     loadData();
     const handleSync = (e) => { if (e.key && e.key.startsWith('na_allah_')) loadData(); };
     window.addEventListener('storage', handleSync);
-    if (sessionStorage.getItem('na_allah_auth') === 'true') setIsAuthenticated(true);
+    if (sessionStorage.getItem('na_allah_auth') === 'true') {
+      setIsAuthenticated(true);
+      setCurrentUser(sessionStorage.getItem('na_allah_user') || 'admin@naallahtravels.com');
+    }
     return () => window.removeEventListener('storage', handleSync);
   }, [loadData]);
 
@@ -179,7 +185,9 @@ function AdminPanel() {
         setIsLoading(true);
         setTimeout(() => {
           setIsAuthenticated(true); 
+          setCurrentUser(email);
           sessionStorage.setItem('na_allah_auth', 'true'); 
+          sessionStorage.setItem('na_allah_user', email); 
           setIsLoading(false);
         }, 1500);
       }
@@ -246,6 +254,27 @@ function AdminPanel() {
     
     setPinPopup({ email, pin: randomPin });
     setError(`New PIN generated successfully!`);
+  };
+
+  const handleChangeMyPin = (e) => {
+    e.preventDefault();
+    if (newPersonalPin.length < 4) return alert('PIN must be at least 4 digits');
+    
+    if (currentUser === 'admin@naallahtravels.com') {
+      setSettings({...settings, adminPin: newPersonalPin});
+      save('na_allah_settings', {...settings, adminPin: newPersonalPin});
+    } else {
+      const userIndex = admins.findIndex(a => a.email === currentUser);
+      if (userIndex !== -1) {
+        const updatedAdmins = [...admins];
+        updatedAdmins[userIndex].pin = newPersonalPin;
+        setAdmins(updatedAdmins);
+        save('na_allah_admins', updatedAdmins);
+      }
+    }
+    alert('Personal PIN updated successfully!');
+    setShowChangePin(false);
+    setNewPersonalPin('');
   };
 
   if (!isAuthenticated) return (
@@ -316,13 +345,19 @@ function AdminPanel() {
           <li style={{...styles.navItem, ...(activeTab === 'users' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('users')}>👥 Team Access</li>
           <li style={{...styles.navItem, ...(activeTab === 'settings' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('settings')}>⚙️ Global Control</li>
         </ul>
-        <button onClick={() => {sessionStorage.removeItem('na_allah_auth'); setIsAuthenticated(false);}} style={styles.logoutBtn}>Sign Out</button>
+        <div style={{marginTop: 'auto', display: 'flex', flexDirection: 'column'}}>
+           <button onClick={() => setShowChangePin(true)} style={{...styles.logoutBtn, background: 'rgba(212, 175, 55, 0.1)', color: 'var(--primary-gold)', border: '1px solid rgba(212, 175, 55, 0.3)', marginBottom: '10px', padding: '12px'}}>Change My PIN</button>
+           <button onClick={() => {sessionStorage.removeItem('na_allah_auth'); sessionStorage.removeItem('na_allah_user'); setIsAuthenticated(false);}} style={styles.logoutBtn}>Sign Out</button>
+        </div>
       </aside>
 
       <main style={styles.mainContent}>
         <header style={styles.topbar}>
-          <button onClick={() => window.location.hash = ''} className="btn-outline" style={{padding: '10px 20px', borderRadius: '10px'}}>← Back to Live Site</button>
-          <h3 style={{margin: 0}}>{activeTab.toUpperCase()} OVERVIEW</h3>
+          <h2 style={{color: 'var(--primary-navy)', margin: 0}}>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
+          <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
+            <span style={{fontWeight: 'bold', color: 'var(--primary-gold)'}}>Welcome, {currentUser.split('@')[0]}</span>
+            <div style={{width: '40px', height: '40px', borderRadius: '50%', background: 'var(--primary-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold'}}>{currentUser.charAt(0).toUpperCase()}</div>
+          </div>
         </header>
 
         <div style={styles.contentArea}>
@@ -517,6 +552,28 @@ function AdminPanel() {
             </div>
             <p style={{color: '#e74c3c', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '20px'}}>⚠️ Please copy this PIN now and share it securely. It will not be shown again.</p>
             <button onClick={() => setPinPopup(null)} className="btn btn-navy hover-lift" style={{width: '100%', padding: '14px', borderRadius: '15px'}}>I have copied the PIN</button>
+          </div>
+        </div>
+      )}
+
+      {showChangePin && (
+        <div style={styles.overlay}>
+          <div style={styles.modal}>
+            <div style={styles.mHead}><h2>🔒 Change My PIN</h2></div>
+            <div style={styles.mBody}>
+              <form onSubmit={handleChangeMyPin} style={{textAlign: 'left'}}>
+                <label style={styles.label}>Logged in as</label>
+                <input disabled type="text" style={{...styles.input, marginBottom: '20px', background: '#f8fafc', color: '#64748b'}} value={currentUser} />
+                
+                <label style={styles.label}>New Personal PIN</label>
+                <input required type="text" style={{...styles.input, marginBottom: '20px'}} value={newPersonalPin} onChange={e => setNewPersonalPin(e.target.value)} placeholder="Enter 4+ digits" />
+                
+                <div style={{display: 'flex', gap: '15px', marginTop: '10px'}}>
+                  <button type="submit" className="btn btn-navy hover-lift" style={{flex: 1, padding: '16px'}}>Update PIN</button>
+                  <button type="button" onClick={() => {setShowChangePin(false); setNewPersonalPin('');}} className="btn btn-outline hover-lift" style={{padding: '16px'}}>Cancel</button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
