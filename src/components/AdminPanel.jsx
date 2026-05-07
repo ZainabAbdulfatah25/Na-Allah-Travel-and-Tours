@@ -157,7 +157,7 @@ function AdminPanel() {
     e.preventDefault();
     if (authMode === 'signin') {
       const user = admins.find(a => a.email === email && a.pin === passcode);
-      if (user || (['2026', settings.adminPin].includes(passcode) && email === 'admin@naallahtravels.com')) { 
+      if (user || (['2026', settings.adminPin].includes(passcode) && ['admin@naallahtravels.com', 'admin@naalahtravels.com'].includes(email.toLowerCase()))) { 
         setIsLoading(true);
         setTimeout(() => {
           setIsAuthenticated(true); 
@@ -166,6 +166,36 @@ function AdminPanel() {
         }, 1500);
       }
       else setError('Invalid Email or PIN Error.');
+    } else if (authMode === 'forgot') {
+      if (!email) { setError('Email is required'); return; }
+      if (passcode.length < 4) { setError('New PIN must be at least 4 digits'); return; }
+      
+      const userIndex = admins.findIndex(a => a.email === email);
+      if (userIndex !== -1) {
+         setIsLoading(true);
+         setTimeout(() => {
+           const updatedAdmins = [...admins];
+           updatedAdmins[userIndex].pin = passcode;
+           setAdmins(updatedAdmins);
+           save('na_allah_admins', updatedAdmins);
+           setAuthMode('signin');
+           setPasscode('');
+           setError('PIN Reset Successful! Please login with your new PIN.');
+           setIsLoading(false);
+         }, 1000);
+      } else if (['admin@naallahtravels.com', 'admin@naalahtravels.com'].includes(email.toLowerCase())) {
+         setIsLoading(true);
+         setTimeout(() => {
+           setSettings({...settings, adminPin: passcode});
+           save('na_allah_settings', {...settings, adminPin: passcode});
+           setAuthMode('signin');
+           setPasscode('');
+           setError('Super Admin PIN Reset Successful! Please login.');
+           setIsLoading(false);
+         }, 1000);
+      } else {
+         setError('Email not found in our records.');
+      }
     } else {
       if (!email) { setError('Email is required'); return; }
       if (!['2026', settings.adminPin].includes(masterPin)) {
@@ -180,8 +210,9 @@ function AdminPanel() {
         const updatedAdmins = [...admins, newAdmin];
         setAdmins(updatedAdmins);
         save('na_allah_admins', updatedAdmins);
-        setIsAuthenticated(true);
-        sessionStorage.setItem('na_allah_auth', 'true');
+        setAuthMode('signin');
+        setPasscode('');
+        setError('Account created successfully! Please log in.');
         setIsLoading(false);
       }, 1500);
     }
@@ -196,7 +227,7 @@ function AdminPanel() {
     setPasscode(randomPin);
     
     const mailtoLink = `mailto:${email}?cc=${settings.email}&subject=Secure Admin PIN - Na-Allah Travels&body=Hello!%0A%0AYour generated Admin Control PIN for Na-Allah Travels is: ${randomPin}%0A%0APlease keep this secure and do not share it.`;
-    window.open(mailtoLink, '_blank');
+    window.location.href = mailtoLink;
     
     setError(`New PIN generated! Securely emailing to ${email} and HQ...`);
   };
@@ -233,16 +264,22 @@ function AdminPanel() {
              {authMode === 'signup' && (
                <button type="button" onClick={generatePin} style={{color: 'var(--primary-gold)', border: 'none', background: 'none', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer', paddingBottom: '5px'}}>Auto-Generate</button>
              )}
+             {authMode === 'signin' && (
+               <button type="button" onClick={() => {setAuthMode('forgot'); setError('');}} style={{color: 'var(--primary-navy)', border: 'none', background: 'none', fontSize: '0.75rem', cursor: 'pointer', paddingBottom: '5px', fontWeight: 'bold'}}>Forgot PIN?</button>
+             )}
+             {authMode === 'forgot' && (
+               <button type="button" onClick={() => {setAuthMode('signin'); setError('');}} style={{color: 'var(--text-muted)', border: 'none', background: 'none', fontSize: '0.75rem', cursor: 'pointer', paddingBottom: '5px'}}>Back to Login</button>
+             )}
           </div>
           <input type={authMode === 'signin' ? "password" : "text"} value={passcode} onChange={e => setPasscode(e.target.value)} style={styles.input} placeholder="****" autoFocus />
-          {error && <p style={{color: error.includes('securely') ? '#27ae60' : 'red', fontSize: '0.8rem', marginTop: '10px'}}>{error}</p>}
+          {error && <p style={{color: error.includes('Successful') || error.includes('securely') ? '#27ae60' : 'red', fontSize: '0.8rem', marginTop: '10px'}}>{error}</p>}
           <button type="submit" disabled={isLoading} className="btn btn-navy hover-lift" style={{width: '100%', marginTop: '15px', padding: '16px', opacity: isLoading ? 0.8 : 1, transition: 'all 0.3s'}}>
             {isLoading ? (
               <span style={{display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center'}}>
-                <span className="spinner" style={styles.spinner}></span> Logging in...
+                <span className="spinner" style={styles.spinner}></span> Processing...
               </span>
             ) : (
-              authMode === 'signin' ? 'Login' : 'Create Admin Account'
+              authMode === 'signin' ? 'Login' : authMode === 'forgot' ? 'Reset PIN' : 'Create Admin Account'
             )}
           </button>
         </form>
