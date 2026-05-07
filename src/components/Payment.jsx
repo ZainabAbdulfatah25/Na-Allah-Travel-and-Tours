@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 
 function Payment() {
-  const [formData, setFormData] = useState({ name: '', email: '', packageDetails: 'Standard Ramadan Package (Full)' });
+  const [formData, setFormData] = useState({ name: '', phone: '', email: '', packageDetails: 'Standard Ramadan Package (Full)' });
   const [inquiryMsg, setInquiryMsg] = useState('');
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -21,7 +21,7 @@ function Payment() {
       package: formData.packageDetails,
       status: 'Pending',
       date: new Date().toISOString().split('T')[0],
-      phone: 'Web User',
+      phone: formData.phone || 'Web User',
       message: type === 'booking' ? `OFFICIAL BOOKING: ${formData.packageDetails}` : `INQUIRY: ${message}`
     };
     
@@ -51,7 +51,7 @@ function Payment() {
 
   const handleConfirmBooking = (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.email) return alert("Please fill name and email!");
+    if (!formData.name || !formData.email || !formData.phone) return alert("Please fill your name, phone number, and email!");
     saveToAdmin('booking');
     setCompleted(true);
     window.scrollTo(0, 0);
@@ -127,6 +127,10 @@ function Payment() {
               <div style={styles.inputGroup}>
                 <label style={styles.label}>Full Name</label>
                 <input type="text" placeholder="e.g. Ibrahim Musa" style={styles.input} value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+              </div>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Phone Number</label>
+                <input type="tel" placeholder="e.g. +234..." style={styles.input} value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
               </div>
               <div style={styles.inputGroup}>
                 <label style={styles.label}>Email Address</label>
