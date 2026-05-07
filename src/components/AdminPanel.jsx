@@ -505,7 +505,42 @@ function AdminPanel() {
         </div>
       )}
 
-      {viewingBooking && (<div style={styles.overlay} onClick={() => setViewingBooking(null)}><div style={styles.modal} onClick={e => e.stopPropagation()}><div style={styles.mHead}><h2>Private Inquiry Detail</h2></div><div style={styles.mBody}><div style={styles.msg}>{viewingBooking.message}</div><button onClick={() => setViewingBooking(null)} className="btn btn-navy" style={{width: '100%', marginTop: '30px'}}>Noted</button></div></div></div>)}
+      {viewingBooking && (
+        <div style={styles.overlay} onClick={() => setViewingBooking(null)}>
+          <div style={styles.modal} onClick={e => e.stopPropagation()}>
+            <div style={styles.mHead}><h2>Private Inquiry Detail</h2></div>
+            <div style={styles.mBody}>
+               
+               <div style={{textAlign: 'left', marginBottom: '20px', padding: '20px', background: '#f8fafc', borderRadius: '15px', border: '1px solid #e2e8f0', fontSize: '0.95rem'}}>
+                  <p style={{margin: '0 0 10px 0'}}><strong>👤 Name:</strong> {viewingBooking.name}</p>
+                  <p style={{margin: '0 0 10px 0'}}><strong>📧 Email:</strong> {viewingBooking.email}</p>
+                  <p style={{margin: '0 0 10px 0'}}><strong>📞 Phone:</strong> {viewingBooking.phone}</p>
+                  <p style={{margin: '0'}}><strong>🕋 Interest:</strong> {viewingBooking.package}</p>
+               </div>
+
+               <div style={{...styles.msg, background: 'rgba(212, 175, 55, 0.05)', borderColor: 'rgba(212, 175, 55, 0.2)'}}>
+                 <strong>Message:</strong><br/><br/>
+                 {viewingBooking.message}
+               </div>
+
+               <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '30px'}}>
+                  <a href={`mailto:${viewingBooking.email}`} className="btn btn-navy hover-lift" style={{textDecoration: 'none', padding: '14px', display: 'block', textAlign: 'center'}}>✉️ Email</a>
+                  <a href={`tel:${viewingBooking.phone}`} className="btn btn-outline hover-lift" style={{textDecoration: 'none', padding: '14px', color: 'var(--primary-navy)', borderColor: 'var(--primary-navy)', display: 'block', textAlign: 'center'}}>📞 Call</a>
+                  
+                  <button onClick={() => setViewingBooking(null)} className="btn btn-navy hover-lift" style={{padding: '14px'}}>Close</button>
+                  <button onClick={() => {
+                     if(window.confirm('Are you sure you want to delete this inquiry?')) {
+                       const updated = bookings.filter(b => b.id !== viewingBooking.id);
+                       setBookings(updated);
+                       save('na_allah_bookings', updated);
+                       setViewingBooking(null);
+                     }
+                  }} className="btn btn-outline hover-lift" style={{padding: '14px', color: '#e74c3c', borderColor: '#e74c3c'}}>🗑️ Delete</button>
+               </div>
+            </div>
+          </div>
+        </div>
+      )}
       
       {showAddAdmin && (
         <div style={styles.overlay}>
