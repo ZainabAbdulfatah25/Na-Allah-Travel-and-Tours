@@ -17,7 +17,7 @@ function Navbar() {
         <Logo size={80} showText={true} />
       </div>
 
-      <nav className="glass-panel nav-pill-container" style={{...styles.pillNav, width: menuOpen ? '320px' : '180px', height: menuOpen ? 'auto' : '65px', padding: menuOpen ? '20px' : '0 20px', borderRadius: menuOpen ? '30px' : '35px'}}>
+      <nav className={`glass-panel nav-pill-container ${menuOpen ? 'nav-pill-open' : ''}`} style={{...styles.pillNav, width: menuOpen ? '320px' : '180px', height: menuOpen ? 'auto' : '65px', padding: menuOpen ? '20px' : '0 20px', borderRadius: menuOpen ? '30px' : '35px'}}>
         <div style={styles.pillHeader} onClick={() => setMenuOpen(!menuOpen)}>
            <span style={{fontWeight: '800', fontSize: '1rem', color: 'var(--primary-navy)'}}>{menuOpen ? 'CLOSE' : 'MENU'}</span>
            <div style={styles.burger}>

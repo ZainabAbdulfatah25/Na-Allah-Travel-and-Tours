@@ -220,11 +220,14 @@ h2 { font-size: clamp(2.5rem, 4.5vw, 4rem); margin-bottom: 1.5rem; }
   }
   
   /* Navbar specific fixes */
-  .nav-logo-container { top: 15px !important; left: 15px !important; }
-  .nav-logo-container svg { width: 50px !important; height: 50px !important; }
-  .nav-logo-container span { font-size: 1rem !important; }
-  .nav-pill-container { top: 15px !important; right: 15px !important; width: 140px !important; height: 50px !important; }
-  .nav-pill-container > div { height: 50px !important; }
+  .nav-logo-container { top: 15px !important; left: 15px !important; max-width: calc(100% - 130px); }
+  .nav-logo-container svg { width: 40px !important; height: 40px !important; }
+  .nav-logo-container span { font-size: 0.9rem !important; }
+  .nav-logo-container > div:last-child span:last-child { display: none !important; }
+  .nav-pill-container { top: 15px !important; right: 15px !important; }
+  .nav-pill-container:not(.nav-pill-open) { width: 110px !important; height: 45px !important; }
+  .nav-pill-container:not(.nav-pill-open) > div { height: 45px !important; }
+  .nav-pill-open { width: calc(100vw - 30px) !important; max-width: 320px !important; }
   
   /* Admin Topbar fixes */
   header[style*="height: 80px"] { padding: 0 20px !important; }
