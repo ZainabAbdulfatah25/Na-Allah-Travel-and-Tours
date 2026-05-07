@@ -4,15 +4,24 @@ import HeroParticles from './HeroParticles';
 function Hero() {
   const [destination, setDestination] = useState('');
   const [slogan, setSlogan] = useState('Experience the Ultimate Spiritual Journey with Luxury & Comfort.');
+  const [destinations, setDestinations] = useState([
+    { id: 1, name: 'Mecca (Hajj/Umrah)', val: 'mecca' },
+    { id: 2, name: 'Medina', val: 'medina' }
+  ]);
   
-  const loadSlogan = () => {
+  const loadSettings = () => {
     const saved = JSON.parse(localStorage.getItem('na_allah_settings'));
     if (saved && saved.heroSlogan) setSlogan(saved.heroSlogan);
+    
+    const savedDest = JSON.parse(localStorage.getItem('na_allah_destinations'));
+    if (savedDest) setDestinations(savedDest);
   };
 
   useEffect(() => {
-    loadSlogan();
-    const handleSync = (e) => { if (e.key === 'na_allah_settings') loadSlogan(); };
+    loadSettings();
+    const handleSync = (e) => { 
+       if (e.key === 'na_allah_settings' || e.key === 'na_allah_destinations') loadSettings(); 
+    };
     window.addEventListener('storage', handleSync);
     return () => window.removeEventListener('storage', handleSync);
   }, []);
@@ -45,8 +54,9 @@ function Hero() {
                 onChange={(e) => setDestination(e.target.value)}
               >
                  <option value="" style={{color: '#333'}}>Where to?</option>
-                 <option value="mecca" style={{color: '#333'}}>Mecca (Hajj/Umrah)</option>
-                 <option value="medina" style={{color: '#333'}}>Medina</option>
+                 {destinations.map(d => (
+                   <option key={d.id} value={d.val} style={{color: '#333'}}>{d.name}</option>
+                 ))}
               </select>
             </div>
             <button type="submit" className="btn btn-primary hover-lift" style={{padding: '18px 40px', width: '100%', marginTop: '20px'}}>Search Packages</button>

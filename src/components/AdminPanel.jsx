@@ -16,6 +16,7 @@ function AdminPanel() {
   const [showAddPackage, setShowAddPackage] = useState(false);
   const [showAddLicense, setShowAddLicense] = useState(false);
   const [showAddService, setShowAddService] = useState(false);
+  const [showAddDestination, setShowAddDestination] = useState(false);
   const [showAddAdmin, setShowAddAdmin] = useState(false);
   const [showChangePin, setShowChangePin] = useState(false);
   const [pinPopup, setPinPopup] = useState(null);
@@ -24,6 +25,7 @@ function AdminPanel() {
   const [editingLicense, setEditingLicense] = useState(null);
   const [editingPackage, setEditingPackage] = useState(null);
   const [editingService, setEditingService] = useState(null);
+  const [editingDestination, setEditingDestination] = useState(null);
 
   // GLOBAL SETTINGS STATE
   const [settings, setSettings] = useState({
@@ -44,11 +46,13 @@ function AdminPanel() {
   const [newPackage, setNewPackage] = useState({ title: '', price: '', category: 'ramadan' });
   const [newLicense, setNewLicense] = useState({ title: '', link: '', status: 'Official' });
   const [newService, setNewService] = useState({ title: '', icon: '✈️', desc: '' });
+  const [newDestination, setNewDestination] = useState({ name: '', val: '' });
   const [newAdminData, setNewAdminData] = useState({ email: '', pin: '' });
   
   const [bookings, setBookings] = useState([]);
   const [packages, setPackages] = useState({ ramadan: [], hajj: [] });
   const [licenses, setLicenses] = useState([]);
+  const [destinations, setDestinations] = useState([]);
   const [services, setServices] = useState([]);
   const [admins, setAdmins] = useState([]);
 
@@ -71,6 +75,10 @@ function AdminPanel() {
        { id: 1, title: 'Corporate Affairs Commission', link: '#', status: 'Official' },
        { id: 2, title: 'IATA Approved Agency', link: '#', status: 'Verified' }
     ];
+    const dst = JSON.parse(localStorage.getItem('na_allah_destinations')) || [
+       { id: 1, name: 'Mecca (Hajj/Umrah)', val: 'mecca' },
+       { id: 2, name: 'Medina', val: 'medina' }
+    ];
     const sv = JSON.parse(localStorage.getItem('na_allah_services')) || [
        { id: 1, title: 'Flight Bookings', icon: '✈️', desc: 'Premium flight reservations for all sacred routes.' },
        { id: 2, title: 'Hajj & Umrah Tours', icon: '🕌', desc: 'Expertly guided spiritual journeys with local scholars.' },
@@ -83,6 +91,7 @@ function AdminPanel() {
     setBookings(b);
     setPackages(p);
     setLicenses(l);
+    setDestinations(dst);
     setServices(sv);
     setAdmins(ad);
   }, []);
@@ -154,6 +163,15 @@ function AdminPanel() {
     else { if (!newLicense.link) return alert('No file attached.'); updated = [...licenses, { id: Date.now(), ...newLicense }]; }
     save('na_allah_licenses', updated);
     setShowAddLicense(false); setEditingLicense(null); setNewLicense({ title: '', link: '', status: 'Official' });
+  };
+
+  const handleDestinationSave = (e) => {
+    e.preventDefault();
+    let updated;
+    if (editingDestination) updated = destinations.map(d => d.id === editingDestination.id ? editingDestination : d);
+    else updated = [...destinations, { id: Date.now(), ...newDestination }];
+    save('na_allah_destinations', updated);
+    setShowAddDestination(false); setEditingDestination(null); setNewDestination({ name: '', val: '' });
   };
 
   const handleGlobalSync = (e) => {
@@ -340,6 +358,7 @@ function AdminPanel() {
           <li style={{...styles.navItem, ...(activeTab === 'dashboard' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('dashboard')}>📊 Summary</li>
           <li style={{...styles.navItem, ...(activeTab === 'bookings' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('bookings')}>📝 Inquiries</li>
           <li style={{...styles.navItem, ...(activeTab === 'packages' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('packages')}>📦 Travel Plans</li>
+          <li style={{...styles.navItem, ...(activeTab === 'destinations' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('destinations')}>🌍 Destinations</li>
           <li style={{...styles.navItem, ...(activeTab === 'services' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('services')}>🛠️ Core Services</li>
           <li style={{...styles.navItem, ...(activeTab === 'licenses' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('licenses')}>📜 Credentials</li>
           <li style={{...styles.navItem, ...(activeTab === 'users' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('users')}>👥 Team Access</li>
@@ -411,29 +430,39 @@ function AdminPanel() {
           )}
 
           {activeTab === 'dashboard' && (
-            <div className="animate-fade-in" style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '25px', marginBottom: '30px'}}>
-              <div style={{...styles.statCard, cursor: 'pointer', padding: '25px'}} onClick={() => setActiveTab('bookings')} className="hover-lift">
-                <h3 style={{margin:0, fontSize: '1.2rem', color: 'var(--text-muted)'}}>Inquiries</h3><p style={{...styles.statNum, fontSize: '3.5rem'}}>{bookings.length}</p>
+            <div className="animate-fade-in" style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px', marginBottom: '30px'}}>
+              <div style={{...styles.statCard, cursor: 'pointer', padding: '20px'}} onClick={() => setActiveTab('bookings')} className="hover-lift">
+                <h3 style={{margin:0, fontSize: '1.1rem', color: 'var(--text-muted)'}}>Inquiries</h3><p style={{...styles.statNum, fontSize: '3rem'}}>{bookings.length}</p>
               </div>
-              <div style={{...styles.statCard, cursor: 'pointer', padding: '25px'}} onClick={() => setActiveTab('packages')} className="hover-lift">
-                <h3 style={{margin:0, fontSize: '1.2rem', color: 'var(--text-muted)'}}>Travel Plans</h3><p style={{...styles.statNum, fontSize: '3.5rem'}}>{packages.ramadan.length + packages.hajj.length}</p>
+              <div style={{...styles.statCard, cursor: 'pointer', padding: '20px'}} onClick={() => setActiveTab('packages')} className="hover-lift">
+                <h3 style={{margin:0, fontSize: '1.1rem', color: 'var(--text-muted)'}}>Travel Plans</h3><p style={{...styles.statNum, fontSize: '3rem'}}>{packages.ramadan.length + packages.hajj.length}</p>
               </div>
-              <div style={{...styles.statCard, cursor: 'pointer', padding: '25px'}} onClick={() => setActiveTab('services')} className="hover-lift">
-                <h3 style={{margin:0, fontSize: '1.2rem', color: 'var(--text-muted)'}}>Core Services</h3><p style={{...styles.statNum, fontSize: '3.5rem'}}>{services.length}</p>
+              <div style={{...styles.statCard, cursor: 'pointer', padding: '20px'}} onClick={() => setActiveTab('destinations')} className="hover-lift">
+                <h3 style={{margin:0, fontSize: '1.1rem', color: 'var(--text-muted)'}}>Destinations</h3><p style={{...styles.statNum, fontSize: '3rem'}}>{destinations.length}</p>
               </div>
-              <div style={{...styles.statCard, cursor: 'pointer', padding: '25px'}} onClick={() => setActiveTab('licenses')} className="hover-lift">
-                <h3 style={{margin:0, fontSize: '1.2rem', color: 'var(--text-muted)'}}>Credentials</h3><p style={{...styles.statNum, fontSize: '3.5rem'}}>{licenses.length}</p>
+              <div style={{...styles.statCard, cursor: 'pointer', padding: '20px'}} onClick={() => setActiveTab('services')} className="hover-lift">
+                <h3 style={{margin:0, fontSize: '1.1rem', color: 'var(--text-muted)'}}>Core Services</h3><p style={{...styles.statNum, fontSize: '3rem'}}>{services.length}</p>
               </div>
-              <div style={{...styles.statCard, cursor: 'pointer', padding: '25px'}} onClick={() => setActiveTab('users')} className="hover-lift">
-                <h3 style={{margin:0, fontSize: '1.2rem', color: 'var(--text-muted)'}}>Team Access</h3><p style={{...styles.statNum, fontSize: '3.5rem'}}>{admins.length}</p>
+              <div style={{...styles.statCard, cursor: 'pointer', padding: '20px'}} onClick={() => setActiveTab('licenses')} className="hover-lift">
+                <h3 style={{margin:0, fontSize: '1.1rem', color: 'var(--text-muted)'}}>Credentials</h3><p style={{...styles.statNum, fontSize: '3rem'}}>{licenses.length}</p>
+              </div>
+              <div style={{...styles.statCard, cursor: 'pointer', padding: '20px'}} onClick={() => setActiveTab('users')} className="hover-lift">
+                <h3 style={{margin:0, fontSize: '1.1rem', color: 'var(--text-muted)'}}>Team Access</h3><p style={{...styles.statNum, fontSize: '3rem'}}>{admins.length}</p>
               </div>
             </div>
           )}
 
           {activeTab === 'bookings' && (
-            <div style={styles.tableCard}><table style={styles.table}><thead><tr><th>Visitor</th><th>Inquiry</th><th style={{width: '120px'}}>Control</th></tr></thead>
+            <div style={styles.tableCard}><table style={styles.table}>
+              <thead><tr><th>Date</th><th>Visitor</th><th>Email</th><th>Inquiry</th><th style={{width: '120px'}}>Control</th></tr></thead>
               <tbody>{bookings.map(b => (
-                <tr key={b.id}><td><strong>{b.name}</strong></td><td>{b.package}</td><td><button onClick={() => setViewingBooking(b)} style={styles.btnSm}>Review</button></td></tr>
+                <tr key={b.id}>
+                  <td style={{color: '#64748b'}}>{b.date || 'Today'}</td>
+                  <td><strong>{b.name || 'Unknown'}</strong></td>
+                  <td>{b.email || 'N/A'}</td>
+                  <td>{b.package || 'General'}</td>
+                  <td><button onClick={() => setViewingBooking(b)} style={styles.btnSm}>Review</button></td>
+                </tr>
               ))}</tbody>
             </table></div>
           )}
@@ -455,6 +484,30 @@ function AdminPanel() {
                 </div>
               ))}</div>
             </div>
+          )}
+
+          {activeTab === 'destinations' && (
+             <div className="animate-fade-in">
+                <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '30px', alignItems: 'center'}}>
+                   <h3 style={{margin: 0}}>Available Destinations</h3>
+                   <button onClick={() => setShowAddDestination(true)} className="btn btn-navy hover-lift">🌍 + New Destination</button>
+                </div>
+                <div style={styles.tableCard}>
+                   <table style={styles.table}>
+                     <thead><tr><th>Destination Name</th><th>Value (System Code)</th><th style={{width: '120px', textAlign: 'right'}}>Control</th></tr></thead>
+                     <tbody>{destinations.map(d => (
+                       <tr key={d.id}>
+                         <td><strong>{d.name}</strong></td>
+                         <td style={{color: '#64748b'}}>{d.val}</td>
+                         <td style={{textAlign: 'right'}}>
+                            <button onClick={() => setEditingDestination(d)} style={{color: 'var(--primary-navy)', marginRight: '15px', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer'}}>Edit</button>
+                            <button onClick={() => save('na_allah_destinations', destinations.filter(dx => dx.id !== d.id))} style={{color: 'red', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer'}}>✕</button>
+                         </td>
+                       </tr>
+                     ))}</tbody>
+                   </table>
+                </div>
+             </div>
           )}
 
           {activeTab === 'licenses' && (
@@ -591,6 +644,28 @@ function AdminPanel() {
 
       {(showAddPackage || editingPackage) && (<div style={styles.overlay}><div style={styles.modal}><div style={styles.mHead}><h2>📦 {editingPackage ? 'Edit' : 'New'} Plan</h2></div><div style={styles.mBody}><form onSubmit={handlePackageSave}><label style={styles.label}>Plan Title</label><input required style={styles.input} value={editingPackage ? editingPackage.title : newPackage.title} onChange={e => editingPackage ? setEditingPackage({...editingPackage, title: e.target.value}) : setNewPackage({...newPackage, title: e.target.value})} /><label style={styles.label}>Price (₦)</label><input required style={styles.input} value={editingPackage ? editingPackage.price : newPackage.price} onChange={e => editingPackage ? setEditingPackage({...editingPackage, price: e.target.value}) : setNewPackage({...newPackage, price: e.target.value})} /><label style={styles.label}>Spiritual Category</label><select disabled={!!editingPackage} style={styles.input} value={editingPackage ? editingPackage.category : newPackage.category} onChange={e => setNewPackage({...newPackage, category: e.target.value})}><option value="ramadan">Ramadan</option><option value="hajj">Hajj</option></select><div style={{display: 'flex', gap: '15px', marginTop: '30px'}}><button type="submit" className="btn btn-navy" style={{flex: 1, padding: '16px'}}>🕋 {editingPackage ? 'Update' : 'Publish'}</button><button type="button" onClick={() => {setShowAddPackage(false); setEditingPackage(null);}} className="btn btn-outline" style={{padding: '16px'}}>Cancel</button></div></form></div></div></div>)}
       {(showAddLicense || editingLicense) && (<div style={styles.overlay}><div style={styles.modal}><div style={styles.mHead}><h2>📜 {editingLicense ? 'Edit' : 'Upload'} Doc</h2></div><div style={styles.mBody}><form onSubmit={handleLicenseSave}><label style={styles.label}>Document Title</label><input required style={styles.input} value={editingLicense ? editingLicense.title : newLicense.title} onChange={e => editingLicense ? setEditingLicense({...editingLicense, title: e.target.value}) : setNewLicense({...newLicense, title: e.target.value})} /><label style={styles.label}>Attach Official Certificate (PDF/JPG)</label><div style={styles.fileBox}><input type="file" accept="application/pdf,image/*" onChange={handleFileUpload} style={{width: '100%'}} />{(editingLicense?.link || newLicense.link) && <p style={{color: 'green', fontSize: '0.75rem', marginTop: '10px'}}>✅ Registered</p>}</div><div style={{display: 'flex', gap: '15px', marginTop: '30px'}}><button type="submit" className="btn btn-navy" style={{flex: 1, padding: '16px'}}>{editingLicense ? 'Update' : 'Store'}</button><button type="button" onClick={() => {setShowAddLicense(false); setEditingLicense(null);}} className="btn btn-outline" style={{padding: '16px'}}>Cancel</button></div></form></div></div></div>)}
+
+      {(showAddDestination || editingDestination) && (
+        <div style={styles.overlay}>
+          <div style={styles.modal}>
+            <div style={styles.mHead}><h2>🌍 {editingDestination ? 'Edit' : 'New'} Destination</h2></div>
+            <div style={styles.mBody}>
+              <form onSubmit={handleDestinationSave} style={{textAlign: 'left'}}>
+                <label style={styles.label}>Display Name (e.g. Mecca - Hajj)</label>
+                <input required style={{...styles.input, marginBottom: '20px'}} value={editingDestination ? editingDestination.name : newDestination.name} onChange={e => editingDestination ? setEditingDestination({...editingDestination, name: e.target.value}) : setNewDestination({...newDestination, name: e.target.value})} />
+                
+                <label style={styles.label}>System Value (Lowercase, no spaces)</label>
+                <input required style={{...styles.input, marginBottom: '20px'}} value={editingDestination ? editingDestination.val : newDestination.val} onChange={e => editingDestination ? setEditingDestination({...editingDestination, val: e.target.value.toLowerCase().replace(/\s+/g, '-')}) : setNewDestination({...newDestination, val: e.target.value.toLowerCase().replace(/\s+/g, '-')})} placeholder="e.g. mecca" />
+                
+                <div style={{display: 'flex', gap: '15px', marginTop: '10px'}}>
+                  <button type="submit" className="btn btn-navy hover-lift" style={{flex: 1, padding: '16px'}}>{editingDestination ? 'Update' : 'Add'}</button>
+                  <button type="button" onClick={() => {setShowAddDestination(false); setEditingDestination(null);}} className="btn btn-outline hover-lift" style={{padding: '16px'}}>Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {pinPopup && (
         <div style={styles.overlay} onClick={() => setPinPopup(null)}>
