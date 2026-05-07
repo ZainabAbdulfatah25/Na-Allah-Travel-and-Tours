@@ -8,6 +8,8 @@ function AdminPanel() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [authMode, setAuthMode] = useState('signin');
   const [email, setEmail] = useState('');
+  const [masterPin, setMasterPin] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
   const [viewingBooking, setViewingBooking] = useState(null);
   const [showAddPackage, setShowAddPackage] = useState(false);
@@ -149,22 +151,46 @@ function AdminPanel() {
   const handleAuth = (e) => {
     e.preventDefault();
     if (authMode === 'signin') {
-      if (['2026', settings.adminPin].includes(passcode)) { setIsAuthenticated(true); sessionStorage.setItem('na_allah_auth', 'true'); }
+      if (['2026', settings.adminPin].includes(passcode)) { 
+        setIsLoading(true);
+        setTimeout(() => {
+          setIsAuthenticated(true); 
+          sessionStorage.setItem('na_allah_auth', 'true'); 
+          setIsLoading(false);
+        }, 1500);
+      }
       else setError('Invalid Email or PIN Error.');
     } else {
       if (!email) { setError('Email is required'); return; }
-      if (passcode.length < 4) { setError('PIN must be at least 4 digits'); return; }
-      setSettings({...settings, adminPin: passcode});
-      save('na_allah_settings', {...settings, adminPin: passcode});
-      setIsAuthenticated(true);
-      sessionStorage.setItem('na_allah_auth', 'true');
+      if (!['2026', settings.adminPin].includes(masterPin)) {
+        setError('Unauthorized: Valid Master PIN required.');
+        return;
+      }
+      if (passcode.length < 4) { setError('New PIN must be at least 4 digits'); return; }
+      
+      setIsLoading(true);
+      setTimeout(() => {
+        setSettings({...settings, adminPin: passcode});
+        save('na_allah_settings', {...settings, adminPin: passcode});
+        setIsAuthenticated(true);
+        sessionStorage.setItem('na_allah_auth', 'true');
+        setIsLoading(false);
+      }, 1500);
     }
   };
 
   const generatePin = () => {
+    if (!email) {
+      setError('Please enter your admin email first to receive the PIN.');
+      return;
+    }
     const randomPin = Math.floor(1000 + Math.random() * 9000).toString();
     setPasscode(randomPin);
-    setError('New PIN generated. Please copy it and save safely.');
+    
+    const mailtoLink = `mailto:${email}?cc=${settings.email}&subject=Secure Admin PIN - Na-Allah Travels&body=Hello!%0A%0AYour generated Admin Control PIN for Na-Allah Travels is: ${randomPin}%0A%0APlease keep this secure and do not share it.`;
+    window.open(mailtoLink, '_blank');
+    
+    setError(`New PIN generated! Securely emailing to ${email} and HQ...`);
   };
 
   if (!isAuthenticated) return (
@@ -188,19 +214,28 @@ function AdminPanel() {
             <>
               <label style={styles.label}>Admin Email</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{...styles.input, marginBottom: '15px'}} placeholder="admin@naallahtravels.com" />
+              
+              <label style={styles.label}>Master PIN (Authorization)</label>
+              <input type="password" value={masterPin} onChange={e => setMasterPin(e.target.value)} style={{...styles.input, marginBottom: '15px'}} placeholder="Enter current HQ PIN" />
             </>
           )}
 
           <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
-             <label style={styles.label}>Control PIN</label>
+             <label style={styles.label}>{authMode === 'signin' ? 'Control PIN' : 'New Control PIN'}</label>
              {authMode === 'signup' && (
                <button type="button" onClick={generatePin} style={{color: 'var(--primary-gold)', border: 'none', background: 'none', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer', paddingBottom: '5px'}}>Auto-Generate</button>
              )}
           </div>
           <input type={authMode === 'signin' ? "password" : "text"} value={passcode} onChange={e => setPasscode(e.target.value)} style={styles.input} placeholder="****" autoFocus />
-          {error && <p style={{color: error.includes('safely') ? '#27ae60' : 'red', fontSize: '0.8rem', marginTop: '10px'}}>{error}</p>}
-          <button type="submit" className="btn btn-navy hover-lift" style={{width: '100%', marginTop: '15px', padding: '16px'}}>
-            {authMode === 'signin' ? 'Login' : 'Create Admin Account'}
+          {error && <p style={{color: error.includes('securely') ? '#27ae60' : 'red', fontSize: '0.8rem', marginTop: '10px'}}>{error}</p>}
+          <button type="submit" disabled={isLoading} className="btn btn-navy hover-lift" style={{width: '100%', marginTop: '15px', padding: '16px', opacity: isLoading ? 0.8 : 1, transition: 'all 0.3s'}}>
+            {isLoading ? (
+              <span style={{display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center'}}>
+                <span className="spinner" style={styles.spinner}></span> Logging in...
+              </span>
+            ) : (
+              authMode === 'signin' ? 'Login' : 'Create Admin Account'
+            )}
           </button>
         </form>
       </div>
@@ -388,7 +423,8 @@ const styles = {
   fileBox: { marginTop: '10px', padding: '20px', border: '2px dashed #cbd5e1', borderRadius: '15px', textAlign: 'center', background: 'var(--off-white)', cursor: 'pointer' },
   blurBlob: { position: 'absolute', width: '500px', height: '500px', borderRadius: '50%', filter: 'blur(100px)', animation: 'floatElement 20s ease-in-out infinite' },
   tabBtn: { padding: '8px 16px', borderRadius: '20px', fontSize: '0.9rem', fontWeight: '800', cursor: 'pointer', border: 'none', background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.3s' },
-  activeTabBtn: { background: 'rgba(212, 175, 55, 0.15)', color: 'var(--primary-gold)' }
+  activeTabBtn: { background: 'rgba(212, 175, 55, 0.15)', color: 'var(--primary-gold)' },
+  spinner: { width: '20px', height: '20px', border: '3px solid rgba(255,255,255,0.3)', borderTop: '3px solid white', borderRadius: '50%', display: 'inline-block' }
 };
 
 export default AdminPanel;
