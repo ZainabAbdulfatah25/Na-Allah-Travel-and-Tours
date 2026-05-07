@@ -31,6 +31,7 @@ function ContactForm() {
       const { error } = await supabase
         .from('na_allah_bookings')
         .insert([{ 
+           id: newInquiry.id,
            name: formData.name, 
            phone: formData.phone, 
            email: formData.email, 

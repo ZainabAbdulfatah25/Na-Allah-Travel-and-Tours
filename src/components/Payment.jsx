@@ -34,6 +34,7 @@ function Payment() {
       const { error } = await supabase
         .from('na_allah_bookings')
         .insert([{ 
+           id: newEntry.id,
            name: newEntry.name, 
            phone: newEntry.phone, 
            email: newEntry.email, 
