@@ -157,7 +157,7 @@ function AdminPanel() {
     e.preventDefault();
     if (authMode === 'signin') {
       const user = admins.find(a => a.email === email && a.pin === passcode);
-      if (user || (['2026', settings.adminPin].includes(passcode) && ['admin@naallahtravels.com', 'admin@naalahtravels.com'].includes(email.toLowerCase()))) { 
+      if (user || (['2026', settings.adminPin].includes(passcode) && email === 'admin@naallahtravels.com')) { 
         setIsLoading(true);
         setTimeout(() => {
           setIsAuthenticated(true); 
@@ -183,7 +183,7 @@ function AdminPanel() {
            setError('PIN Reset Successful! Please login with your new PIN.');
            setIsLoading(false);
          }, 1000);
-      } else if (['admin@naallahtravels.com', 'admin@naalahtravels.com'].includes(email.toLowerCase())) {
+      } else if (email === 'admin@naallahtravels.com') {
          setIsLoading(true);
          setTimeout(() => {
            setSettings({...settings, adminPin: passcode});
