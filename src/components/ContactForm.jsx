@@ -22,10 +22,7 @@ function ContactForm() {
     const currentBookings = JSON.parse(localStorage.getItem('na_allah_bookings')) || [];
     const newInquiry = { id: Date.now(), ...formData, status: 'Pending', date: new Date().toISOString().split('T')[0] };
     localStorage.setItem('na_allah_bookings', JSON.stringify([newInquiry, ...currentBookings]));
-    const whatsappMsg = `Hi Na-Allah travels! My name is ${formData.name}. Description: ${formData.package}. Message: ${formData.message}`;
-    window.open(`https://wa.me/${info.whatsapp}?text=${encodeURIComponent(whatsappMsg)}`, '_blank');
     setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 5000);
     setFormData({ name: '', phone: '', email: '', package: 'General Inquiry', message: '' });
   };
 
@@ -68,7 +65,19 @@ function ContactForm() {
             <p style={{color: '#64748b', marginBottom: '25px', lineHeight: '1.5', fontSize: '0.95rem'}}>
               Thank you for choosing Na-Allah Travels & Tours. Our team has received your message and will reach out to you shortly.
             </p>
-            <button onClick={() => setSubmitted(false)} className="btn btn-navy hover-lift" style={{width: '100%', padding: '14px', borderRadius: '15px'}}>Close</button>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
+              <button 
+                onClick={() => {
+                  window.open(`https://wa.me/${info.whatsapp}?text=Hi%20Na-Allah%20travels!%20I%20just%20submitted%20an%20inquiry%20on%20your%20website.`, '_blank');
+                  setSubmitted(false);
+                }} 
+                className="btn btn-primary hover-lift" 
+                style={{width: '100%', padding: '14px', borderRadius: '15px', background: '#25D366', color: 'white', border: 'none', boxShadow: '0 10px 20px -5px rgba(37, 211, 102, 0.4)'}}
+              >
+                💬 Chat on WhatsApp
+              </button>
+              <button onClick={() => setSubmitted(false)} className="btn btn-outline hover-lift" style={{width: '100%', padding: '14px', borderRadius: '15px'}}>Close</button>
+            </div>
           </div>
         </div>
       )}
