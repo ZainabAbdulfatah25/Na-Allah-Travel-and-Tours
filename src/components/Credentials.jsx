@@ -43,18 +43,19 @@ function Credentials() {
   const displayLicenses = [...licenses, ...licenses]; // Duplicate for infinite scroll
 
   return (
-    <section id="credentials" className="section-padding" style={{backgroundColor: 'var(--off-white)', position: 'relative', overflow: 'hidden', paddingBottom: '100px'}}>
-      {/* Dynamic 3D elements for uniqueness */}
+    <section id="credentials" className="section-padding" style={{backgroundColor: '#fdfcfb', position: 'relative', overflow: 'hidden', paddingBottom: '120px'}}>
+      {/* Premium Background Elements */}
       <div style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0}}>
-        <div style={{...styles.blurBlob, top: '20%', left: '-5%', background: 'rgba(212, 175, 55, 0.08)'}}></div>
-        <div style={{...styles.blurBlob, bottom: '10%', right: '-5%', background: 'rgba(5, 16, 36, 0.05)', animationDelay: '-5s'}}></div>
+        <div style={{...styles.blurBlob, top: '-10%', left: '-5%', background: 'rgba(212, 175, 55, 0.05)'}}></div>
+        <div style={{...styles.blurBlob, bottom: '0', right: '-10%', background: 'rgba(5, 16, 36, 0.03)', animationDelay: '-5s'}}></div>
       </div>
 
       <div className="container-fluid" style={{position: 'relative', zIndex: 1}}>
-        <div style={{textAlign: 'center', marginBottom: '60px'}} className="animate-fade-in-up">
-          <h2 style={{color: 'var(--primary-navy)'}}>Official Authority Credentials</h2>
-          <p style={{color: '#64748b', fontSize: '1rem', marginTop: '5px'}}>Fully licensed for global and religious travel operations.</p>
-          <div style={{width: '60px', height: '4px', backgroundColor: 'var(--primary-gold)', margin: '15px auto 40px auto'}}></div>
+        <div style={{textAlign: 'center', marginBottom: '80px'}} className="animate-fade-in-up">
+          <span style={{color: 'var(--primary-gold)', fontWeight: '800', letterSpacing: '4px', textTransform: 'uppercase', fontSize: '0.8rem', display: 'block', marginBottom: '15px'}}>Trust & Authority</span>
+          <h2 style={{color: 'var(--primary-navy)', fontSize: '2.8rem', fontWeight: '900'}}>Official Authority Credentials</h2>
+          <div style={{width: '80px', height: '5px', backgroundColor: 'var(--primary-gold)', margin: '25px auto', borderRadius: '10px'}}></div>
+          <p style={{color: '#64748b', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto'}}>Providing safe, legal, and spiritually aligned travel experiences through rigorous certification and global standards.</p>
         </div>
         
         <div style={styles.marqueeWrapper}>
@@ -63,47 +64,34 @@ function Credentials() {
                <div 
                  key={`${l.id}-${idx}`} 
                  style={styles.card} 
-                 className="hover-lift glass-panel"
+                 className="hover-lift credential-card"
                >
-                 <div style={styles.badge}>{l.status || 'OFFICIAL'}</div>
+                 <div style={styles.badge}>{l.status || 'VERIFIED'}</div>
                  
                  <div style={styles.previewArea}>
-                    {l.link && l.link !== '#' && !l.link.includes('pdf') && !l.link.startsWith('data:application/pdf') ? (
+                    {l.link && l.link !== '#' ? (
                       <img 
                         src={l.link} 
                         alt={l.title} 
                         style={styles.previewImg} 
+                        className="cert-img"
                         onError={(e) => {
                           e.target.style.display = 'none';
                           e.target.nextSibling.style.display = 'flex';
                         }}
                       />
                     ) : null}
-                    
-                    <div style={{...styles.docPlaceholder, display: (l.link && l.link !== '#' && !l.link.includes('pdf') && !l.link.startsWith('data:application/pdf')) ? 'none' : 'flex'}}>
-                      <div style={styles.placeholderSeal}></div>
-                      <div style={styles.placeholderLine}></div>
-                      <div style={styles.placeholderLine}></div>
-                      <div style={{...styles.placeholderLine, width: '40%'}}></div>
-                      <div style={{
-                        marginTop: '15px', 
-                        fontSize: '0.6rem', 
-                        fontWeight: '900', 
-                        letterSpacing: '1px', 
-                        backgroundColor: l.link?.includes('pdf') ? '#e1f5fe' : 'transparent',
-                        color: l.link?.includes('pdf') ? '#039be5' : 'inherit',
-                        padding: l.link?.includes('pdf') ? '4px 8px' : '0',
-                        borderRadius: '4px',
-                        opacity: l.link?.includes('pdf') ? 1 : 0.5
-                      }}>
-                        {l.link?.includes('pdf') ? '📄 PDF DOCUMENT' : '📜 OFFICIAL CREDENTIAL'}
-                      </div>
+                    <div style={{...styles.docPlaceholder, display: (l.link && l.link !== '#') ? 'none' : 'flex'}}>
+                      <span style={{fontSize: '4.5rem', marginBottom: '15px'}}>📜</span>
+                      <span style={{fontSize: '0.8rem', fontWeight: '900', letterSpacing: '2px', textTransform: 'uppercase', opacity: 0.6}}>Official Document</span>
                     </div>
                  </div>
 
                  <div style={styles.cardContent}>
                    <h3 style={styles.title}>{l.title}</h3>
-                   <button onClick={() => openDoc(l.link)} className="btn-outline" style={styles.viewBtn}>Review Certification</button>
+                   <div style={{marginTop: 'auto'}}>
+                     <button onClick={() => openDoc(l.link)} className="btn-outline" style={styles.viewBtn}>Verify Certificate</button>
+                   </div>
                  </div>
                </div>
             ))}
@@ -114,10 +102,13 @@ function Credentials() {
       <style>{`
         @keyframes marquee {
           0% { transform: translateX(0); }
-          100% { transform: translateX(calc(-350px * ${licenses.length} - 30px * ${licenses.length})); }
+          100% { transform: translateX(calc(-380px * ${licenses.length} - 40px * ${licenses.length})); }
         }
         .marquee-inner:hover {
           animation-play-state: paused !important;
+        }
+        .credential-card:hover .cert-img {
+          transform: scale(1.1) translateY(-10px);
         }
       `}</style>
     </section>
@@ -128,49 +119,52 @@ const styles = {
   marqueeWrapper: { 
     width: '100%', 
     overflow: 'hidden', 
-    padding: '40px 0',
+    padding: '20px 0',
     position: 'relative'
   },
   marqueeContent: { 
     display: 'flex', 
-    gap: '30px', 
+    gap: '40px', 
     width: 'max-content',
-    animation: 'marquee 40s linear infinite',
-    padding: '10px 40px'
+    animation: 'marquee 50s linear infinite',
+    padding: '20px 40px'
   },
   card: { 
-    width: '350px',
-    padding: '0', 
-    backgroundColor: 'rgba(255,255,255,0.7)', 
-    backdropFilter: 'blur(10px)', 
-    borderRadius: 'var(--radius-lg)', 
+    width: '380px',
+    backgroundColor: 'white', 
+    borderRadius: '24px', 
     textAlign: 'center', 
-    boxShadow: '0 15px 35px -10px rgba(0,0,0,0.08)', 
-    border: '1px solid rgba(255,255,255,0.4)', 
+    boxShadow: '0 20px 50px rgba(0,0,0,0.05)', 
+    border: '1px solid #f1f5f9', 
     position: 'relative',
     flexShrink: 0,
-    transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+    transition: 'all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1)',
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column'
   },
   previewArea: {
     width: '100%',
-    height: '220px',
-    backgroundColor: '#f1f5f9',
+    height: '260px',
+    backgroundColor: '#f8fafc',
     overflow: 'hidden',
     position: 'relative',
-    borderBottom: '1px solid rgba(0,0,0,0.05)'
+    display: 'flex',
+    justifyContent: 'center',
+    padding: '25px 25px 0 25px',
+    background: 'linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%)',
+    backgroundImage: 'url("https://www.transparenttextures.com/patterns/cream-paper.png")'
   },
   previewImg: {
     width: '100%',
-    height: '100%',
+    height: '140%', // Zoom in to show the top part better
     objectFit: 'cover',
     objectPosition: 'top',
-    transform: 'scale(1.1)',
-    transformOrigin: 'top',
-    opacity: 1,
-    transition: 'transform 0.5s ease'
+    borderRadius: '8px 8px 0 0',
+    boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+    border: '1px solid #d1d5db',
+    backgroundColor: 'white',
+    transition: 'all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1)'
   },
   docPlaceholder: {
     width: '100%',
@@ -179,26 +173,11 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'linear-gradient(135deg, #ffffff, #f1f5f9)',
+    background: 'linear-gradient(135deg, #fdfcfb 0%, #e2e8f0 100%)',
     color: 'var(--primary-navy)',
-    position: 'relative',
-    padding: '20px'
-  },
-  placeholderSeal: {
-    width: '50px',
-    height: '50px',
-    backgroundColor: 'var(--primary-gold)',
-    borderRadius: '50%',
-    opacity: 0.2,
-    marginBottom: '15px',
-    boxShadow: '0 0 0 4px rgba(212, 175, 55, 0.1)'
-  },
-  placeholderLine: {
-    width: '60%',
-    height: '4px',
-    backgroundColor: '#e2e8f0',
-    borderRadius: '2px',
-    marginBottom: '8px'
+    borderRadius: '8px 8px 0 0',
+    boxShadow: 'inset 0 0 50px rgba(0,0,0,0.02)',
+    border: '1px solid #e2e8f0'
   },
   cardContent: {
     padding: '30px 25px 40px 25px',
