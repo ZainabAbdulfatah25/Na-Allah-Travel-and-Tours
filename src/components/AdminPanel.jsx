@@ -210,16 +210,41 @@ function AdminPanel() {
   };
 
   // HANDLERS
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (editingLicense) setEditingLicense({ ...editingLicense, link: event.target.result });
-        else setNewLicense({ ...newLicense, link: event.target.result });
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Set worker for pdf.js
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
     }
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+       const result = event.target.result;
+       let thumbnail = result;
+
+       // If it's a PDF, generate a thumbnail
+       if (file.type === 'application/pdf' && window.pdfjsLib) {
+         try {
+           const pdf = await window.pdfjsLib.getDocument({ data: atob(result.split(',')[1]) }).promise;
+           const page = await pdf.getPage(1);
+           const viewport = page.getViewport({ scale: 1.5 });
+           const canvas = document.createElement('canvas');
+           const context = canvas.getContext('2d');
+           canvas.height = viewport.height;
+           canvas.width = viewport.width;
+           await page.render({ canvasContext: context, viewport: viewport }).promise;
+           thumbnail = canvas.toDataURL('image/jpeg', 0.8);
+         } catch (err) {
+           console.error('PDF Thumbnail Error:', err);
+         }
+       }
+
+       if (editingLicense) setEditingLicense({...editingLicense, link: result, thumbnail: thumbnail});
+       else setNewLicense({...newLicense, link: result, thumbnail: thumbnail});
+    };
+    reader.readAsDataURL(file);
   };
 
   const handlePackageSave = (e) => {

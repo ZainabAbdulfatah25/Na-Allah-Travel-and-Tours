@@ -70,21 +70,32 @@ function Credentials() {
                  
                  <div style={styles.previewArea}>
                     {l.link && l.link !== '#' ? (
-                      <img 
-                        src={l.link} 
-                        alt={l.title} 
-                        style={styles.previewImg} 
-                        className="cert-img"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'flex';
-                        }}
-                      />
-                    ) : null}
-                    <div style={{...styles.docPlaceholder, display: (l.link && l.link !== '#') ? 'none' : 'flex'}}>
-                      <span style={{fontSize: '4.5rem', marginBottom: '15px'}}>📜</span>
-                      <span style={{fontSize: '0.8rem', fontWeight: '900', letterSpacing: '2px', textTransform: 'uppercase', opacity: 0.6}}>Official Document</span>
-                    </div>
+                      <>
+                        <img 
+                          src={l.thumbnail || l.link} 
+                          alt={l.title} 
+                          style={styles.previewImg} 
+                          className="cert-img"
+                          onLoad={(e) => {
+                            e.target.style.display = 'block';
+                            if (e.target.nextSibling) e.target.nextSibling.style.display = 'none';
+                          }}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                        <div style={styles.docPlaceholder}>
+                          <span style={{fontSize: '4.5rem', marginBottom: '15px'}}>📜</span>
+                          <span style={{fontSize: '0.8rem', fontWeight: '900', letterSpacing: '2px', textTransform: 'uppercase', opacity: 0.6}}>Official Document</span>
+                        </div>
+                      </>
+                    ) : (
+                      <div style={styles.docPlaceholder}>
+                        <span style={{fontSize: '4.5rem', marginBottom: '15px'}}>📜</span>
+                        <span style={{fontSize: '0.8rem', fontWeight: '900', letterSpacing: '2px', textTransform: 'uppercase', opacity: 0.6}}>Awaiting Upload</span>
+                      </div>
+                    )}
                  </div>
 
                  <div style={styles.cardContent}>
