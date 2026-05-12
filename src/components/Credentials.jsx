@@ -68,18 +68,11 @@ function Credentials() {
                  <div style={styles.badge}>{l.status || 'OFFICIAL'}</div>
                  
                  <div style={styles.previewArea}>
-                    {l.link && l.link !== '#' ? (
-                      <img 
-                        src={l.link} 
-                        alt={l.title} 
-                        style={styles.previewImg} 
-                        onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
-                      />
-                    ) : null}
-                    <div style={{...styles.docPlaceholder, display: (l.link && l.link !== '#') ? 'none' : 'flex'}}>
-                      <span style={{fontSize: '2.5rem', marginBottom: '10px'}}>📜</span>
-                      <span>OFFICIAL DOCUMENT</span>
-                    </div>
+                    <img 
+                      src={(l.link && l.link !== '#') ? l.link : 'https://images.unsplash.com/photo-1589330273594-fade1ee91647?auto=format&fit=crop&q=80&w=1000'} 
+                      alt={l.title} 
+                      style={styles.previewImg} 
+                    />
                  </div>
 
                  <div style={styles.cardContent}>
