@@ -68,30 +68,36 @@ function Credentials() {
                  <div style={styles.badge}>{l.status || 'OFFICIAL'}</div>
                  
                  <div style={styles.previewArea}>
-                    {l.link && l.link !== '#' ? (
-                      l.link.includes('pdf') || l.link.startsWith('data:application/pdf') ? (
-                        <div style={styles.docPlaceholder}>
-                           <span style={{fontSize: '3rem'}}>📄</span>
-                           <span style={{marginTop: '10px', fontSize: '0.7rem'}}>PDF DOCUMENT</span>
-                        </div>
-                      ) : (
-                        <img 
-                          src={l.link} 
-                          alt={l.title} 
-                          style={styles.previewImg} 
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'flex';
-                          }}
-                        />
-                      )
+                    {l.link && l.link !== '#' && !l.link.includes('pdf') && !l.link.startsWith('data:application/pdf') ? (
+                      <img 
+                        src={l.link} 
+                        alt={l.title} 
+                        style={styles.previewImg} 
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
                     ) : null}
-                    <div style={{...styles.docPlaceholder, display: (l.link && l.link !== '#' && !l.link.includes('pdf')) ? 'none' : 'flex'}}>
+                    
+                    <div style={{...styles.docPlaceholder, display: (l.link && l.link !== '#' && !l.link.includes('pdf') && !l.link.startsWith('data:application/pdf')) ? 'none' : 'flex'}}>
                       <div style={styles.placeholderSeal}></div>
                       <div style={styles.placeholderLine}></div>
                       <div style={styles.placeholderLine}></div>
                       <div style={{...styles.placeholderLine, width: '40%'}}></div>
-                      <span style={{marginTop: '15px', fontSize: '0.6rem', fontWeight: '900', letterSpacing: '1px', opacity: 0.5}}>{l.link?.includes('pdf') ? 'PDF DOCUMENT' : 'OFFICIAL CREDENTIAL'}</span>
+                      <div style={{
+                        marginTop: '15px', 
+                        fontSize: '0.6rem', 
+                        fontWeight: '900', 
+                        letterSpacing: '1px', 
+                        backgroundColor: l.link?.includes('pdf') ? '#e1f5fe' : 'transparent',
+                        color: l.link?.includes('pdf') ? '#039be5' : 'inherit',
+                        padding: l.link?.includes('pdf') ? '4px 8px' : '0',
+                        borderRadius: '4px',
+                        opacity: l.link?.includes('pdf') ? 1 : 0.5
+                      }}>
+                        {l.link?.includes('pdf') ? '📄 PDF DOCUMENT' : '📜 OFFICIAL CREDENTIAL'}
+                      </div>
                     </div>
                  </div>
 
