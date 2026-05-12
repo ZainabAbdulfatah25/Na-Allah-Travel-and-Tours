@@ -45,7 +45,7 @@ function AdminPanel() {
   });
 
   const [newPackage, setNewPackage] = useState({ title: '', price: '', category: 'ramadan' });
-  const [newLicense, setNewLicense] = useState({ title: '', link: '', status: 'Official' });
+  const [newLicense, setNewLicense] = useState({ title: '', link: '', status: 'Verified Member' });
   const [newService, setNewService] = useState({ title: '', icon: '✈️', desc: '' });
   const [newDestination, setNewDestination] = useState({ name: '', val: '' });
   const [newAdminData, setNewAdminData] = useState({ email: '', pin: '' });
@@ -246,7 +246,7 @@ function AdminPanel() {
     if (editingLicense) updated = licenses.map(l => l.id === editingLicense.id ? editingLicense : l);
     else { if (!newLicense.link) return alert('No file attached.'); updated = [...licenses, { id: Date.now(), ...newLicense }]; }
     save('na_allah_licenses', updated);
-    setShowAddLicense(false); setEditingLicense(null); setNewLicense({ title: '', link: '', status: 'Official' });
+    setShowAddLicense(false); setEditingLicense(null); setNewLicense({ title: '', link: '', status: 'Verified Member' });
   };
 
   const handleDestinationSave = (e) => {
@@ -634,7 +634,7 @@ function AdminPanel() {
           {activeTab === 'licenses' && (
              <div style={styles.tableCard}><div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '20px'}}><h3 style={{margin: 0}}>Trust Center Hub</h3><button onClick={() => setShowAddLicense(true)} className="btn btn-navy">📜 + Add Credential</button></div><table style={styles.table}><thead><tr><th>Doc Title</th><th>Status</th><th>Options</th></tr></thead>
                 <tbody>{licenses.map(l => (
-                  <tr key={l.id}><td><strong>{l.title}</strong></td><td><span style={{color: 'var(--primary-gold)', fontWeight: 'bold'}}>{l.status || 'Verified'}</span></td><td><div style={{display: 'flex', gap: '15px'}}><button onClick={() => openSecureView(l.link)} style={{color: 'var(--primary-navy)', fontWeight: 'bold', fontSize: '0.8rem', border: 'none', background: 'none', cursor: 'pointer', borderBottom: '1px solid'}}>View</button><button onClick={() => setEditingLicense(l)} style={{color: 'var(--primary-gold)', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer', fontSize: '0.8rem'}}>Edit</button><button onClick={() => save('na_allah_licenses', licenses.filter(lx => lx.id !== l.id))} style={{color: '#ff7675', background: 'none', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.8rem'}}>Delete</button></div></td></tr>
+                  <tr key={l.id}><td><strong>{l.title}</strong></td><td><span style={{color: 'var(--primary-gold)', fontWeight: 'bold'}}>{l.status || 'Verified Member'}</span></td><td><div style={{display: 'flex', gap: '15px'}}><button onClick={() => openSecureView(l.link)} style={{color: 'var(--primary-navy)', fontWeight: 'bold', fontSize: '0.8rem', border: 'none', background: 'none', cursor: 'pointer', borderBottom: '1px solid'}}>View</button><button onClick={() => setEditingLicense(l)} style={{color: 'var(--primary-gold)', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer', fontSize: '0.8rem'}}>Edit</button><button onClick={() => save('na_allah_licenses', licenses.filter(lx => lx.id !== l.id))} style={{color: '#ff7675', background: 'none', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.8rem'}}>Delete</button></div></td></tr>
                 ))}</tbody>
              </table></div>
           )}
@@ -766,7 +766,42 @@ function AdminPanel() {
       )}
 
       {(showAddPackage || editingPackage) && (<div style={styles.overlay}><div style={styles.modal}><div style={styles.mHead}><h2>📦 {editingPackage ? 'Edit' : 'New'} Plan</h2></div><div style={styles.mBody}><form onSubmit={handlePackageSave}><label style={styles.label}>Plan Title</label><input required style={styles.input} value={editingPackage ? editingPackage.title : newPackage.title} onChange={e => editingPackage ? setEditingPackage({...editingPackage, title: e.target.value}) : setNewPackage({...newPackage, title: e.target.value})} /><label style={styles.label}>Price (₦)</label><input required style={styles.input} value={editingPackage ? editingPackage.price : newPackage.price} onChange={e => editingPackage ? setEditingPackage({...editingPackage, price: e.target.value}) : setNewPackage({...newPackage, price: e.target.value})} /><label style={styles.label}>Spiritual Category</label><select disabled={!!editingPackage} style={styles.input} value={editingPackage ? editingPackage.category : newPackage.category} onChange={e => setNewPackage({...newPackage, category: e.target.value})}><option value="ramadan">Ramadan</option><option value="hajj">Hajj</option></select><div style={{display: 'flex', gap: '15px', marginTop: '30px'}}><button type="submit" className="btn btn-navy" style={{flex: 1, padding: '16px'}}>🕋 {editingPackage ? 'Update' : 'Publish'}</button><button type="button" onClick={() => {setShowAddPackage(false); setEditingPackage(null);}} className="btn btn-outline" style={{padding: '16px'}}>Cancel</button></div></form></div></div></div>)}
-      {(showAddLicense || editingLicense) && (<div style={styles.overlay}><div style={styles.modal}><div style={styles.mHead}><h2>📜 {editingLicense ? 'Edit' : 'Upload'} Doc</h2></div><div style={styles.mBody}><form onSubmit={handleLicenseSave}><label style={styles.label}>Document Title</label><input required style={styles.input} value={editingLicense ? editingLicense.title : newLicense.title} onChange={e => editingLicense ? setEditingLicense({...editingLicense, title: e.target.value}) : setNewLicense({...newLicense, title: e.target.value})} /><label style={styles.label}>Attach Official Certificate (PDF/JPG)</label><div style={styles.fileBox}><input type="file" accept="application/pdf,image/*" onChange={handleFileUpload} style={{width: '100%'}} />{(editingLicense?.link || newLicense.link) && <p style={{color: 'green', fontSize: '0.75rem', marginTop: '10px'}}>✅ Registered</p>}</div><div style={{display: 'flex', gap: '15px', marginTop: '30px'}}><button type="submit" className="btn btn-navy" style={{flex: 1, padding: '16px'}}>{editingLicense ? 'Update' : 'Store'}</button><button type="button" onClick={() => {setShowAddLicense(false); setEditingLicense(null);}} className="btn btn-outline" style={{padding: '16px'}}>Cancel</button></div></form></div></div></div>)}
+      {(showAddLicense || editingLicense) && (
+        <div style={styles.overlay}>
+          <div style={styles.modal}>
+            <div style={styles.mHead}><h2>📜 {editingLicense ? 'Edit' : 'Upload'} Doc</h2></div>
+            <div style={styles.mBody}>
+              <form onSubmit={handleLicenseSave}>
+                <label style={styles.label}>Document Title</label>
+                <input required style={styles.input} value={editingLicense ? editingLicense.title : newLicense.title} onChange={e => editingLicense ? setEditingLicense({...editingLicense, title: e.target.value}) : setNewLicense({...newLicense, title: e.target.value})} />
+                
+                <label style={styles.label}>Credential Status</label>
+                <select 
+                  style={{...styles.input, marginBottom: '20px'}} 
+                  value={editingLicense ? (editingLicense.status || 'Verified Member') : (newLicense.status || 'Verified Member')} 
+                  onChange={e => editingLicense ? setEditingLicense({...editingLicense, status: e.target.value}) : setNewLicense({...newLicense, status: e.target.value})}
+                >
+                  <option value="Verified Member">Verified Member</option>
+                  <option value="Official">Official</option>
+                  <option value="Registered">Registered</option>
+                  <option value="Certified">Certified</option>
+                </select>
+
+                <label style={styles.label}>Attach Official Certificate (PDF/JPG)</label>
+                <div style={styles.fileBox}>
+                  <input type="file" accept="application/pdf,image/*" onChange={handleFileUpload} style={{width: '100%'}} />
+                  {(editingLicense?.link || newLicense.link) && <p style={{color: 'green', fontSize: '0.75rem', marginTop: '10px'}}>✅ Registered</p>}
+                </div>
+                
+                <div style={{display: 'flex', gap: '15px', marginTop: '30px'}}>
+                  <button type="submit" className="btn btn-navy" style={{flex: 1, padding: '16px'}}>{editingLicense ? 'Update' : 'Store'}</button>
+                  <button type="button" onClick={() => {setShowAddLicense(false); setEditingLicense(null);}} className="btn btn-outline" style={{padding: '16px'}}>Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {(showAddDestination || editingDestination) && (
         <div style={styles.overlay}>
