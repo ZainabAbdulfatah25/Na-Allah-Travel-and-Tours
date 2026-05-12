@@ -12,7 +12,7 @@ function AdminPanel() {
   const [masterPin, setMasterPin] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState('');
-  
+
   const [viewingBooking, setViewingBooking] = useState(null);
   const [showAddPackage, setShowAddPackage] = useState(false);
   const [showAddLicense, setShowAddLicense] = useState(false);
@@ -22,7 +22,7 @@ function AdminPanel() {
   const [showChangePin, setShowChangePin] = useState(false);
   const [pinPopup, setPinPopup] = useState(null);
   const [newPersonalPin, setNewPersonalPin] = useState('');
-  
+
   const [editingLicense, setEditingLicense] = useState(null);
   const [editingPackage, setEditingPackage] = useState(null);
   const [editingService, setEditingService] = useState(null);
@@ -30,18 +30,18 @@ function AdminPanel() {
 
   // GLOBAL SETTINGS STATE
   const [settings, setSettings] = useState({
-     companyName: 'Na-Allah Travels and Tours',
-     phone: '0803 474 7257',
-     email: 'info@naallahtravels.com',
-     supportEmail: 'support@naallahtravels.com',
-     salesEmail: 'sales@naallahtravels.com',
-     address: 'No 12, Babangwari, Kano.',
-     heroSlogan: 'Experience the Ultimate Spiritual Journey with Luxury & Comfort.',
-     whatsapp: '2348034747257',
-     facebook: 'naallahtravels',
-     instagram: 'naallahtravels',
-     twitter: 'naallahtravels',
-     adminPin: '2026'
+    companyName: 'Na-Allah Travels and Tours',
+    phone: '0803 474 7257',
+    email: 'info@naallahtravels.com',
+    supportEmail: 'support@naallahtravels.com',
+    salesEmail: 'sales@naallahtravels.com',
+    address: 'No 12, Babangwari, Kano.',
+    heroSlogan: 'Experience the Ultimate Spiritual Journey with Luxury & Comfort.',
+    whatsapp: '2348034747257',
+    facebook: 'naallahtravels',
+    instagram: 'naallahtravels',
+    twitter: 'naallahtravels',
+    adminPin: '2026'
   });
 
   const [newPackage, setNewPackage] = useState({ title: '', price: '', category: 'ramadan' });
@@ -49,7 +49,7 @@ function AdminPanel() {
   const [newService, setNewService] = useState({ title: '', icon: '✈️', desc: '' });
   const [newDestination, setNewDestination] = useState({ name: '', val: '' });
   const [newAdminData, setNewAdminData] = useState({ email: '', pin: '' });
-  
+
   const [bookings, setBookings] = useState([]);
   const [packages, setPackages] = useState({ ramadan: [], hajj: [] });
   const [licenses, setLicenses] = useState([]);
@@ -61,32 +61,32 @@ function AdminPanel() {
     const s = JSON.parse(localStorage.getItem('na_allah_settings')) || settings;
     const b = JSON.parse(localStorage.getItem('na_allah_bookings')) || [];
     const p = JSON.parse(localStorage.getItem('na_allah_packages')) || {
-       ramadan: [
-          { id: 1, title: 'Standard Ramadan', price: '4,000,000' },
-          { id: 2, title: 'Premium Ramadan', price: '4,500,000' },
-          { id: 3, title: 'VIP Ramadan', price: '5,000,000' }
-       ],
-       hajj: [
-          { id: 4, title: 'Standard Hajj', price: '7,000,000' },
-          { id: 5, title: 'Premium Hajj', price: '8,500,000' },
-          { id: 6, title: 'Royal Hajj', price: '12,000,000' }
-       ]
+      ramadan: [
+        { id: 1, title: 'Standard Ramadan', price: '4,000,000' },
+        { id: 2, title: 'Premium Ramadan', price: '4,500,000' },
+        { id: 3, title: 'VIP Ramadan', price: '5,000,000' }
+      ],
+      hajj: [
+        { id: 4, title: 'Standard Hajj', price: '7,000,000' },
+        { id: 5, title: 'Premium Hajj', price: '8,500,000' },
+        { id: 6, title: 'Royal Hajj', price: '12,000,000' }
+      ]
     };
     const l = JSON.parse(localStorage.getItem('na_allah_licenses')) || [
-       { id: 1, title: 'Corporate Affairs Commission', link: '#', status: 'Official' },
-       { id: 2, title: 'IATA Approved Agency', link: '#', status: 'Verified' }
+      { id: 1, title: 'Corporate Affairs Commission', link: '#', status: 'Official' },
+      { id: 2, title: 'IATA Approved Agency', link: '#', status: 'Verified' }
     ];
     const dst = JSON.parse(localStorage.getItem('na_allah_destinations')) || [
-       { id: 1, name: 'Mecca (Hajj/Umrah)', val: 'mecca' },
-       { id: 2, name: 'Medina', val: 'medina' }
+      { id: 1, name: 'Mecca (Hajj/Umrah)', val: 'mecca' },
+      { id: 2, name: 'Medina', val: 'medina' }
     ];
     const sv = JSON.parse(localStorage.getItem('na_allah_services')) || [
-       { id: 1, title: 'Flight Bookings', icon: '✈️', desc: 'Premium flight reservations for all sacred routes.' },
-       { id: 2, title: 'Hajj & Umrah Tours', icon: '🕌', desc: 'Expertly guided spiritual journeys with local scholars.' },
-       { id: 3, title: 'Visa Processing', icon: '🛂', desc: 'Swift and reliable visa assistance for Saudi Arabia.' }
+      { id: 1, title: 'Flight Bookings', icon: '✈️', desc: 'Premium flight reservations for all sacred routes.' },
+      { id: 2, title: 'Hajj & Umrah Tours', icon: '🕌', desc: 'Expertly guided spiritual journeys with local scholars.' },
+      { id: 3, title: 'Visa Processing', icon: '🛂', desc: 'Swift and reliable visa assistance for Saudi Arabia.' }
     ];
     const ad = JSON.parse(localStorage.getItem('na_allah_admins')) || [
-       { id: 1, email: 'admin@naallahtravels.com', pin: '2026', role: 'Super Admin', date: new Date().toISOString().split('T')[0] }
+      { id: 1, email: 'admin@naallahtravels.com', pin: '2026', role: 'Super Admin', date: new Date().toISOString().split('T')[0] }
     ];
     setSettings(s);
     setBookings(b);
@@ -103,17 +103,17 @@ function AdminPanel() {
         if (!bErr) {
           const cloudBookings = bookingsData || [];
           const localBookings = JSON.parse(localStorage.getItem('na_allah_bookings')) || [];
-          
+
           // Merge local bookings that failed to upload
           const cloudIds = new Set(cloudBookings.map(b => b.id));
           const unsyncedBookings = localBookings.filter(b => !cloudIds.has(b.id));
-          
+
           if (unsyncedBookings.length > 0) {
             try {
               await supabase.from('na_allah_bookings').insert(unsyncedBookings);
             } catch (err) { console.error("Error syncing local bookings:", err); }
           }
-          
+
           const combinedBookings = [...unsyncedBookings, ...cloudBookings].sort((a, b) => b.id - a.id);
           setBookings(combinedBookings);
           localStorage.setItem('na_allah_bookings', JSON.stringify(combinedBookings));
@@ -152,7 +152,7 @@ function AdminPanel() {
       }
     };
     fetchCloudData();
-    
+
   }, []);
 
   useEffect(() => {
@@ -166,28 +166,28 @@ function AdminPanel() {
     return () => window.removeEventListener('storage', handleSync);
   }, [loadData]);
 
-  const save = async (key, data) => { 
-    localStorage.setItem(key, JSON.stringify(data)); 
-    loadData(); 
+  const save = async (key, data) => {
+    localStorage.setItem(key, JSON.stringify(data));
+    loadData();
 
     try {
       if (key === 'na_allah_services' || key === 'na_allah_destinations' || key === 'na_allah_licenses') {
         const table = key;
         const ids = data.map(d => d.id);
         if (ids.length > 0) {
-           await supabase.from(table).delete().not('id', 'in', `(${ids.join(',')})`);
-           await supabase.from(table).upsert(data);
+          await supabase.from(table).delete().not('id', 'in', `(${ids.join(',')})`);
+          await supabase.from(table).upsert(data);
         } else {
-           await supabase.from(table).delete().neq('id', 0);
+          await supabase.from(table).delete().neq('id', 0);
         }
       } else if (key === 'na_allah_packages') {
-        const flatPackages = [...(data.ramadan || []).map(p => ({...p, category: 'ramadan'})), ...(data.hajj || []).map(p => ({...p, category: 'hajj'}))];
+        const flatPackages = [...(data.ramadan || []).map(p => ({ ...p, category: 'ramadan' })), ...(data.hajj || []).map(p => ({ ...p, category: 'hajj' }))];
         const ids = flatPackages.map(p => p.id);
         if (ids.length > 0) {
-           await supabase.from('na_allah_packages').delete().not('id', 'in', `(${ids.join(',')})`);
-           await supabase.from('na_allah_packages').upsert(flatPackages);
+          await supabase.from('na_allah_packages').delete().not('id', 'in', `(${ids.join(',')})`);
+          await supabase.from('na_allah_packages').upsert(flatPackages);
         } else {
-           await supabase.from('na_allah_packages').delete().neq('id', 0);
+          await supabase.from('na_allah_packages').delete().neq('id', 0);
         }
       }
     } catch (err) { console.error('Supabase sync error', err); }
@@ -213,12 +213,12 @@ function AdminPanel() {
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-       const reader = new FileReader();
-       reader.onload = (event) => { 
-          if (editingLicense) setEditingLicense({...editingLicense, link: event.target.result});
-          else setNewLicense({ ...newLicense, link: event.target.result }); 
-       };
-       reader.readAsDataURL(file);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (editingLicense) setEditingLicense({ ...editingLicense, link: event.target.result });
+        else setNewLicense({ ...newLicense, link: event.target.result });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -268,9 +268,9 @@ function AdminPanel() {
     e.preventDefault();
     if (newAdminData.pin.length < 4) return alert('PIN must be at least 4 digits');
     if (admins.some(a => a.email === newAdminData.email)) return alert('An admin with this email already exists.');
-    
+
     const newAdmin = { id: Date.now(), email: newAdminData.email, pin: newAdminData.pin, role: 'Admin', date: new Date().toISOString().split('T')[0] };
-    
+
     // Cloud sync
     try {
       const { error } = await supabase.from('na_allah_admins').insert([newAdmin]);
@@ -282,7 +282,7 @@ function AdminPanel() {
     const updatedAdmins = [...admins, newAdmin];
     setAdmins(updatedAdmins);
     save('na_allah_admins', updatedAdmins);
-    
+
     setShowAddAdmin(false);
     setNewAdminData({ email: '', pin: '' });
     alert(`Admin account successfully created for ${newAdminData.email}!`);
@@ -293,18 +293,18 @@ function AdminPanel() {
     if (authMode === 'signin') {
       setIsLoading(true);
       let user = admins.find(a => a.email === email && a.pin === passcode);
-      
+
       try {
-         const { data, error } = await supabase.from('na_allah_admins').select('*').eq('email', email).eq('pin', passcode).single();
-         if (data && !error) user = data;
+        const { data, error } = await supabase.from('na_allah_admins').select('*').eq('email', email).eq('pin', passcode).single();
+        if (data && !error) user = data;
       } catch (err) { console.error('Supabase auth error:', err); }
 
-      if (user || (['2026', settings.adminPin].includes(passcode) && email === 'admin@naallahtravels.com')) { 
+      if (user || (['2026', settings.adminPin].includes(passcode) && email === 'admin@naallahtravels.com')) {
         setTimeout(() => {
-          setIsAuthenticated(true); 
+          setIsAuthenticated(true);
           setCurrentUser(email);
-          sessionStorage.setItem('na_allah_auth', 'true'); 
-          sessionStorage.setItem('na_allah_user', email); 
+          sessionStorage.setItem('na_allah_auth', 'true');
+          sessionStorage.setItem('na_allah_user', email);
           setIsLoading(false);
         }, 1000);
       }
@@ -312,35 +312,35 @@ function AdminPanel() {
     } else if (authMode === 'forgot') {
       if (!email) { setError('Email is required'); return; }
       if (passcode.length < 4) { setError('New PIN must be at least 4 digits'); return; }
-      
+
       const userIndex = admins.findIndex(a => a.email === email);
       if (userIndex !== -1) {
-         setIsLoading(true);
-         setTimeout(async () => {
-           const updatedAdmins = [...admins];
-           updatedAdmins[userIndex].pin = passcode;
-           setAdmins(updatedAdmins);
-           save('na_allah_admins', updatedAdmins);
-           
-           try { await supabase.from('na_allah_admins').update({ pin: passcode }).eq('email', email); } catch(err) {}
+        setIsLoading(true);
+        setTimeout(async () => {
+          const updatedAdmins = [...admins];
+          updatedAdmins[userIndex].pin = passcode;
+          setAdmins(updatedAdmins);
+          save('na_allah_admins', updatedAdmins);
 
-           setAuthMode('signin');
-           setPasscode('');
-           setError('PIN Reset Successful! Please login with your new PIN.');
-           setIsLoading(false);
-         }, 1000);
+          try { await supabase.from('na_allah_admins').update({ pin: passcode }).eq('email', email); } catch (err) { }
+
+          setAuthMode('signin');
+          setPasscode('');
+          setError('PIN Reset Successful! Please login with your new PIN.');
+          setIsLoading(false);
+        }, 1000);
       } else if (email === 'admin@naallahtravels.com') {
-         setIsLoading(true);
-         setTimeout(() => {
-           setSettings({...settings, adminPin: passcode});
-           save('na_allah_settings', {...settings, adminPin: passcode});
-           setAuthMode('signin');
-           setPasscode('');
-           setError('Super Admin PIN Reset Successful! Please login.');
-           setIsLoading(false);
-         }, 1000);
+        setIsLoading(true);
+        setTimeout(() => {
+          setSettings({ ...settings, adminPin: passcode });
+          save('na_allah_settings', { ...settings, adminPin: passcode });
+          setAuthMode('signin');
+          setPasscode('');
+          setError('Super Admin PIN Reset Successful! Please login.');
+          setIsLoading(false);
+        }, 1000);
       } else {
-         setError('Email not found in our records.');
+        setError('Email not found in our records.');
       }
     } else {
       if (!email) { setError('Email is required'); return; }
@@ -349,7 +349,7 @@ function AdminPanel() {
         return;
       }
       if (passcode.length < 4) { setError('New PIN must be at least 4 digits'); return; }
-      
+
       setIsLoading(true);
       setTimeout(() => {
         const newAdmin = { id: Date.now(), email, pin: passcode, role: 'Admin', date: new Date().toISOString().split('T')[0] };
@@ -371,7 +371,7 @@ function AdminPanel() {
     }
     const randomPin = Math.floor(1000 + Math.random() * 9000).toString();
     setPasscode(randomPin);
-    
+
     setPinPopup({ email, pin: randomPin });
     setError(`New PIN generated successfully!`);
   };
@@ -379,10 +379,10 @@ function AdminPanel() {
   const handleChangeMyPin = async (e) => {
     e.preventDefault();
     if (newPersonalPin.length < 4) return alert('PIN must be at least 4 digits');
-    
+
     if (currentUser === 'admin@naallahtravels.com') {
-      setSettings({...settings, adminPin: newPersonalPin});
-      save('na_allah_settings', {...settings, adminPin: newPersonalPin});
+      setSettings({ ...settings, adminPin: newPersonalPin });
+      save('na_allah_settings', { ...settings, adminPin: newPersonalPin });
     } else {
       const userIndex = admins.findIndex(a => a.email === currentUser);
       if (userIndex !== -1) {
@@ -390,7 +390,7 @@ function AdminPanel() {
         updatedAdmins[userIndex].pin = newPersonalPin;
         setAdmins(updatedAdmins);
         save('na_allah_admins', updatedAdmins);
-        try { await supabase.from('na_allah_admins').update({ pin: newPersonalPin }).eq('email', currentUser); } catch(err) {}
+        try { await supabase.from('na_allah_admins').update({ pin: newPersonalPin }).eq('email', currentUser); } catch (err) { }
       }
     }
     alert('Personal PIN updated successfully!');
@@ -399,49 +399,49 @@ function AdminPanel() {
   };
 
   if (!isAuthenticated) return (
-    <div style={{...styles.loginPage, position: 'relative', overflow: 'hidden'}}>
+    <div style={{ ...styles.loginPage, position: 'relative', overflow: 'hidden' }}>
       {/* 3D background elements */}
-      <div style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0}}>
-        <div style={{...styles.blurBlob, top: '20%', right: '15%', background: 'rgba(212, 175, 55, 0.25)'}}></div>
-        <div style={{...styles.blurBlob, bottom: '10%', left: '15%', background: 'rgba(255, 255, 255, 0.1)', animationDelay: '-5s'}}></div>
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }}>
+        <div style={{ ...styles.blurBlob, top: '20%', right: '15%', background: 'rgba(212, 175, 55, 0.25)' }}></div>
+        <div style={{ ...styles.blurBlob, bottom: '10%', left: '15%', background: 'rgba(255, 255, 255, 0.1)', animationDelay: '-5s' }}></div>
       </div>
-      <div style={{...styles.loginCard, position: 'relative', zIndex: 1}} className="animate-fade-in-up glass-panel">
+      <div style={{ ...styles.loginCard, position: 'relative', zIndex: 1 }} className="animate-fade-in-up glass-panel">
         <Logo size={80} />
-        <h3 style={{color: 'var(--primary-navy)', marginTop: '20px', fontSize: '1.8rem', letterSpacing: '-0.5px'}}>Admin Console</h3>
-        
-        <div style={{display: 'flex', gap: '10px', marginTop: '15px', justifyContent: 'center'}}>
-           <button type="button" onClick={() => {setAuthMode('signin'); setError('');}} style={{...styles.tabBtn, ...(authMode === 'signin' ? styles.activeTabBtn : {})}}>Sign In</button>
-           <button type="button" onClick={() => {setAuthMode('signup'); setError('');}} style={{...styles.tabBtn, ...(authMode === 'signup' ? styles.activeTabBtn : {})}}>Sign Up</button>
+        <h3 style={{ color: 'var(--primary-navy)', marginTop: '20px', fontSize: '1.8rem', letterSpacing: '-0.5px' }}>Admin Console</h3>
+
+        <div style={{ display: 'flex', gap: '10px', marginTop: '15px', justifyContent: 'center' }}>
+          <button type="button" onClick={() => { setAuthMode('signin'); setError(''); }} style={{ ...styles.tabBtn, ...(authMode === 'signin' ? styles.activeTabBtn : {}) }}>Sign In</button>
+          <button type="button" onClick={() => { setAuthMode('signup'); setError(''); }} style={{ ...styles.tabBtn, ...(authMode === 'signup' ? styles.activeTabBtn : {}) }}>Sign Up</button>
         </div>
 
-        <form onSubmit={handleAuth} style={{textAlign: 'left', marginTop: '20px'}}>
+        <form onSubmit={handleAuth} style={{ textAlign: 'left', marginTop: '20px' }}>
           <label style={styles.label}>Admin Email</label>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{...styles.input, marginBottom: '15px'}} placeholder="admin@naallahtravels.com" />
-          
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ ...styles.input, marginBottom: '15px' }} placeholder="admin@naallahtravels.com" />
+
           {authMode === 'signup' && (
             <>
               <label style={styles.label}>Master PIN (Authorization)</label>
-              <input type="password" value={masterPin} onChange={e => setMasterPin(e.target.value)} style={{...styles.input, marginBottom: '15px'}} placeholder="Enter current HQ PIN" />
+              <input type="password" value={masterPin} onChange={e => setMasterPin(e.target.value)} style={{ ...styles.input, marginBottom: '15px' }} placeholder="Enter current HQ PIN" />
             </>
           )}
 
-          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
-             <label style={styles.label}>{authMode === 'signin' ? 'Control PIN' : 'New Control PIN'}</label>
-             {authMode === 'signup' && (
-               <button type="button" onClick={generatePin} style={{color: 'var(--primary-gold)', border: 'none', background: 'none', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer', paddingBottom: '5px'}}>Auto-Generate</button>
-             )}
-             {authMode === 'signin' && (
-               <button type="button" onClick={() => {setAuthMode('forgot'); setError('');}} style={{color: 'var(--primary-navy)', border: 'none', background: 'none', fontSize: '0.75rem', cursor: 'pointer', paddingBottom: '5px', fontWeight: 'bold'}}>Forgot PIN?</button>
-             )}
-             {authMode === 'forgot' && (
-               <button type="button" onClick={() => {setAuthMode('signin'); setError('');}} style={{color: 'var(--text-muted)', border: 'none', background: 'none', fontSize: '0.75rem', cursor: 'pointer', paddingBottom: '5px'}}>Back to Login</button>
-             )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <label style={styles.label}>{authMode === 'signin' ? 'Control PIN' : 'New Control PIN'}</label>
+            {authMode === 'signup' && (
+              <button type="button" onClick={generatePin} style={{ color: 'var(--primary-gold)', border: 'none', background: 'none', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer', paddingBottom: '5px' }}>Auto-Generate</button>
+            )}
+            {authMode === 'signin' && (
+              <button type="button" onClick={() => { setAuthMode('forgot'); setError(''); }} style={{ color: 'var(--primary-navy)', border: 'none', background: 'none', fontSize: '0.75rem', cursor: 'pointer', paddingBottom: '5px', fontWeight: 'bold' }}>Forgot PIN?</button>
+            )}
+            {authMode === 'forgot' && (
+              <button type="button" onClick={() => { setAuthMode('signin'); setError(''); }} style={{ color: 'var(--text-muted)', border: 'none', background: 'none', fontSize: '0.75rem', cursor: 'pointer', paddingBottom: '5px' }}>Back to Login</button>
+            )}
           </div>
           <input type={authMode === 'signin' ? "password" : "text"} value={passcode} onChange={e => setPasscode(e.target.value)} style={styles.input} placeholder="****" autoFocus />
-          {error && <p style={{color: error.includes('Successful') || error.includes('securely') ? '#27ae60' : 'red', fontSize: '0.8rem', marginTop: '10px'}}>{error}</p>}
-          <button type="submit" disabled={isLoading} className="btn btn-navy hover-lift" style={{width: '100%', marginTop: '15px', padding: '16px', opacity: isLoading ? 0.8 : 1, transition: 'all 0.3s'}}>
+          {error && <p style={{ color: error.includes('Successful') || error.includes('securely') ? '#27ae60' : 'red', fontSize: '0.8rem', marginTop: '10px' }}>{error}</p>}
+          <button type="submit" disabled={isLoading} className="btn btn-navy hover-lift" style={{ width: '100%', marginTop: '15px', padding: '16px', opacity: isLoading ? 0.8 : 1, transition: 'all 0.3s' }}>
             {isLoading ? (
-              <span style={{display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center'}}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
                 <span className="spinner" style={styles.spinner}></span> Processing...
               </span>
             ) : (
@@ -456,125 +456,125 @@ function AdminPanel() {
   return (
     <div style={styles.adminContainer} className="mobile-stack">
       <aside style={styles.sidebar}>
-        <div style={styles.sidebarHeader}><Logo size={60} /><p style={{color: 'var(--primary-gold)', fontWeight: 'bold', fontSize: '0.7rem', marginTop: '12px', letterSpacing: '2.5px'}}>NA-ALLAH CONSOLE</p></div>
-        <ul style={{listStyle: 'none', padding: 0}}>
-          <li style={{...styles.navItem, ...(activeTab === 'dashboard' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('dashboard')}>📊 Summary</li>
-          <li style={{...styles.navItem, ...(activeTab === 'bookings' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('bookings')}>📝 Inquiries</li>
-          <li style={{...styles.navItem, ...(activeTab === 'packages' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('packages')}>📦 Travel Plans</li>
-          <li style={{...styles.navItem, ...(activeTab === 'destinations' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('destinations')}>🌍 Destinations</li>
-          <li style={{...styles.navItem, ...(activeTab === 'services' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('services')}>🛠️ Core Services</li>
-          <li style={{...styles.navItem, ...(activeTab === 'licenses' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('licenses')}>📜 Credentials</li>
-          <li style={{...styles.navItem, ...(activeTab === 'users' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('users')}>👥 Team Access</li>
-          <li style={{...styles.navItem, ...(activeTab === 'settings' ? styles.activeNavItem : {})}} onClick={() => setActiveTab('settings')}>⚙️ Global Control</li>
+        <div style={styles.sidebarHeader}><Logo size={60} /><p style={{ color: 'var(--primary-gold)', fontWeight: 'bold', fontSize: '0.7rem', marginTop: '12px', letterSpacing: '2.5px' }}>NA-ALLAH CONSOLE</p></div>
+        <ul style={{ listStyle: 'none', padding: 0 }}>
+          <li style={{ ...styles.navItem, ...(activeTab === 'dashboard' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('dashboard')}>📊 Summary</li>
+          <li style={{ ...styles.navItem, ...(activeTab === 'bookings' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('bookings')}>📝 Inquiries</li>
+          <li style={{ ...styles.navItem, ...(activeTab === 'packages' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('packages')}>📦 Travel Plans</li>
+          <li style={{ ...styles.navItem, ...(activeTab === 'destinations' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('destinations')}>🌍 Destinations</li>
+          <li style={{ ...styles.navItem, ...(activeTab === 'services' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('services')}>🛠️ Core Services</li>
+          <li style={{ ...styles.navItem, ...(activeTab === 'licenses' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('licenses')}>📜 Credentials</li>
+          <li style={{ ...styles.navItem, ...(activeTab === 'users' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('users')}>👥 Team Access</li>
+          <li style={{ ...styles.navItem, ...(activeTab === 'settings' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('settings')}>⚙️ Global Control</li>
         </ul>
-        <div style={{marginTop: 'auto', display: 'flex', flexDirection: 'column'}}>
-           <button onClick={() => setShowChangePin(true)} style={{...styles.logoutBtn, background: 'rgba(212, 175, 55, 0.1)', color: 'var(--primary-gold)', border: '1px solid rgba(212, 175, 55, 0.3)', marginBottom: '10px', padding: '12px'}}>Change My PIN</button>
-           <button onClick={() => {sessionStorage.removeItem('na_allah_auth'); sessionStorage.removeItem('na_allah_user'); setIsAuthenticated(false);}} style={styles.logoutBtn}>Sign Out</button>
+        <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column' }}>
+          <button onClick={() => setShowChangePin(true)} style={{ ...styles.logoutBtn, background: 'rgba(212, 175, 55, 0.1)', color: 'var(--primary-gold)', border: '1px solid rgba(212, 175, 55, 0.3)', marginBottom: '10px', padding: '12px' }}>Change My PIN</button>
+          <button onClick={() => { sessionStorage.removeItem('na_allah_auth'); sessionStorage.removeItem('na_allah_user'); setIsAuthenticated(false); }} style={styles.logoutBtn}>Sign Out</button>
         </div>
       </aside>
 
       <main style={styles.mainContent}>
         <header style={styles.topbar}>
-          <h2 style={{color: 'var(--primary-navy)', margin: 0}}>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
-          <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
-            <span style={{fontWeight: 'bold', color: 'var(--primary-gold)'}}>Welcome, {currentUser.split('@')[0]}</span>
-            <div style={{width: '40px', height: '40px', borderRadius: '50%', background: 'var(--primary-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold'}}>{currentUser.charAt(0).toUpperCase()}</div>
+          <h2 style={{ color: 'var(--primary-navy)', margin: 0 }}>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <span style={{ fontWeight: 'bold', color: 'var(--primary-gold)' }}>Welcome, {currentUser.split('@')[0]}</span>
+            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--primary-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>{currentUser.charAt(0).toUpperCase()}</div>
           </div>
         </header>
 
         <div style={styles.contentArea}>
           {activeTab === 'settings' && (
-             <div className="animate-fade-in"><div style={styles.statCard}><h3 style={{marginBottom: '30px', color: 'var(--primary-gold)'}}>Site-Wide Authority Control</h3>
-                 <form onSubmit={handleGlobalSync} style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px'}}>
-                   <div><label style={styles.label}>Agency Name</label><input style={styles.input} value={settings.companyName} onChange={e => setSettings({...settings, companyName: e.target.value})} /></div>
-                   <div><label style={styles.label}>Official Hotline</label><input style={styles.input} value={settings.phone} onChange={e => setSettings({...settings, phone: e.target.value})} /></div>
-                   
-                   <div><label style={styles.label}>Corporate Email</label><input style={styles.input} value={settings.email} onChange={e => setSettings({...settings, email: e.target.value})} /></div>
-                   <div><label style={styles.label}>Support Email</label><input style={styles.input} value={settings.supportEmail || ''} onChange={e => setSettings({...settings, supportEmail: e.target.value})} /></div>
-                   
-                   <div><label style={styles.label}>Sales Email</label><input style={styles.input} value={settings.salesEmail || ''} onChange={e => setSettings({...settings, salesEmail: e.target.value})} /></div>
-                   <div><label style={styles.label}>Official Address</label><input style={styles.input} value={settings.address} onChange={e => setSettings({...settings, address: e.target.value})} /></div>
-                   
-                   <div><label style={styles.label}>WhatsApp Link ID/Number</label><input style={styles.input} value={settings.whatsapp} onChange={e => setSettings({...settings, whatsapp: e.target.value})} /></div>
-                   <div><label style={styles.label}>Facebook Link/Username</label><input style={styles.input} value={settings.facebook} onChange={e => setSettings({...settings, facebook: e.target.value})} /></div>
-                   
-                   <div><label style={styles.label}>Instagram Link/Username</label><input style={styles.input} value={settings.instagram} onChange={e => setSettings({...settings, instagram: e.target.value})} /></div>
-                   <div><label style={styles.label}>Twitter Link/Username</label><input style={styles.input} value={settings.twitter || ''} onChange={e => setSettings({...settings, twitter: e.target.value})} /></div>
+            <div className="animate-fade-in"><div style={styles.statCard}><h3 style={{ marginBottom: '30px', color: 'var(--primary-gold)' }}>Site-Wide Authority Control</h3>
+              <form onSubmit={handleGlobalSync} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+                <div><label style={styles.label}>Agency Name</label><input style={styles.input} value={settings.companyName} onChange={e => setSettings({ ...settings, companyName: e.target.value })} /></div>
+                <div><label style={styles.label}>Official Hotline</label><input style={styles.input} value={settings.phone} onChange={e => setSettings({ ...settings, phone: e.target.value })} /></div>
 
-                   <div style={{gridColumn: 'span 2'}}><label style={styles.label}>Hero Attraction Slogan</label><textarea style={{...styles.input, height: '80px'}} value={settings.heroSlogan} onChange={e => setSettings({...settings, heroSlogan: e.target.value})} /></div>
-                   <div style={{gridColumn: 'span 2'}}>
-                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
-                       <label style={styles.label}>Master PIN (HQ Authorization)</label>
-                       <button type="button" onClick={() => setSettings({...settings, adminPin: Math.floor(1000 + Math.random() * 9000).toString()})} style={{color: 'var(--primary-gold)', border: 'none', background: 'none', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer', paddingBottom: '5px'}}>Auto-Generate Master PIN</button>
-                     </div>
-                     <input type="text" value={settings.adminPin} style={{...styles.input, border: '2px solid var(--primary-gold)', fontWeight: 'bold', color: 'var(--primary-navy)'}} placeholder="Modify Master PIN" onChange={e => setSettings({...settings, adminPin: e.target.value})} />
-                     <p style={{fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px'}}>This is the Master PIN required to authorize the creation of new admin accounts.</p>
-                   </div>
-                   <div style={{gridColumn: 'span 2'}}><button className="btn btn-navy hover-lift" style={{width: '100%', padding: '18px', fontWeight: 'bold'}}>SYNC GLOBAL SETTINGS</button></div>
-                </form>
-             </div></div>
+                <div><label style={styles.label}>Corporate Email</label><input style={styles.input} value={settings.email} onChange={e => setSettings({ ...settings, email: e.target.value })} /></div>
+                <div><label style={styles.label}>Support Email</label><input style={styles.input} value={settings.supportEmail || ''} onChange={e => setSettings({ ...settings, supportEmail: e.target.value })} /></div>
+
+                <div><label style={styles.label}>Sales Email</label><input style={styles.input} value={settings.salesEmail || ''} onChange={e => setSettings({ ...settings, salesEmail: e.target.value })} /></div>
+                <div><label style={styles.label}>Official Address</label><input style={styles.input} value={settings.address} onChange={e => setSettings({ ...settings, address: e.target.value })} /></div>
+
+                <div><label style={styles.label}>WhatsApp Link ID/Number</label><input style={styles.input} value={settings.whatsapp} onChange={e => setSettings({ ...settings, whatsapp: e.target.value })} /></div>
+                <div><label style={styles.label}>Facebook Link/Username</label><input style={styles.input} value={settings.facebook} onChange={e => setSettings({ ...settings, facebook: e.target.value })} /></div>
+
+                <div><label style={styles.label}>Instagram Link/Username</label><input style={styles.input} value={settings.instagram} onChange={e => setSettings({ ...settings, instagram: e.target.value })} /></div>
+                <div><label style={styles.label}>Twitter Link/Username</label><input style={styles.input} value={settings.twitter || ''} onChange={e => setSettings({ ...settings, twitter: e.target.value })} /></div>
+
+                <div style={{ gridColumn: 'span 2' }}><label style={styles.label}>Hero Attraction Slogan</label><textarea style={{ ...styles.input, height: '80px' }} value={settings.heroSlogan} onChange={e => setSettings({ ...settings, heroSlogan: e.target.value })} /></div>
+                <div style={{ gridColumn: 'span 2' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                    <label style={styles.label}>Master PIN (HQ Authorization)</label>
+                    <button type="button" onClick={() => setSettings({ ...settings, adminPin: Math.floor(1000 + Math.random() * 9000).toString() })} style={{ color: 'var(--primary-gold)', border: 'none', background: 'none', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer', paddingBottom: '5px' }}>Auto-Generate Master PIN</button>
+                  </div>
+                  <input type="text" value={settings.adminPin} style={{ ...styles.input, border: '2px solid var(--primary-gold)', fontWeight: 'bold', color: 'var(--primary-navy)' }} placeholder="Modify Master PIN" onChange={e => setSettings({ ...settings, adminPin: e.target.value })} />
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px' }}>This is the Master PIN required to authorize the creation of new admin accounts.</p>
+                </div>
+                <div style={{ gridColumn: 'span 2' }}><button className="btn btn-navy hover-lift" style={{ width: '100%', padding: '18px', fontWeight: 'bold' }}>SYNC GLOBAL SETTINGS</button></div>
+              </form>
+            </div></div>
           )}
 
           {activeTab === 'services' && (
-             <div className="animate-fade-in"><div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '30px'}}><h3 style={{margin: 0}}>Service Management</h3><button onClick={() => setShowAddService(true)} className="btn btn-navy">📦 + New Service</button></div>
-                <div style={styles.grid2}>{services.map(s => (
-                   <div key={s.id} style={styles.statCard}>
-                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                         <div style={{display: 'flex', gap: '15px', alignItems: 'center'}}><span style={{fontSize: '2rem'}}>{s.icon}</span><strong>{s.title}</strong></div>
-                         <div>
-                            <button onClick={() => setEditingService(s)} style={{color: 'var(--primary-navy)', marginRight: '15px', fontWeight: 'bold', border: 'none', background: 'none'}}>Edit</button>
-                            <button onClick={() => save('na_allah_services', services.filter(svx => svx.id !== s.id))} style={{color: 'red', fontWeight: 'bold', border: 'none', background: 'none'}}>✕</button>
-                         </div>
-                      </div>
-                      <p style={{marginTop: '10px', color: '#666', fontSize: '0.85rem'}}>{s.desc}</p>
-                   </div>
-                ))}</div>
-             </div>
+            <div className="animate-fade-in"><div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px' }}><h3 style={{ margin: 0 }}>Service Management</h3><button onClick={() => setShowAddService(true)} className="btn btn-navy">📦 + New Service</button></div>
+              <div style={styles.grid2}>{services.map(s => (
+                <div key={s.id} style={styles.statCard}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}><span style={{ fontSize: '2rem' }}>{s.icon}</span><strong>{s.title}</strong></div>
+                    <div>
+                      <button onClick={() => setEditingService(s)} style={{ color: 'var(--primary-navy)', marginRight: '15px', fontWeight: 'bold', border: 'none', background: 'none' }}>Edit</button>
+                      <button onClick={() => save('na_allah_services', services.filter(svx => svx.id !== s.id))} style={{ color: 'red', fontWeight: 'bold', border: 'none', background: 'none' }}>✕</button>
+                    </div>
+                  </div>
+                  <p style={{ marginTop: '10px', color: '#666', fontSize: '0.85rem' }}>{s.desc}</p>
+                </div>
+              ))}</div>
+            </div>
           )}
 
           {activeTab === 'dashboard' && (
-            <div className="animate-fade-in" style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px', marginBottom: '30px'}}>
-              <div style={{...styles.statCard, cursor: 'pointer', padding: '20px'}} onClick={() => setActiveTab('bookings')} className="hover-lift">
-                <h3 style={{margin:0, fontSize: '1.1rem', color: 'var(--text-muted)'}}>Inquiries</h3><p style={{...styles.statNum, fontSize: '3rem'}}>{bookings.length}</p>
+            <div className="animate-fade-in" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+              <div style={{ ...styles.statCard, cursor: 'pointer', padding: '20px' }} onClick={() => setActiveTab('bookings')} className="hover-lift">
+                <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-muted)' }}>Inquiries</h3><p style={{ ...styles.statNum, fontSize: '3rem' }}>{bookings.length}</p>
               </div>
-              <div style={{...styles.statCard, cursor: 'pointer', padding: '20px'}} onClick={() => setActiveTab('packages')} className="hover-lift">
-                <h3 style={{margin:0, fontSize: '1.1rem', color: 'var(--text-muted)'}}>Travel Plans</h3><p style={{...styles.statNum, fontSize: '3rem'}}>{packages.ramadan.length + packages.hajj.length}</p>
+              <div style={{ ...styles.statCard, cursor: 'pointer', padding: '20px' }} onClick={() => setActiveTab('packages')} className="hover-lift">
+                <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-muted)' }}>Travel Plans</h3><p style={{ ...styles.statNum, fontSize: '3rem' }}>{packages.ramadan.length + packages.hajj.length}</p>
               </div>
-              <div style={{...styles.statCard, cursor: 'pointer', padding: '20px'}} onClick={() => setActiveTab('destinations')} className="hover-lift">
-                <h3 style={{margin:0, fontSize: '1.1rem', color: 'var(--text-muted)'}}>Destinations</h3><p style={{...styles.statNum, fontSize: '3rem'}}>{destinations.length}</p>
+              <div style={{ ...styles.statCard, cursor: 'pointer', padding: '20px' }} onClick={() => setActiveTab('destinations')} className="hover-lift">
+                <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-muted)' }}>Destinations</h3><p style={{ ...styles.statNum, fontSize: '3rem' }}>{destinations.length}</p>
               </div>
-              <div style={{...styles.statCard, cursor: 'pointer', padding: '20px'}} onClick={() => setActiveTab('services')} className="hover-lift">
-                <h3 style={{margin:0, fontSize: '1.1rem', color: 'var(--text-muted)'}}>Core Services</h3><p style={{...styles.statNum, fontSize: '3rem'}}>{services.length}</p>
+              <div style={{ ...styles.statCard, cursor: 'pointer', padding: '20px' }} onClick={() => setActiveTab('services')} className="hover-lift">
+                <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-muted)' }}>Core Services</h3><p style={{ ...styles.statNum, fontSize: '3rem' }}>{services.length}</p>
               </div>
-              <div style={{...styles.statCard, cursor: 'pointer', padding: '20px'}} onClick={() => setActiveTab('licenses')} className="hover-lift">
-                <h3 style={{margin:0, fontSize: '1.1rem', color: 'var(--text-muted)'}}>Credentials</h3><p style={{...styles.statNum, fontSize: '3rem'}}>{licenses.length}</p>
+              <div style={{ ...styles.statCard, cursor: 'pointer', padding: '20px' }} onClick={() => setActiveTab('licenses')} className="hover-lift">
+                <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-muted)' }}>Credentials</h3><p style={{ ...styles.statNum, fontSize: '3rem' }}>{licenses.length}</p>
               </div>
-              <div style={{...styles.statCard, cursor: 'pointer', padding: '20px'}} onClick={() => setActiveTab('users')} className="hover-lift">
-                <h3 style={{margin:0, fontSize: '1.1rem', color: 'var(--text-muted)'}}>Team Access</h3><p style={{...styles.statNum, fontSize: '3rem'}}>{admins.length}</p>
+              <div style={{ ...styles.statCard, cursor: 'pointer', padding: '20px' }} onClick={() => setActiveTab('users')} className="hover-lift">
+                <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-muted)' }}>Team Access</h3><p style={{ ...styles.statNum, fontSize: '3rem' }}>{admins.length}</p>
               </div>
             </div>
           )}
 
           {activeTab === 'bookings' && (
             <div style={styles.tableCard}><table style={styles.table}>
-              <thead><tr><th>Date</th><th>Visitor</th><th>Email</th><th>Inquiry</th><th>Status</th><th style={{width: '120px'}}>Control</th></tr></thead>
+              <thead><tr><th>Date</th><th>Visitor</th><th>Email</th><th>Inquiry</th><th>Status</th><th style={{ width: '120px' }}>Control</th></tr></thead>
               <tbody>{bookings.map(b => (
                 <tr key={b.id}>
-                  <td style={{color: '#64748b'}}>{b.date || 'Today'}</td>
+                  <td style={{ color: '#64748b' }}>{b.date || 'Today'}</td>
                   <td><strong>{b.name || 'Unknown'}</strong></td>
                   <td>{b.email || 'N/A'}</td>
                   <td>{b.package || 'General'}</td>
                   <td>
-                    <select 
-                      value={b.status || 'Pending'} 
+                    <select
+                      value={b.status || 'Pending'}
                       onChange={async (e) => {
                         const newStatus = e.target.value;
                         const updated = bookings.map(bx => bx.id === b.id ? { ...bx, status: newStatus } : bx);
                         setBookings(updated);
                         save('na_allah_bookings', updated);
-                        try { await supabase.from('na_allah_bookings').update({ status: newStatus }).eq('id', b.id); } catch (err) {}
+                        try { await supabase.from('na_allah_bookings').update({ status: newStatus }).eq('id', b.id); } catch (err) { }
                       }}
-                      style={{padding: '5px', borderRadius: '5px', border: '1px solid #cbd5e1', outline: 'none', background: b.status === 'Confirmed' ? '#e6f4ea' : b.status === 'Paid' ? '#e8f0fe' : '#fff'}}
+                      style={{ padding: '5px', borderRadius: '5px', border: '1px solid #cbd5e1', outline: 'none', background: b.status === 'Confirmed' ? '#e6f4ea' : b.status === 'Paid' ? '#e8f0fe' : '#fff' }}
                     >
                       <option value="Pending">Pending</option>
                       <option value="Confirmed">Confirmed</option>
@@ -589,16 +589,16 @@ function AdminPanel() {
           )}
 
           {activeTab === 'packages' && (
-            <div className="animate-fade-in"><div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '30px', alignItems: 'center'}}><h3 style={{margin: 0}}>Travel Package Console</h3><button onClick={() => setShowAddPackage(true)} className="btn btn-navy">✈️ + New Package</button></div>
+            <div className="animate-fade-in"><div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px', alignItems: 'center' }}><h3 style={{ margin: 0 }}>Travel Package Console</h3><button onClick={() => setShowAddPackage(true)} className="btn btn-navy">✈️ + New Package</button></div>
               <div style={styles.grid2}>{['ramadan', 'hajj'].map(cat => (
-                <div key={cat} style={styles.statCard}><h4 style={{textTransform: 'uppercase', marginBottom: '20px', color: 'var(--primary-gold)'}}>{cat} control</h4>
+                <div key={cat} style={styles.statCard}><h4 style={{ textTransform: 'uppercase', marginBottom: '20px', color: 'var(--primary-gold)' }}>{cat} control</h4>
                   {packages[cat].map(p => (
                     <div key={p.id} style={styles.row}>
-                      <div style={{flex: 1}}><strong>{p.title}</strong></div>
-                      <div style={{display: 'flex', gap: '15px', alignItems: 'center'}}>
-                         <div style={{display: 'flex', alignItems: 'center'}}><span>₦</span><input defaultValue={p.price} onBlur={e => save('na_allah_packages', { ...packages, [cat]: packages[cat].map(px => px.id === p.id ? {...px, price: e.target.value} : px) })} style={styles.inlineInput} /></div>
-                         <button onClick={() => setEditingPackage({ ...p, category: cat })} style={{color: 'var(--primary-navy)', fontWeight: 'bold', cursor: 'pointer', border: 'none', background: 'none'}}>Edit</button>
-                         <button onClick={() => save('na_allah_packages', { ...packages, [cat]: packages[cat].filter(px => px.id !== p.id) })} style={{color: 'red', border: 'none', background: 'none', cursor: 'pointer', fontWeight: 'bold'}}>✕</button>
+                      <div style={{ flex: 1 }}><strong>{p.title}</strong></div>
+                      <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}><span>₦</span><input defaultValue={p.price} onBlur={e => save('na_allah_packages', { ...packages, [cat]: packages[cat].map(px => px.id === p.id ? { ...px, price: e.target.value } : px) })} style={styles.inlineInput} /></div>
+                        <button onClick={() => setEditingPackage({ ...p, category: cat })} style={{ color: 'var(--primary-navy)', fontWeight: 'bold', cursor: 'pointer', border: 'none', background: 'none' }}>Edit</button>
+                        <button onClick={() => save('na_allah_packages', { ...packages, [cat]: packages[cat].filter(px => px.id !== p.id) })} style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
                       </div>
                     </div>
                   ))}
@@ -608,52 +608,52 @@ function AdminPanel() {
           )}
 
           {activeTab === 'destinations' && (
-             <div className="animate-fade-in">
-                <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '30px', alignItems: 'center'}}>
-                   <h3 style={{margin: 0}}>Available Destinations</h3>
-                   <button onClick={() => setShowAddDestination(true)} className="btn btn-navy hover-lift">🌍 + New Destination</button>
-                </div>
-                <div style={styles.tableCard}>
-                   <table style={styles.table}>
-                     <thead><tr><th>Destination Name</th><th>Value (System Code)</th><th style={{width: '120px', textAlign: 'right'}}>Control</th></tr></thead>
-                     <tbody>{destinations.map(d => (
-                       <tr key={d.id}>
-                         <td><strong>{d.name}</strong></td>
-                         <td style={{color: '#64748b'}}>{d.val}</td>
-                         <td style={{textAlign: 'right'}}>
-                            <button onClick={() => setEditingDestination(d)} style={{color: 'var(--primary-navy)', marginRight: '15px', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer'}}>Edit</button>
-                            <button onClick={() => save('na_allah_destinations', destinations.filter(dx => dx.id !== d.id))} style={{color: 'red', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer'}}>✕</button>
-                         </td>
-                       </tr>
-                     ))}</tbody>
-                   </table>
-                </div>
-             </div>
+            <div className="animate-fade-in">
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px', alignItems: 'center' }}>
+                <h3 style={{ margin: 0 }}>Available Destinations</h3>
+                <button onClick={() => setShowAddDestination(true)} className="btn btn-navy hover-lift">🌍 + New Destination</button>
+              </div>
+              <div style={styles.tableCard}>
+                <table style={styles.table}>
+                  <thead><tr><th>Destination Name</th><th>Value (System Code)</th><th style={{ width: '120px', textAlign: 'right' }}>Control</th></tr></thead>
+                  <tbody>{destinations.map(d => (
+                    <tr key={d.id}>
+                      <td><strong>{d.name}</strong></td>
+                      <td style={{ color: '#64748b' }}>{d.val}</td>
+                      <td style={{ textAlign: 'right' }}>
+                        <button onClick={() => setEditingDestination(d)} style={{ color: 'var(--primary-navy)', marginRight: '15px', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer' }}>Edit</button>
+                        <button onClick={() => save('na_allah_destinations', destinations.filter(dx => dx.id !== d.id))} style={{ color: 'red', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer' }}>✕</button>
+                      </td>
+                    </tr>
+                  ))}</tbody>
+                </table>
+              </div>
+            </div>
           )}
 
           {activeTab === 'licenses' && (
-             <div style={styles.tableCard}><div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '20px'}}><h3 style={{margin: 0}}>Trust Center Hub</h3><button onClick={() => setShowAddLicense(true)} className="btn btn-navy">📜 + Add Credential</button></div><table style={styles.table}><thead><tr><th>Doc Title</th><th>Status</th><th>Options</th></tr></thead>
-                <tbody>{licenses.map(l => (
-                  <tr key={l.id}><td><strong>{l.title}</strong></td><td><span style={{color: 'var(--primary-gold)', fontWeight: 'bold'}}>{l.status || 'Verified Member'}</span></td><td><div style={{display: 'flex', gap: '15px'}}><button onClick={() => openSecureView(l.link)} style={{color: 'var(--primary-navy)', fontWeight: 'bold', fontSize: '0.8rem', border: 'none', background: 'none', cursor: 'pointer', borderBottom: '1px solid'}}>View</button><button onClick={() => setEditingLicense(l)} style={{color: 'var(--primary-gold)', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer', fontSize: '0.8rem'}}>Edit</button><button onClick={() => save('na_allah_licenses', licenses.filter(lx => lx.id !== l.id))} style={{color: '#ff7675', background: 'none', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.8rem'}}>Delete</button></div></td></tr>
-                ))}</tbody>
-             </table></div>
+            <div style={styles.tableCard}><div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}><h3 style={{ margin: 0 }}>Trust Center Hub</h3><button onClick={() => setShowAddLicense(true)} className="btn btn-navy">📜 + Add Credential</button></div><table style={styles.table}><thead><tr><th>Doc Title</th><th>Status</th><th>Options</th></tr></thead>
+              <tbody>{licenses.map(l => (
+                <tr key={l.id}><td><strong>{l.title}</strong></td><td><span style={{ color: 'var(--primary-gold)', fontWeight: 'bold' }}>{l.status || 'Verified Member'}</span></td><td><div style={{ display: 'flex', gap: '15px' }}><button onClick={() => openSecureView(l.link)} style={{ color: 'var(--primary-navy)', fontWeight: 'bold', fontSize: '0.8rem', border: 'none', background: 'none', cursor: 'pointer', borderBottom: '1px solid' }}>View</button><button onClick={() => setEditingLicense(l)} style={{ color: 'var(--primary-gold)', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer', fontSize: '0.8rem' }}>Edit</button><button onClick={() => save('na_allah_licenses', licenses.filter(lx => lx.id !== l.id))} style={{ color: '#ff7675', background: 'none', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.8rem' }}>Delete</button></div></td></tr>
+              ))}</tbody>
+            </table></div>
           )}
 
           {activeTab === 'users' && (
-             <div className="animate-fade-in"><div style={styles.tableCard}><div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '20px'}}><h3 style={{margin: 0}}>Admin Directory</h3><button onClick={() => setShowAddAdmin(true)} className="btn btn-navy">👥 + Create Admin</button></div><table style={styles.table}><thead><tr><th>Email</th><th>Role</th><th>Date Added</th><th>Options</th></tr></thead>
-                <tbody>{admins.map(a => (
-                  <tr key={a.id}><td><strong>{a.email}</strong></td><td><span style={{color: a.role === 'Super Admin' ? 'var(--primary-gold)' : 'var(--primary-navy)', fontWeight: 'bold', background: 'rgba(0,0,0,0.05)', padding: '5px 10px', borderRadius: '10px'}}>{a.role}</span></td><td>{a.date}</td><td>
-                    {a.role !== 'Super Admin' && (
-                      <button onClick={async () => {
-                        const updated = admins.filter(ax => ax.id !== a.id);
-                        setAdmins(updated);
-                        save('na_allah_admins', updated);
-                        try { await supabase.from('na_allah_admins').delete().eq('id', a.id); } catch(err) {}
-                      }} style={{color: '#ff7675', background: 'rgba(255,118,117,0.1)', border: '1px solid rgba(255,118,117,0.3)', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.8rem', padding: '8px 15px', borderRadius: '8px'}}>Revoke Access</button>
-                    )}
-                  </td></tr>
-                ))}</tbody>
-             </table></div></div>
+            <div className="animate-fade-in"><div style={styles.tableCard}><div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}><h3 style={{ margin: 0 }}>Admin Directory</h3><button onClick={() => setShowAddAdmin(true)} className="btn btn-navy">👥 + Create Admin</button></div><table style={styles.table}><thead><tr><th>Email</th><th>Role</th><th>Date Added</th><th>Options</th></tr></thead>
+              <tbody>{admins.map(a => (
+                <tr key={a.id}><td><strong>{a.email}</strong></td><td><span style={{ color: a.role === 'Super Admin' ? 'var(--primary-gold)' : 'var(--primary-navy)', fontWeight: 'bold', background: 'rgba(0,0,0,0.05)', padding: '5px 10px', borderRadius: '10px' }}>{a.role}</span></td><td>{a.date}</td><td>
+                  {a.role !== 'Super Admin' && (
+                    <button onClick={async () => {
+                      const updated = admins.filter(ax => ax.id !== a.id);
+                      setAdmins(updated);
+                      save('na_allah_admins', updated);
+                      try { await supabase.from('na_allah_admins').delete().eq('id', a.id); } catch (err) { }
+                    }} style={{ color: '#ff7675', background: 'rgba(255,118,117,0.1)', border: '1px solid rgba(255,118,117,0.3)', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.8rem', padding: '8px 15px', borderRadius: '8px' }}>Revoke Access</button>
+                  )}
+                </td></tr>
+              ))}</tbody>
+            </table></div></div>
           )}
         </div>
       </main>
@@ -666,17 +666,17 @@ function AdminPanel() {
             <div style={styles.mBody}>
               <form onSubmit={handleServiceSave}>
                 <label style={styles.label}>Service Title</label>
-                <input required style={styles.input} value={editingService ? editingService.title : newService.title} onChange={e => editingService ? setEditingService({...editingService, title: e.target.value}) : setNewService({...newService, title: e.target.value})} />
-                
+                <input required style={styles.input} value={editingService ? editingService.title : newService.title} onChange={e => editingService ? setEditingService({ ...editingService, title: e.target.value }) : setNewService({ ...newService, title: e.target.value })} />
+
                 <label style={styles.label}>Icon Emoji</label>
-                <input required style={{...styles.input, marginBottom: '10px'}} value={editingService ? editingService.icon : newService.icon} onChange={e => editingService ? setEditingService({...editingService, icon: e.target.value}) : setNewService({...newService, icon: e.target.value})} />
-                
-                <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px', padding: '15px', background: '#f8fafc', borderRadius: '15px', border: '1px solid #e2e8f0'}}>
+                <input required style={{ ...styles.input, marginBottom: '10px' }} value={editingService ? editingService.icon : newService.icon} onChange={e => editingService ? setEditingService({ ...editingService, icon: e.target.value }) : setNewService({ ...newService, icon: e.target.value })} />
+
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px', padding: '15px', background: '#f8fafc', borderRadius: '15px', border: '1px solid #e2e8f0' }}>
                   {['✈️', '🕋', '🕌', '🛂', '🧳', '🏨', '🚌', '🍽️', '📜', '🌍', '🤝', '📅', '🛡️', '💎'].map(emoji => (
-                    <span 
-                      key={emoji} 
-                      onClick={() => editingService ? setEditingService({...editingService, icon: emoji}) : setNewService({...newService, icon: emoji})}
-                      style={{cursor: 'pointer', fontSize: '1.5rem', transition: 'transform 0.2s', padding: '5px', borderRadius: '5px'}}
+                    <span
+                      key={emoji}
+                      onClick={() => editingService ? setEditingService({ ...editingService, icon: emoji }) : setNewService({ ...newService, icon: emoji })}
+                      style={{ cursor: 'pointer', fontSize: '1.5rem', transition: 'transform 0.2s', padding: '5px', borderRadius: '5px' }}
                       onMouseOver={e => e.target.style.transform = 'scale(1.2)'}
                       onMouseOut={e => e.target.style.transform = 'scale(1)'}
                     >
@@ -686,11 +686,11 @@ function AdminPanel() {
                 </div>
 
                 <label style={styles.label}>Brief Description</label>
-                <textarea required style={{...styles.input, height: '80px'}} value={editingService ? editingService.desc : newService.desc} onChange={e => editingService ? setEditingService({...editingService, desc: e.target.value}) : setNewService({...newService, desc: e.target.value})} />
-                
-                <div style={{display: 'flex', gap: '15px', marginTop: '30px'}}>
-                  <button type="submit" className="btn btn-navy hover-lift" style={{flex: 1, padding: '16px'}}>{editingService ? 'Update' : 'Launch'}</button>
-                  <button type="button" onClick={() => {setShowAddService(false); setEditingService(null);}} className="btn btn-outline hover-lift" style={{padding: '16px'}}>Cancel</button>
+                <textarea required style={{ ...styles.input, height: '80px' }} value={editingService ? editingService.desc : newService.desc} onChange={e => editingService ? setEditingService({ ...editingService, desc: e.target.value }) : setNewService({ ...newService, desc: e.target.value })} />
+
+                <div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}>
+                  <button type="submit" className="btn btn-navy hover-lift" style={{ flex: 1, padding: '16px' }}>{editingService ? 'Update' : 'Launch'}</button>
+                  <button type="button" onClick={() => { setShowAddService(false); setEditingService(null); }} className="btn btn-outline hover-lift" style={{ padding: '16px' }}>Cancel</button>
                 </div>
               </form>
             </div>
@@ -703,61 +703,61 @@ function AdminPanel() {
           <div style={styles.modal} onClick={e => e.stopPropagation()}>
             <div style={styles.mHead}><h2>Private Inquiry Detail</h2></div>
             <div style={styles.mBody}>
-               
-               <div style={{textAlign: 'left', marginBottom: '20px', padding: '20px', background: '#f8fafc', borderRadius: '15px', border: '1px solid #e2e8f0', fontSize: '0.95rem'}}>
-                  <p style={{margin: '0 0 10px 0'}}><strong>👤 Name:</strong> {viewingBooking.name}</p>
-                  <p style={{margin: '0 0 10px 0'}}><strong>📧 Email:</strong> {viewingBooking.email}</p>
-                  <p style={{margin: '0 0 10px 0'}}><strong>📞 Phone:</strong> {viewingBooking.phone}</p>
-                  <p style={{margin: '0 0 10px 0'}}><strong>🕋 Interest:</strong> {viewingBooking.package}</p>
-                  <p style={{margin: '0'}}><strong>📊 Status:</strong> {viewingBooking.status || 'Pending'}</p>
-               </div>
 
-               <div style={{...styles.msg, background: 'rgba(212, 175, 55, 0.05)', borderColor: 'rgba(212, 175, 55, 0.2)'}}>
-                 <strong>Message:</strong><br/><br/>
-                 {viewingBooking.message}
-               </div>
+              <div style={{ textAlign: 'left', marginBottom: '20px', padding: '20px', background: '#f8fafc', borderRadius: '15px', border: '1px solid #e2e8f0', fontSize: '0.95rem' }}>
+                <p style={{ margin: '0 0 10px 0' }}><strong>👤 Name:</strong> {viewingBooking.name}</p>
+                <p style={{ margin: '0 0 10px 0' }}><strong>📧 Email:</strong> {viewingBooking.email}</p>
+                <p style={{ margin: '0 0 10px 0' }}><strong>📞 Phone:</strong> {viewingBooking.phone}</p>
+                <p style={{ margin: '0 0 10px 0' }}><strong>🕋 Interest:</strong> {viewingBooking.package}</p>
+                <p style={{ margin: '0' }}><strong>📊 Status:</strong> {viewingBooking.status || 'Pending'}</p>
+              </div>
 
-               <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '30px'}}>
-                  <a href={`mailto:${viewingBooking.email}`} className="btn btn-navy hover-lift" style={{textDecoration: 'none', padding: '14px', display: 'block', textAlign: 'center'}}>✉️ Email</a>
-                  <a href={`tel:${viewingBooking.phone}`} className="btn btn-outline hover-lift" style={{textDecoration: 'none', padding: '14px', color: 'var(--primary-navy)', borderColor: 'var(--primary-navy)', display: 'block', textAlign: 'center'}}>📞 Call</a>
-                  
-                  <button onClick={() => setViewingBooking(null)} className="btn btn-navy hover-lift" style={{padding: '14px'}}>Close</button>
-                  <button onClick={() => {
-                     if(window.confirm('Are you sure you want to delete this inquiry?')) {
-                       const updated = bookings.filter(b => b.id !== viewingBooking.id);
-                       setBookings(updated);
-                       save('na_allah_bookings', updated);
-                       setViewingBooking(null);
-                     }
-                  }} className="btn btn-outline hover-lift" style={{padding: '14px', color: '#e74c3c', borderColor: '#e74c3c'}}>🗑️ Delete</button>
-               </div>
+              <div style={{ ...styles.msg, background: 'rgba(212, 175, 55, 0.05)', borderColor: 'rgba(212, 175, 55, 0.2)' }}>
+                <strong>Message:</strong><br /><br />
+                {viewingBooking.message}
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '30px' }}>
+                <a href={`mailto:${viewingBooking.email}`} className="btn btn-navy hover-lift" style={{ textDecoration: 'none', padding: '14px', display: 'block', textAlign: 'center' }}>✉️ Email</a>
+                <a href={`tel:${viewingBooking.phone}`} className="btn btn-outline hover-lift" style={{ textDecoration: 'none', padding: '14px', color: 'var(--primary-navy)', borderColor: 'var(--primary-navy)', display: 'block', textAlign: 'center' }}>📞 Call</a>
+
+                <button onClick={() => setViewingBooking(null)} className="btn btn-navy hover-lift" style={{ padding: '14px' }}>Close</button>
+                <button onClick={() => {
+                  if (window.confirm('Are you sure you want to delete this inquiry?')) {
+                    const updated = bookings.filter(b => b.id !== viewingBooking.id);
+                    setBookings(updated);
+                    save('na_allah_bookings', updated);
+                    setViewingBooking(null);
+                  }
+                }} className="btn btn-outline hover-lift" style={{ padding: '14px', color: '#e74c3c', borderColor: '#e74c3c' }}>🗑️ Delete</button>
+              </div>
             </div>
           </div>
         </div>
       )}
-      
+
       {showAddAdmin && (
         <div style={styles.overlay}>
           <div style={styles.modal}>
             <div style={styles.mHead}><h2>👥 Create New Admin</h2></div>
             <div style={styles.mBody}>
-              <form onSubmit={handleAdminCreate} style={{textAlign: 'left'}}>
+              <form onSubmit={handleAdminCreate} style={{ textAlign: 'left' }}>
                 <label style={styles.label}>Admin Email</label>
-                <input required type="email" style={{...styles.input, marginBottom: '20px'}} value={newAdminData.email} onChange={e => setNewAdminData({...newAdminData, email: e.target.value})} placeholder="new.admin@naallahtravels.com" />
-                
-                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
-                   <label style={styles.label}>Control PIN</label>
-                   <button type="button" onClick={() => {
-                     const gen = Math.floor(1000 + Math.random() * 9000).toString();
-                     setNewAdminData({...newAdminData, pin: gen});
-                     setPinPopup({ email: newAdminData.email || 'New Admin', pin: gen });
-                   }} style={{color: 'var(--primary-gold)', border: 'none', background: 'none', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer', paddingBottom: '5px'}}>Auto-Generate</button>
+                <input required type="email" style={{ ...styles.input, marginBottom: '20px' }} value={newAdminData.email} onChange={e => setNewAdminData({ ...newAdminData, email: e.target.value })} placeholder="new.admin@naallahtravels.com" />
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                  <label style={styles.label}>Control PIN</label>
+                  <button type="button" onClick={() => {
+                    const gen = Math.floor(1000 + Math.random() * 9000).toString();
+                    setNewAdminData({ ...newAdminData, pin: gen });
+                    setPinPopup({ email: newAdminData.email || 'New Admin', pin: gen });
+                  }} style={{ color: 'var(--primary-gold)', border: 'none', background: 'none', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer', paddingBottom: '5px' }}>Auto-Generate</button>
                 </div>
-                <input required type="text" style={{...styles.input, marginBottom: '20px'}} value={newAdminData.pin} onChange={e => setNewAdminData({...newAdminData, pin: e.target.value})} placeholder="****" />
-                
-                <div style={{display: 'flex', gap: '15px', marginTop: '10px'}}>
-                  <button type="submit" className="btn btn-navy hover-lift" style={{flex: 1, padding: '16px'}}>Authorize & Create</button>
-                  <button type="button" onClick={() => {setShowAddAdmin(false); setNewAdminData({ email: '', pin: '' });}} className="btn btn-outline hover-lift" style={{padding: '16px'}}>Cancel</button>
+                <input required type="text" style={{ ...styles.input, marginBottom: '20px' }} value={newAdminData.pin} onChange={e => setNewAdminData({ ...newAdminData, pin: e.target.value })} placeholder="****" />
+
+                <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+                  <button type="submit" className="btn btn-navy hover-lift" style={{ flex: 1, padding: '16px' }}>Authorize & Create</button>
+                  <button type="button" onClick={() => { setShowAddAdmin(false); setNewAdminData({ email: '', pin: '' }); }} className="btn btn-outline hover-lift" style={{ padding: '16px' }}>Cancel</button>
                 </div>
               </form>
             </div>
@@ -765,7 +765,7 @@ function AdminPanel() {
         </div>
       )}
 
-      {(showAddPackage || editingPackage) && (<div style={styles.overlay}><div style={styles.modal}><div style={styles.mHead}><h2>📦 {editingPackage ? 'Edit' : 'New'} Plan</h2></div><div style={styles.mBody}><form onSubmit={handlePackageSave}><label style={styles.label}>Plan Title</label><input required style={styles.input} value={editingPackage ? editingPackage.title : newPackage.title} onChange={e => editingPackage ? setEditingPackage({...editingPackage, title: e.target.value}) : setNewPackage({...newPackage, title: e.target.value})} /><label style={styles.label}>Price (₦)</label><input required style={styles.input} value={editingPackage ? editingPackage.price : newPackage.price} onChange={e => editingPackage ? setEditingPackage({...editingPackage, price: e.target.value}) : setNewPackage({...newPackage, price: e.target.value})} /><label style={styles.label}>Spiritual Category</label><select disabled={!!editingPackage} style={styles.input} value={editingPackage ? editingPackage.category : newPackage.category} onChange={e => setNewPackage({...newPackage, category: e.target.value})}><option value="ramadan">Ramadan</option><option value="hajj">Hajj</option></select><div style={{display: 'flex', gap: '15px', marginTop: '30px'}}><button type="submit" className="btn btn-navy" style={{flex: 1, padding: '16px'}}>🕋 {editingPackage ? 'Update' : 'Publish'}</button><button type="button" onClick={() => {setShowAddPackage(false); setEditingPackage(null);}} className="btn btn-outline" style={{padding: '16px'}}>Cancel</button></div></form></div></div></div>)}
+      {(showAddPackage || editingPackage) && (<div style={styles.overlay}><div style={styles.modal}><div style={styles.mHead}><h2>📦 {editingPackage ? 'Edit' : 'New'} Plan</h2></div><div style={styles.mBody}><form onSubmit={handlePackageSave}><label style={styles.label}>Plan Title</label><input required style={styles.input} value={editingPackage ? editingPackage.title : newPackage.title} onChange={e => editingPackage ? setEditingPackage({ ...editingPackage, title: e.target.value }) : setNewPackage({ ...newPackage, title: e.target.value })} /><label style={styles.label}>Price (₦)</label><input required style={styles.input} value={editingPackage ? editingPackage.price : newPackage.price} onChange={e => editingPackage ? setEditingPackage({ ...editingPackage, price: e.target.value }) : setNewPackage({ ...newPackage, price: e.target.value })} /><label style={styles.label}>Spiritual Category</label><select disabled={!!editingPackage} style={styles.input} value={editingPackage ? editingPackage.category : newPackage.category} onChange={e => setNewPackage({ ...newPackage, category: e.target.value })}><option value="ramadan">Ramadan</option><option value="hajj">Hajj</option></select><div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}><button type="submit" className="btn btn-navy" style={{ flex: 1, padding: '16px' }}>🕋 {editingPackage ? 'Update' : 'Publish'}</button><button type="button" onClick={() => { setShowAddPackage(false); setEditingPackage(null); }} className="btn btn-outline" style={{ padding: '16px' }}>Cancel</button></div></form></div></div></div>)}
       {(showAddLicense || editingLicense) && (
         <div style={styles.overlay}>
           <div style={styles.modal}>
@@ -773,13 +773,13 @@ function AdminPanel() {
             <div style={styles.mBody}>
               <form onSubmit={handleLicenseSave}>
                 <label style={styles.label}>Document Title</label>
-                <input required style={styles.input} value={editingLicense ? editingLicense.title : newLicense.title} onChange={e => editingLicense ? setEditingLicense({...editingLicense, title: e.target.value}) : setNewLicense({...newLicense, title: e.target.value})} />
-                
+                <input required style={styles.input} value={editingLicense ? editingLicense.title : newLicense.title} onChange={e => editingLicense ? setEditingLicense({ ...editingLicense, title: e.target.value }) : setNewLicense({ ...newLicense, title: e.target.value })} />
+
                 <label style={styles.label}>Credential Status</label>
-                <select 
-                  style={{...styles.input, marginBottom: '20px'}} 
-                  value={editingLicense ? (editingLicense.status || 'Verified Member') : (newLicense.status || 'Verified Member')} 
-                  onChange={e => editingLicense ? setEditingLicense({...editingLicense, status: e.target.value}) : setNewLicense({...newLicense, status: e.target.value})}
+                <select
+                  style={{ ...styles.input, marginBottom: '20px' }}
+                  value={editingLicense ? (editingLicense.status || 'Verified Member') : (newLicense.status || 'Verified Member')}
+                  onChange={e => editingLicense ? setEditingLicense({ ...editingLicense, status: e.target.value }) : setNewLicense({ ...newLicense, status: e.target.value })}
                 >
                   <option value="Verified Member">Verified Member</option>
                   <option value="Official">Official</option>
@@ -787,15 +787,15 @@ function AdminPanel() {
                   <option value="Certified">Certified</option>
                 </select>
 
-                <label style={styles.label}>Attach Official Certificate (PDF/JPG)</label>
+                <label style={styles.label}>Attach Certificate (PDF/JPG)</label>
                 <div style={styles.fileBox}>
-                  <input type="file" accept="application/pdf,image/*" onChange={handleFileUpload} style={{width: '100%'}} />
-                  {(editingLicense?.link || newLicense.link) && <p style={{color: 'green', fontSize: '0.75rem', marginTop: '10px'}}>✅ Registered</p>}
+                  <input type="file" accept="application/pdf,image/*" onChange={handleFileUpload} style={{ width: '100%', cursor: 'pointer' }} />
+                  {(editingLicense?.link || newLicense.link) && <p style={{ color: 'green', fontSize: '0.75rem', marginTop: '10px', fontWeight: 'bold' }}>✅ File Attached</p>}
                 </div>
-                
-                <div style={{display: 'flex', gap: '15px', marginTop: '30px'}}>
-                  <button type="submit" className="btn btn-navy" style={{flex: 1, padding: '16px'}}>{editingLicense ? 'Update' : 'Store'}</button>
-                  <button type="button" onClick={() => {setShowAddLicense(false); setEditingLicense(null);}} className="btn btn-outline" style={{padding: '16px'}}>Cancel</button>
+
+                <div style={{ display: 'flex', gap: '15px', marginTop: '30px', paddingBottom: '20px' }}>
+                  <button type="submit" className="btn btn-navy" style={{ flex: 1, padding: '16px' }}>{editingLicense ? 'Update' : 'Store'}</button>
+                  <button type="button" onClick={() => { setShowAddLicense(false); setEditingLicense(null); }} className="btn btn-outline" style={{ padding: '16px' }}>Cancel</button>
                 </div>
               </form>
             </div>
@@ -808,16 +808,16 @@ function AdminPanel() {
           <div style={styles.modal}>
             <div style={styles.mHead}><h2>🌍 {editingDestination ? 'Edit' : 'New'} Destination</h2></div>
             <div style={styles.mBody}>
-              <form onSubmit={handleDestinationSave} style={{textAlign: 'left'}}>
+              <form onSubmit={handleDestinationSave} style={{ textAlign: 'left' }}>
                 <label style={styles.label}>Display Name (e.g. Mecca - Hajj)</label>
-                <input required style={{...styles.input, marginBottom: '20px'}} value={editingDestination ? editingDestination.name : newDestination.name} onChange={e => editingDestination ? setEditingDestination({...editingDestination, name: e.target.value}) : setNewDestination({...newDestination, name: e.target.value})} />
-                
+                <input required style={{ ...styles.input, marginBottom: '20px' }} value={editingDestination ? editingDestination.name : newDestination.name} onChange={e => editingDestination ? setEditingDestination({ ...editingDestination, name: e.target.value }) : setNewDestination({ ...newDestination, name: e.target.value })} />
+
                 <label style={styles.label}>System Value (Lowercase, no spaces)</label>
-                <input required style={{...styles.input, marginBottom: '20px'}} value={editingDestination ? editingDestination.val : newDestination.val} onChange={e => editingDestination ? setEditingDestination({...editingDestination, val: e.target.value.toLowerCase().replace(/\s+/g, '-')}) : setNewDestination({...newDestination, val: e.target.value.toLowerCase().replace(/\s+/g, '-')})} placeholder="e.g. mecca" />
-                
-                <div style={{display: 'flex', gap: '15px', marginTop: '10px'}}>
-                  <button type="submit" className="btn btn-navy hover-lift" style={{flex: 1, padding: '16px'}}>{editingDestination ? 'Update' : 'Add'}</button>
-                  <button type="button" onClick={() => {setShowAddDestination(false); setEditingDestination(null);}} className="btn btn-outline hover-lift" style={{padding: '16px'}}>Cancel</button>
+                <input required style={{ ...styles.input, marginBottom: '20px' }} value={editingDestination ? editingDestination.val : newDestination.val} onChange={e => editingDestination ? setEditingDestination({ ...editingDestination, val: e.target.value.toLowerCase().replace(/\s+/g, '-') }) : setNewDestination({ ...newDestination, val: e.target.value.toLowerCase().replace(/\s+/g, '-') })} placeholder="e.g. mecca" />
+
+                <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+                  <button type="submit" className="btn btn-navy hover-lift" style={{ flex: 1, padding: '16px' }}>{editingDestination ? 'Update' : 'Add'}</button>
+                  <button type="button" onClick={() => { setShowAddDestination(false); setEditingDestination(null); }} className="btn btn-outline hover-lift" style={{ padding: '16px' }}>Cancel</button>
                 </div>
               </form>
             </div>
@@ -827,17 +827,17 @@ function AdminPanel() {
 
       {pinPopup && (
         <div style={styles.overlay} onClick={() => setPinPopup(null)}>
-          <div style={{...styles.modal, maxWidth: '400px'}} onClick={e => e.stopPropagation()} className="animate-fade-in-up">
+          <div style={{ ...styles.modal, maxWidth: '400px' }} onClick={e => e.stopPropagation()} className="animate-fade-in-up">
             <div style={styles.modalIcon}>🔑</div>
-            <h3 style={{color: 'var(--primary-navy)', marginBottom: '10px'}}>PIN Generated!</h3>
-            <p style={{color: '#64748b', marginBottom: '20px', lineHeight: '1.5', fontSize: '0.95rem'}}>
+            <h3 style={{ color: 'var(--primary-navy)', marginBottom: '10px' }}>PIN Generated!</h3>
+            <p style={{ color: '#64748b', marginBottom: '20px', lineHeight: '1.5', fontSize: '0.95rem' }}>
               A new secure PIN has been successfully generated for <strong>{pinPopup.email}</strong>.
             </p>
-            <div style={{background: 'rgba(212, 175, 55, 0.1)', padding: '20px', borderRadius: '15px', marginBottom: '25px', border: '1px dashed var(--primary-gold)'}}>
-               <h1 style={{margin: 0, color: 'var(--primary-gold)', fontSize: '3rem', letterSpacing: '5px'}}>{pinPopup.pin}</h1>
+            <div style={{ background: 'rgba(212, 175, 55, 0.1)', padding: '20px', borderRadius: '15px', marginBottom: '25px', border: '1px dashed var(--primary-gold)' }}>
+              <h1 style={{ margin: 0, color: 'var(--primary-gold)', fontSize: '3rem', letterSpacing: '5px' }}>{pinPopup.pin}</h1>
             </div>
-            <p style={{color: '#e74c3c', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '20px'}}>⚠️ Please copy this PIN now and share it securely. It will not be shown again.</p>
-            <button onClick={() => setPinPopup(null)} className="btn btn-navy hover-lift" style={{width: '100%', padding: '14px', borderRadius: '15px'}}>I have copied the PIN</button>
+            <p style={{ color: '#e74c3c', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '20px' }}>⚠️ Please copy this PIN now and share it securely. It will not be shown again.</p>
+            <button onClick={() => setPinPopup(null)} className="btn btn-navy hover-lift" style={{ width: '100%', padding: '14px', borderRadius: '15px' }}>I have copied the PIN</button>
           </div>
         </div>
       )}
@@ -847,16 +847,16 @@ function AdminPanel() {
           <div style={styles.modal}>
             <div style={styles.mHead}><h2>🔒 Change My PIN</h2></div>
             <div style={styles.mBody}>
-              <form onSubmit={handleChangeMyPin} style={{textAlign: 'left'}}>
+              <form onSubmit={handleChangeMyPin} style={{ textAlign: 'left' }}>
                 <label style={styles.label}>Logged in as</label>
-                <input disabled type="text" style={{...styles.input, marginBottom: '20px', background: '#f8fafc', color: '#64748b'}} value={currentUser} />
-                
+                <input disabled type="text" style={{ ...styles.input, marginBottom: '20px', background: '#f8fafc', color: '#64748b' }} value={currentUser} />
+
                 <label style={styles.label}>New Personal PIN</label>
-                <input required type="text" style={{...styles.input, marginBottom: '20px'}} value={newPersonalPin} onChange={e => setNewPersonalPin(e.target.value)} placeholder="Enter 4+ digits" />
-                
-                <div style={{display: 'flex', gap: '15px', marginTop: '10px'}}>
-                  <button type="submit" className="btn btn-navy hover-lift" style={{flex: 1, padding: '16px'}}>Update PIN</button>
-                  <button type="button" onClick={() => {setShowChangePin(false); setNewPersonalPin('');}} className="btn btn-outline hover-lift" style={{padding: '16px'}}>Cancel</button>
+                <input required type="text" style={{ ...styles.input, marginBottom: '20px' }} value={newPersonalPin} onChange={e => setNewPersonalPin(e.target.value)} placeholder="Enter 4+ digits" />
+
+                <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+                  <button type="submit" className="btn btn-navy hover-lift" style={{ flex: 1, padding: '16px' }}>Update PIN</button>
+                  <button type="button" onClick={() => { setShowChangePin(false); setNewPersonalPin(''); }} className="btn btn-outline hover-lift" style={{ padding: '16px' }}>Cancel</button>
                 </div>
               </form>
             </div>
