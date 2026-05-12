@@ -3,8 +3,8 @@ import { supabase } from '../supabaseClient';
 
 function Credentials() {
   const [licenses, setLicenses] = useState([
-     { id: 1, title: 'Corporate Affairs Commission', status: 'Official' },
-     { id: 2, title: 'IATA Approved Agency', status: 'Verified' }
+     { id: 1, title: 'Corporate Affairs Commission', status: 'Official', link: 'https://images.unsplash.com/photo-1589330273594-fade1ee91647?auto=format&fit=crop&q=80&w=1000' },
+     { id: 2, title: 'IATA Approved Agency', status: 'Verified Member', link: 'https://images.unsplash.com/photo-1606857521015-7f9fdf423740?auto=format&fit=crop&q=80&w=1000' }
   ]);
 
   const loadLicenses = async () => {
@@ -137,7 +137,7 @@ const styles = {
   },
   previewArea: {
     width: '100%',
-    height: '180px',
+    height: '220px',
     backgroundColor: '#f1f5f9',
     overflow: 'hidden',
     position: 'relative',
@@ -148,7 +148,7 @@ const styles = {
     height: '100%',
     objectFit: 'cover',
     objectPosition: 'top',
-    opacity: 0.9,
+    opacity: 1,
     transition: 'transform 0.5s ease'
   },
   docPlaceholder: {
