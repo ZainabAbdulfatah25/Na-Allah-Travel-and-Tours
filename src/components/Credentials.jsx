@@ -66,8 +66,26 @@ function Credentials() {
                  className="hover-lift glass-panel"
                >
                  <div style={styles.badge}>{l.status || 'OFFICIAL'}</div>
-                 <h3 style={styles.title}>{l.title}</h3>
-                 <button onClick={() => openDoc(l.link)} className="btn-outline" style={styles.viewBtn}>Review Certification</button>
+                 
+                 <div style={styles.previewArea}>
+                    {l.link && l.link !== '#' ? (
+                      <img 
+                        src={l.link} 
+                        alt={l.title} 
+                        style={styles.previewImg} 
+                        onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                      />
+                    ) : null}
+                    <div style={{...styles.docPlaceholder, display: (l.link && l.link !== '#') ? 'none' : 'flex'}}>
+                      <span style={{fontSize: '2.5rem', marginBottom: '10px'}}>📜</span>
+                      <span>OFFICIAL DOCUMENT</span>
+                    </div>
+                 </div>
+
+                 <div style={styles.cardContent}>
+                   <h3 style={styles.title}>{l.title}</h3>
+                   <button onClick={() => openDoc(l.link)} className="btn-outline" style={styles.viewBtn}>Review Certification</button>
+                 </div>
                </div>
             ))}
           </div>
@@ -103,7 +121,7 @@ const styles = {
   },
   card: { 
     width: '350px',
-    padding: '45px 35px', 
+    padding: '0', 
     backgroundColor: 'rgba(255,255,255,0.7)', 
     backdropFilter: 'blur(10px)', 
     borderRadius: 'var(--radius-lg)', 
@@ -112,10 +130,48 @@ const styles = {
     border: '1px solid rgba(255,255,255,0.4)', 
     position: 'relative',
     flexShrink: 0,
-    transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+    transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column'
   },
-  badge: { position: 'absolute', top: '25px', right: '25px', fontSize: '0.65rem', color: 'var(--primary-gold)', fontWeight: '900', letterSpacing: '2.5px', border: '1.5px solid var(--primary-gold)', padding: '5px 12px', borderRadius: '8px', textTransform: 'uppercase' },
-  title: { color: 'var(--primary-navy)', marginBottom: '35px', fontSize: '1.25rem', fontWeight: '800', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: '1.2' },
+  previewArea: {
+    width: '100%',
+    height: '180px',
+    backgroundColor: '#f1f5f9',
+    overflow: 'hidden',
+    position: 'relative',
+    borderBottom: '1px solid rgba(0,0,0,0.05)'
+  },
+  previewImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    objectPosition: 'top',
+    opacity: 0.9,
+    transition: 'transform 0.5s ease'
+  },
+  docPlaceholder: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'linear-gradient(135deg, #f8fafc, #e2e8f0)',
+    color: 'var(--primary-navy)',
+    fontSize: '0.8rem',
+    fontWeight: '700'
+  },
+  cardContent: {
+    padding: '30px 25px 40px 25px',
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between'
+  },
+  badge: { position: 'absolute', top: '15px', right: '15px', fontSize: '0.6rem', color: 'var(--primary-gold)', fontWeight: '900', letterSpacing: '2px', backgroundColor: 'rgba(255,255,255,0.9)', border: '1.5px solid var(--primary-gold)', padding: '4px 10px', borderRadius: '6px', textTransform: 'uppercase', zIndex: 2 },
+  title: { color: 'var(--primary-navy)', marginBottom: '25px', fontSize: '1.15rem', fontWeight: '800', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: '1.2' },
   viewBtn: { padding: '12px 25px', fontSize: '0.85rem', fontWeight: '800', width: '100%', borderRadius: '12px', transition: 'all 0.3s' },
   blurBlob: { position: 'absolute', width: '500px', height: '500px', borderRadius: '50%', filter: 'blur(100px)', animation: 'floatElement 25s ease-in-out infinite' }
 };
