@@ -69,9 +69,12 @@ function Credentials() {
                  
                  <div style={styles.previewArea}>
                     <img 
-                      src={(l.link && l.link !== '#') ? l.link : 'https://images.unsplash.com/photo-1589330273594-fade1ee91647?auto=format&fit=crop&q=80&w=1000'} 
+                      src={l.link && l.link !== '#' ? l.link : 'https://images.unsplash.com/photo-1589330273594-fade1ee91647?auto=format&fit=crop&q=80&w=1000'} 
                       alt={l.title} 
                       style={styles.previewImg} 
+                      onError={(e) => {
+                        e.target.src = 'https://images.unsplash.com/photo-1589330273594-fade1ee91647?auto=format&fit=crop&q=80&w=1000';
+                      }}
                     />
                  </div>
 
@@ -141,6 +144,8 @@ const styles = {
     height: '100%',
     objectFit: 'cover',
     objectPosition: 'top',
+    transform: 'scale(1.1)',
+    transformOrigin: 'top',
     opacity: 1,
     transition: 'transform 0.5s ease'
   },
