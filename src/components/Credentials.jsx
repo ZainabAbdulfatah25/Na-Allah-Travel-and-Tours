@@ -3,8 +3,8 @@ import { supabase } from '../supabaseClient';
 
 function Credentials() {
   const [licenses, setLicenses] = useState([
-     { id: 1, title: 'Corporate Affairs Commission', status: 'Official', link: 'https://images.unsplash.com/photo-1589330273594-fade1ee91647?auto=format&fit=crop&q=80&w=1000' },
-     { id: 2, title: 'IATA Approved Agency', status: 'Verified Member', link: 'https://images.unsplash.com/photo-1606857521015-7f9fdf423740?auto=format&fit=crop&q=80&w=1000' }
+     { id: 1, title: 'Corporate Affairs Commission', status: 'Official', link: '#' },
+     { id: 2, title: 'IATA Approved Agency', status: 'Verified Member', link: '#' }
   ]);
 
   const loadLicenses = async () => {
@@ -68,14 +68,28 @@ function Credentials() {
                  <div style={styles.badge}>{l.status || 'OFFICIAL'}</div>
                  
                  <div style={styles.previewArea}>
-                    <img 
-                      src={l.link && l.link !== '#' ? l.link : 'https://images.unsplash.com/photo-1589330273594-fade1ee91647?auto=format&fit=crop&q=80&w=1000'} 
-                      alt={l.title} 
-                      style={styles.previewImg} 
-                      onError={(e) => {
-                        e.target.src = 'https://images.unsplash.com/photo-1589330273594-fade1ee91647?auto=format&fit=crop&q=80&w=1000';
-                      }}
-                    />
+                    {l.link && l.link !== '#' ? (
+                      l.link.includes('pdf') || l.link.startsWith('data:application/pdf') ? (
+                        <div style={styles.docPlaceholder}>
+                           <span style={{fontSize: '3rem'}}>📄</span>
+                           <span style={{marginTop: '10px', fontSize: '0.7rem'}}>PDF DOCUMENT</span>
+                        </div>
+                      ) : (
+                        <img 
+                          src={l.link} 
+                          alt={l.title} 
+                          style={styles.previewImg} 
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                      )
+                    ) : null}
+                    <div style={{...styles.docPlaceholder, display: (l.link && l.link !== '#' && !l.link.includes('pdf')) ? 'none' : 'flex'}}>
+                      <span style={{fontSize: '3rem'}}>📜</span>
+                      <span style={{marginTop: '10px', fontSize: '0.7rem'}}>OFFICIAL CREDENTIAL</span>
+                    </div>
                  </div>
 
                  <div style={styles.cardContent}>
