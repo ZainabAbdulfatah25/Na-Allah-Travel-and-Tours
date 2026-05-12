@@ -87,8 +87,11 @@ function Credentials() {
                       )
                     ) : null}
                     <div style={{...styles.docPlaceholder, display: (l.link && l.link !== '#' && !l.link.includes('pdf')) ? 'none' : 'flex'}}>
-                      <span style={{fontSize: '3rem'}}>📜</span>
-                      <span style={{marginTop: '10px', fontSize: '0.7rem'}}>OFFICIAL CREDENTIAL</span>
+                      <div style={styles.placeholderSeal}></div>
+                      <div style={styles.placeholderLine}></div>
+                      <div style={styles.placeholderLine}></div>
+                      <div style={{...styles.placeholderLine, width: '40%'}}></div>
+                      <span style={{marginTop: '15px', fontSize: '0.6rem', fontWeight: '900', letterSpacing: '1px', opacity: 0.5}}>{l.link?.includes('pdf') ? 'PDF DOCUMENT' : 'OFFICIAL CREDENTIAL'}</span>
                     </div>
                  </div>
 
@@ -170,10 +173,26 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'linear-gradient(135deg, #f8fafc, #e2e8f0)',
+    background: 'linear-gradient(135deg, #ffffff, #f1f5f9)',
     color: 'var(--primary-navy)',
-    fontSize: '0.8rem',
-    fontWeight: '700'
+    position: 'relative',
+    padding: '20px'
+  },
+  placeholderSeal: {
+    width: '50px',
+    height: '50px',
+    backgroundColor: 'var(--primary-gold)',
+    borderRadius: '50%',
+    opacity: 0.2,
+    marginBottom: '15px',
+    boxShadow: '0 0 0 4px rgba(212, 175, 55, 0.1)'
+  },
+  placeholderLine: {
+    width: '60%',
+    height: '4px',
+    backgroundColor: '#e2e8f0',
+    borderRadius: '2px',
+    marginBottom: '8px'
   },
   cardContent: {
     padding: '30px 25px 40px 25px',
