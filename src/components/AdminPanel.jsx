@@ -271,7 +271,7 @@ function AdminPanel() {
     if (editingLicense) updated = licenses.map(l => l.id === editingLicense.id ? editingLicense : l);
     else { if (!newLicense.link) return alert('No file attached.'); updated = [...licenses, { id: Date.now(), ...newLicense }]; }
     save('na_allah_licenses', updated);
-    setShowAddLicense(false); setEditingLicense(null); setNewLicense({ title: '', link: '', status: 'Verified Member' });
+    setShowAddLicense(false); setEditingLicense(null); setNewLicense({ title: '', link: '', thumbnail: '', status: 'Verified Member' });
   };
 
   const handleDestinationSave = (e) => {
