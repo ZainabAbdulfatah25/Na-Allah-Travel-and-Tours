@@ -44,6 +44,8 @@ function AdminPanel() {
     adminPin: '2026'
   });
 
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const [newPackage, setNewPackage] = useState({ title: '', price: '', category: 'ramadan' });
   const [newLicense, setNewLicense] = useState({ title: '', link: '', status: 'Verified Member' });
   const [newService, setNewService] = useState({ title: '', icon: '✈️', desc: '' });
@@ -225,26 +227,76 @@ function AdminPanel() {
        let thumbnail = result;
 
        // If it's a PDF, generate a thumbnail
-       if (file.type === 'application/pdf' && window.pdfjsLib) {
-         try {
-           const pdf = await window.pdfjsLib.getDocument({ data: atob(result.split(',')[1]) }).promise;
-           const page = await pdf.getPage(1);
-           const viewport = page.getViewport({ scale: 1.5 });
-           const canvas = document.createElement('canvas');
-           const context = canvas.getContext('2d');
-           canvas.height = viewport.height;
-           canvas.width = viewport.width;
-           await page.render({ canvasContext: context, viewport: viewport }).promise;
-           thumbnail = canvas.toDataURL('image/jpeg', 0.8);
-         } catch (err) {
-           console.error('PDF Thumbnail Error:', err);
-         }
+       if (file.type === 'application/pdf') {
+         thumbnail = await generateThumbnailFromPdf(result);
        }
 
        if (editingLicense) setEditingLicense({...editingLicense, link: result, thumbnail: thumbnail});
        else setNewLicense({...newLicense, link: result, thumbnail: thumbnail});
     };
     reader.readAsDataURL(file);
+  };
+
+  const generateThumbnailFromPdf = async (dataUri) => {
+    try {
+      let pdfLib = window.pdfjsLib;
+      if (!pdfLib) {
+        await new Promise(resolve => {
+          const check = setInterval(() => {
+            if (window.pdfjsLib) { clearInterval(check); resolve(); }
+          }, 100);
+        });
+        pdfLib = window.pdfjsLib;
+      }
+      pdfLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
+      const pdf = await pdfLib.getDocument({ data: atob(dataUri.split(',')[1]) }).promise;
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 1.5, rotation: page.rotate });
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      await page.render({ canvasContext: context, viewport: viewport }).promise;
+      return canvas.toDataURL('image/jpeg', 0.8);
+    } catch (err) {
+      console.error('PDF Thumbnail Error:', err);
+      return dataUri;
+    }
+  };
+
+  const handleRegenerateThumbnail = async (license) => {
+    if (!license.link) return alert('No file link found to regenerate from.');
+    
+    setIsProcessing(true);
+    console.log(`[Admin] Regenerating preview for: ${license.title}`);
+    
+    try {
+      const isPdf = license.link.includes('pdf') || license.link.startsWith('data:application/pdf');
+      let thumbnail = null;
+      
+      if (isPdf) {
+        thumbnail = await generateThumbnailFromPdf(license.link);
+      } else {
+        // If it's an image, just use the link as thumbnail
+        thumbnail = license.link;
+      }
+      
+      if (thumbnail) {
+        const updated = licenses.map(l => l.id === license.id ? { ...l, thumbnail } : l);
+        setLicenses(updated);
+        await save('na_allah_licenses', updated);
+        if (editingLicense && editingLicense.id === license.id) {
+          setEditingLicense({ ...editingLicense, thumbnail });
+        }
+        console.log(`[Admin] Successfully regenerated preview for: ${license.title}`);
+      }
+    } catch (err) {
+      console.error('[Admin] Regeneration failed:', err);
+      alert('Failed to regenerate preview. Please check console for details.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handlePackageSave = (e) => {
@@ -657,9 +709,33 @@ function AdminPanel() {
           )}
 
           {activeTab === 'licenses' && (
-            <div style={styles.tableCard}><div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}><h3 style={{ margin: 0 }}>Trust Center Hub</h3><button onClick={() => setShowAddLicense(true)} className="btn btn-navy">📜 + Add Credential</button></div><table style={styles.table}><thead><tr><th>Doc Title</th><th>Status</th><th>Options</th></tr></thead>
+            <div style={styles.tableCard}><div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}><h3 style={{ margin: 0 }}>Trust Center Hub</h3><button onClick={() => setShowAddLicense(true)} className="btn btn-navy">📜 + Add Credential</button></div><table style={styles.table}><thead><tr><th>Preview</th><th>Doc Title</th><th>Status</th><th>Options</th></tr></thead>
               <tbody>{licenses.map(l => (
-                <tr key={l.id}><td><strong>{l.title}</strong></td><td><span style={{ color: 'var(--primary-gold)', fontWeight: 'bold' }}>{l.status || 'Verified Member'}</span></td><td><div style={{ display: 'flex', gap: '15px' }}><button onClick={() => openSecureView(l.link)} style={{ color: 'var(--primary-navy)', fontWeight: 'bold', fontSize: '0.8rem', border: 'none', background: 'none', cursor: 'pointer', borderBottom: '1px solid' }}>View</button><button onClick={() => setEditingLicense(l)} style={{ color: 'var(--primary-gold)', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer', fontSize: '0.8rem' }}>Edit</button><button onClick={() => save('na_allah_licenses', licenses.filter(lx => lx.id !== l.id))} style={{ color: '#ff7675', background: 'none', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.8rem' }}>Delete</button></div></td></tr>
+                <tr key={l.id}>
+                  <td style={{ width: '80px', padding: '10px' }}>
+                    <div style={{ width: '60px', height: '40px', borderRadius: '6px', border: '1px solid #e2e8f0', overflow: 'hidden', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {l.thumbnail || (l.link && !l.link.includes('pdf')) ? (
+                        <img src={l.thumbnail || l.link} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} alt="Preview" />
+                      ) : (
+                        <span style={{ fontSize: '1.2rem' }}>📜</span>
+                      )}
+                    </div>
+                  </td>
+                  <td><strong>{l.title}</strong></td><td><span style={{ color: 'var(--primary-gold)', fontWeight: 'bold' }}>{l.status || 'Verified Member'}</span></td><td><div style={{ display: 'flex', gap: '15px' }}>
+                    {(!l.thumbnail || l.thumbnail === '#') && l.link && l.link !== '#' && (
+                      <button 
+                        type="button"
+                        disabled={isProcessing}
+                        onClick={() => handleRegenerateThumbnail(l)} 
+                        style={{ color: 'var(--primary-navy)', fontWeight: 'bold', fontSize: '0.8rem', border: 'none', background: 'none', cursor: isProcessing ? 'not-allowed' : 'pointer', borderBottom: '1px solid', opacity: isProcessing ? 0.5 : 1 }}
+                      >
+                        {isProcessing ? 'Processing...' : 'Regen Preview'}
+                      </button>
+                    )}
+                    <button type="button" onClick={() => openSecureView(l.link)} style={{ color: 'var(--primary-navy)', fontWeight: 'bold', fontSize: '0.8rem', border: 'none', background: 'none', cursor: 'pointer', borderBottom: '1px solid' }}>View</button>
+                    <button type="button" onClick={() => setEditingLicense(l)} style={{ color: 'var(--primary-gold)', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer', fontSize: '0.8rem' }}>Edit</button>
+                    <button type="button" onClick={() => save('na_allah_licenses', licenses.filter(lx => lx.id !== l.id))} style={{ color: '#ff7675', background: 'none', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.8rem' }}>Delete</button>
+                  </div></td></tr>
               ))}</tbody>
             </table></div>
           )}
@@ -815,7 +891,27 @@ function AdminPanel() {
                 <label style={styles.label}>Attach Certificate (PDF/JPG)</label>
                 <div style={styles.fileBox}>
                   <input type="file" accept="application/pdf,image/*" onChange={handleFileUpload} style={{ width: '100%', cursor: 'pointer' }} />
-                  {(editingLicense?.link || newLicense.link) && <p style={{ color: 'green', fontSize: '0.75rem', marginTop: '10px', fontWeight: 'bold' }}>✅ File Attached</p>}
+                  {(editingLicense?.thumbnail || newLicense.thumbnail) && (
+                    <div style={{ marginTop: '15px', textAlign: 'center' }}>
+                      <p style={{ color: 'var(--primary-gold)', fontSize: '0.7rem', fontWeight: 'bold', marginBottom: '10px', textTransform: 'uppercase' }}>Preview Header</p>
+                      <div style={{ width: '100%', height: '120px', overflow: 'hidden', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                        <img 
+                          src={editingLicense ? editingLicense.thumbnail : newLicense.thumbnail} 
+                          style={{ width: '100%', height: 'auto', objectFit: 'cover', objectPosition: 'top' }} 
+                          alt="Thumbnail preview"
+                        />
+                      </div>
+                      <div style={{ marginTop: '10px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                        <p style={{ color: 'green', fontSize: '0.75rem', fontWeight: 'bold' }}>✅ File Processed</p>
+                        {editingLicense && editingLicense.link && editingLicense.link.includes('pdf') && (
+                          <button type="button" onClick={() => handleRegenerateThumbnail(editingLicense)} style={{ fontSize: '0.7rem', color: 'var(--primary-navy)', border: 'none', background: 'none', textDecoration: 'underline', cursor: 'pointer' }}>Regenerate</button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {(!editingLicense?.thumbnail && !newLicense.thumbnail && (editingLicense?.link || newLicense.link)) && (
+                    <p style={{ color: 'green', fontSize: '0.75rem', marginTop: '10px', fontWeight: 'bold' }}>✅ File Attached (Generating Preview...)</p>
+                  )}
                 </div>
 
                 <div style={{ display: 'flex', gap: '15px', marginTop: '30px', paddingBottom: '20px' }}>
