@@ -995,6 +995,27 @@ function AdminPanel() {
                   <option value="Certified">Certified</option>
                 </select>
 
+                <label style={styles.label}>Direct Document URL (Optional Backup)</label>
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                  <input 
+                    style={{ ...styles.input, marginBottom: 0 }} 
+                    placeholder="https://example.com/my-certificate.pdf"
+                    value={editingLicense ? editingLicense.link : newLicense.link} 
+                    onChange={e => editingLicense ? setEditingLicense({ ...editingLicense, link: e.target.value }) : setNewLicense({ ...newLicense, link: e.target.value })} 
+                  />
+                  {(editingLicense || newLicense.link) && (
+                    <button 
+                      type="button" 
+                      disabled={isProcessing}
+                      onClick={() => handleRegenerateThumbnail(editingLicense || { ...newLicense, id: 'temp' })}
+                      className="btn btn-outline" 
+                      style={{ padding: '0 15px', whiteSpace: 'nowrap', fontSize: '0.75rem' }}
+                    >
+                      {isProcessing ? '...' : 'Verify Link'}
+                    </button>
+                  )}
+                </div>
+
                 <label style={styles.label}>Attach Certificate (PDF/JPG)</label>
                 <div 
                   style={{
