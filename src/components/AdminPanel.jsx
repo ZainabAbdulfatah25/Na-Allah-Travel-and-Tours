@@ -181,15 +181,19 @@ function AdminPanel() {
   }, [loadData]);
 
   const save = async (key, data) => {
-    localStorage.setItem(key, JSON.stringify(data));
-    
-    // If saving licenses, update the persistent thumbnail vault
-    if (key === 'na_allah_licenses') {
-      const vault = JSON.parse(localStorage.getItem('na_allah_thumb_vault') || '{}');
-      data.forEach(l => {
-        if (l.thumbnail && l.thumbnail !== '#') vault[l.id] = l.thumbnail;
-      });
-      localStorage.setItem('na_allah_thumb_vault', JSON.stringify(vault));
+    try {
+      localStorage.setItem(key, JSON.stringify(data));
+      
+      if (key === 'na_allah_licenses') {
+        const vault = JSON.parse(localStorage.getItem('na_allah_thumb_vault') || '{}');
+        data.forEach(l => {
+          if (l.thumbnail && l.thumbnail !== '#') vault[l.id] = l.thumbnail;
+        });
+        localStorage.setItem('na_allah_thumb_vault', JSON.stringify(vault));
+      }
+    } catch (e) {
+      console.warn('Local storage quota exceeded, saving to cloud only');
+      // If local storage is full, we still proceed to save to cloud (Supabase)
     }
 
     loadData();
@@ -281,13 +285,15 @@ function AdminPanel() {
 
       const pdf = await loadingTask.promise;
       const page = await pdf.getPage(1);
-      const viewport = page.getViewport({ scale: 1.5, rotation: page.rotate });
+      // Reduce scale from 1.5 to 1.0 to save significant space
+      const viewport = page.getViewport({ scale: 1.0, rotation: page.rotate });
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
       canvas.height = viewport.height;
       canvas.width = viewport.width;
       await page.render({ canvasContext: context, viewport: viewport }).promise;
-      return canvas.toDataURL('image/jpeg', 0.8);
+      // Use lower quality (0.6) for JPEG to save more space
+      return canvas.toDataURL('image/jpeg', 0.6);
     } catch (err) {
       console.error('PDF Thumbnail Error:', err);
       return null;
