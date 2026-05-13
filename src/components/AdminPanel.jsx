@@ -45,6 +45,7 @@ function AdminPanel() {
   });
 
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const [newPackage, setNewPackage] = useState({ title: '', price: '', category: 'ramadan' });
   const [newLicense, setNewLicense] = useState({ title: '', link: '', status: 'Verified Member' });
@@ -136,8 +137,19 @@ function AdminPanel() {
         for (const t of tables) {
           const { data } = await supabase.from(t.name).select('*').order('id', { ascending: true });
           if (data && data.length > 0) {
-            t.setter(data);
-            localStorage.setItem(t.name, JSON.stringify(data));
+            let finalData = data;
+            
+            // Thumbnail Vault Integration for Licenses
+            if (t.name === 'na_allah_licenses') {
+              const vault = JSON.parse(localStorage.getItem('na_allah_thumb_vault') || '{}');
+              finalData = data.map(l => ({
+                ...l,
+                thumbnail: l.thumbnail || vault[l.id] || null
+              }));
+            }
+
+            t.setter(finalData);
+            localStorage.setItem(t.name, JSON.stringify(finalData));
           }
         }
 
@@ -170,6 +182,16 @@ function AdminPanel() {
 
   const save = async (key, data) => {
     localStorage.setItem(key, JSON.stringify(data));
+    
+    // If saving licenses, update the persistent thumbnail vault
+    if (key === 'na_allah_licenses') {
+      const vault = JSON.parse(localStorage.getItem('na_allah_thumb_vault') || '{}');
+      data.forEach(l => {
+        if (l.thumbnail && l.thumbnail !== '#') vault[l.id] = l.thumbnail;
+      });
+      localStorage.setItem('na_allah_thumb_vault', JSON.stringify(vault));
+    }
+
     loadData();
 
     try {
@@ -250,7 +272,14 @@ function AdminPanel() {
       }
       pdfLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
 
-      const pdf = await pdfLib.getDocument({ data: atob(dataUri.split(',')[1]) }).promise;
+      let loadingTask;
+      if (dataUri.startsWith('data:')) {
+        loadingTask = pdfLib.getDocument({ data: atob(dataUri.split(',')[1]) });
+      } else {
+        loadingTask = pdfLib.getDocument(dataUri);
+      }
+
+      const pdf = await loadingTask.promise;
       const page = await pdf.getPage(1);
       const viewport = page.getViewport({ scale: 1.5, rotation: page.rotate });
       const canvas = document.createElement('canvas');
@@ -261,7 +290,7 @@ function AdminPanel() {
       return canvas.toDataURL('image/jpeg', 0.8);
     } catch (err) {
       console.error('PDF Thumbnail Error:', err);
-      return dataUri;
+      return null;
     }
   };
 
@@ -294,6 +323,35 @@ function AdminPanel() {
     } catch (err) {
       console.error('[Admin] Regeneration failed:', err);
       alert('Failed to regenerate preview. Please check console for details.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSyncAllPreviews = async () => {
+    const toRegen = licenses.filter(l => l.link && l.link.includes('pdf'));
+    if (toRegen.length === 0) return alert('No PDF documents found to sync.');
+    
+    if (!confirm(`Are you sure you want to regenerate previews for all ${toRegen.length} PDF documents? This may take a moment.`)) return;
+    
+    setIsProcessing(true);
+    let count = 0;
+    try {
+      const updated = [...licenses];
+      for (let i = 0; i < updated.length; i++) {
+        if (updated[i].link && updated[i].link.includes('pdf')) {
+          console.log(`[Admin] Syncing preview ${i+1}/${updated.length}: ${updated[i].title}`);
+          const thumb = await generateThumbnailFromPdf(updated[i].link);
+          updated[i] = { ...updated[i], thumbnail: thumb };
+          count++;
+        }
+      }
+      setLicenses(updated);
+      await save('na_allah_licenses', updated);
+      alert(`Successfully synced ${count} previews across all devices!`);
+    } catch (err) {
+      console.error('[Admin] Sync All Error:', err);
+      alert('Failed to sync all previews. Check console.');
     } finally {
       setIsProcessing(false);
     }
@@ -709,7 +767,15 @@ function AdminPanel() {
           )}
 
           {activeTab === 'licenses' && (
-            <div style={styles.tableCard}><div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}><h3 style={{ margin: 0 }}>Trust Center Hub</h3><button onClick={() => setShowAddLicense(true)} className="btn btn-navy">📜 + Add Credential</button></div><table style={styles.table}><thead><tr><th>Preview</th><th>Doc Title</th><th>Status</th><th>Options</th></tr></thead>
+            <div style={styles.tableCard}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignItems: 'center' }}>
+                <h3 style={{ margin: 0 }}>Trust Center Hub</h3>
+                <div style={{ display: 'flex', gap: '15px' }}>
+                  <button type="button" disabled={isProcessing} onClick={handleSyncAllPreviews} className="btn btn-outline" style={{ padding: '10px 20px', fontSize: '0.8rem' }}>🔄 Sync All Previews</button>
+                  <button onClick={() => setShowAddLicense(true)} className="btn btn-navy">📜 + Add Credential</button>
+                </div>
+              </div>
+              <table style={styles.table}><thead><tr><th>Preview</th><th>Doc Title</th><th>Status</th><th>Options</th></tr></thead>
               <tbody>{licenses.map(l => (
                 <tr key={l.id}>
                   <td style={{ width: '80px', padding: '10px' }}>
@@ -722,14 +788,14 @@ function AdminPanel() {
                     </div>
                   </td>
                   <td><strong>{l.title}</strong></td><td><span style={{ color: 'var(--primary-gold)', fontWeight: 'bold' }}>{l.status || 'Verified Member'}</span></td><td><div style={{ display: 'flex', gap: '15px' }}>
-                    {(!l.thumbnail || l.thumbnail === '#') && l.link && l.link !== '#' && (
+                    {l.link && l.link !== '#' && (
                       <button 
                         type="button"
                         disabled={isProcessing}
                         onClick={() => handleRegenerateThumbnail(l)} 
                         style={{ color: 'var(--primary-navy)', fontWeight: 'bold', fontSize: '0.8rem', border: 'none', background: 'none', cursor: isProcessing ? 'not-allowed' : 'pointer', borderBottom: '1px solid', opacity: isProcessing ? 0.5 : 1 }}
                       >
-                        {isProcessing ? 'Processing...' : 'Regen Preview'}
+                        {isProcessing ? '...' : (l.thumbnail ? 'Refresh Preview' : 'Fix Preview')}
                       </button>
                     )}
                     <button type="button" onClick={() => openSecureView(l.link)} style={{ color: 'var(--primary-navy)', fontWeight: 'bold', fontSize: '0.8rem', border: 'none', background: 'none', cursor: 'pointer', borderBottom: '1px solid' }}>View</button>
@@ -889,8 +955,37 @@ function AdminPanel() {
                 </select>
 
                 <label style={styles.label}>Attach Certificate (PDF/JPG)</label>
-                <div style={styles.fileBox}>
-                  <input type="file" accept="application/pdf,image/*" onChange={handleFileUpload} style={{ width: '100%', cursor: 'pointer' }} />
+                <div 
+                  style={{
+                    ...styles.fileBox, 
+                    borderColor: isDragging ? 'var(--primary-gold)' : '#cbd5e1',
+                    background: isDragging ? 'rgba(212, 175, 55, 0.05)' : 'var(--off-white)',
+                    borderStyle: isDragging ? 'solid' : 'dashed'
+                  }}
+                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    const file = e.dataTransfer.files[0];
+                    if (file) handleFileUpload({ target: { files: [file] } });
+                  }}
+                >
+                  <input 
+                    type="file" 
+                    id="fileInput"
+                    accept="application/pdf,image/*" 
+                    onChange={handleFileUpload} 
+                    style={{ display: 'none' }} 
+                  />
+                  <label htmlFor="fileInput" style={{ cursor: 'pointer', display: 'block', padding: '20px' }}>
+                    <span style={{ fontSize: '2rem', display: 'block', marginBottom: '10px' }}>{isDragging ? '📂' : '📤'}</span>
+                    <span style={{ fontWeight: '800', color: 'var(--primary-navy)' }}>
+                      {isDragging ? 'Release to Upload' : 'Click or Drag Certificate Here'}
+                    </span>
+                    <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '5px' }}>Supports PDF, JPG, PNG</p>
+                  </label>
+                  
                   {(editingLicense?.thumbnail || newLicense.thumbnail) && (
                     <div style={{ marginTop: '15px', textAlign: 'center' }}>
                       <p style={{ color: 'var(--primary-gold)', fontSize: '0.7rem', fontWeight: 'bold', marginBottom: '10px', textTransform: 'uppercase' }}>Preview Header</p>

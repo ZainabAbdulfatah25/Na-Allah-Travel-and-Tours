@@ -8,14 +8,22 @@ function Credentials() {
   ]);
 
   const loadLicenses = async () => {
-    const saved = JSON.parse(localStorage.getItem('na_allah_licenses'));
-    if (saved) setLicenses(saved);
+    const localData = JSON.parse(localStorage.getItem('na_allah_licenses')) || [];
+    if (localData.length > 0) setLicenses(localData);
     
     try {
       const { data, error } = await supabase.from('na_allah_licenses').select('*').order('id', { ascending: true });
       if (data && !error && data.length > 0) {
-        setLicenses(data);
-        localStorage.setItem('na_allah_licenses', JSON.stringify(data));
+        // Robust thumbnail preservation: Merge from dedicated thumbnail vault
+        const vault = JSON.parse(localStorage.getItem('na_allah_thumb_vault') || '{}');
+        const merged = data.map(remoteItem => {
+          return {
+            ...remoteItem,
+            thumbnail: remoteItem.thumbnail || vault[remoteItem.id] || null
+          };
+        });
+        setLicenses(merged);
+        localStorage.setItem('na_allah_licenses', JSON.stringify(merged));
       }
     } catch(err) {}
   };
