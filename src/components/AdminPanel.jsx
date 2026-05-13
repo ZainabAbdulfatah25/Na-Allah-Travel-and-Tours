@@ -203,35 +203,42 @@ function AdminPanel() {
         const table = key;
         const ids = data.map(d => d.id);
         
-        // 1. Delete removed items
+        // 1. SAFE UPSERT FIRST: Ensure data is saved before deleting anything
+        if (key === 'na_allah_licenses') {
+           for (const item of data) {
+             const { error } = await supabase.from(table).upsert(item);
+             if (error) throw new Error(`Failed to save ${item.title}: ${error.message}`);
+           }
+        } else if (ids.length > 0) {
+          await supabase.from(table).upsert(data);
+        }
+
+        // 2. CLEANUP AFTER SUCCESS: Only delete if the upsert succeeded
         if (ids.length > 0) {
           await supabase.from(table).delete().not('id', 'in', `(${ids.join(',')})`);
         } else {
           await supabase.from(table).delete().neq('id', 0);
         }
-
-        // 2. Optimized Upsert: Process one-by-one for licenses to avoid massive payloads
-        if (key === 'na_allah_licenses') {
-           for (const item of data) {
-             await supabase.from(table).upsert(item);
-           }
-        } else if (ids.length > 0) {
-          await supabase.from(table).upsert(data);
-        }
       } else if (key === 'na_allah_packages') {
         const flatPackages = [...(data.ramadan || []).map(p => ({ ...p, category: 'ramadan' })), ...(data.hajj || []).map(p => ({ ...p, category: 'hajj' }))];
         const ids = flatPackages.map(p => p.id);
+        
+        // Upsert first
+        for (const pkg of flatPackages) {
+          await supabase.from('na_allah_packages').upsert(pkg);
+        }
+        
+        // Cleanup after
         if (ids.length > 0) {
           await supabase.from('na_allah_packages').delete().not('id', 'in', `(${ids.join(',')})`);
-          // One-by-one for packages too for safety
-          for (const pkg of flatPackages) {
-            await supabase.from('na_allah_packages').upsert(pkg);
-          }
         } else {
           await supabase.from('na_allah_packages').delete().neq('id', 0);
         }
       }
-    } catch (err) { console.error('Supabase sync error', err); }
+    } catch (err) { 
+      console.error('Supabase sync error', err); 
+      alert(`Sync Error: ${err.message || 'The file might be too large for the database.'}`);
+    }
   };
 
   // SECURE PREVIEW HELPER
@@ -348,29 +355,44 @@ function AdminPanel() {
   };
 
   const handleSyncAllPreviews = async () => {
-    const toRegen = licenses.filter(l => l.link && l.link.includes('pdf'));
-    if (toRegen.length === 0) return alert('No PDF documents found to sync.');
+    const toProcess = licenses.filter(l => l.link && l.link !== '#');
+    if (toProcess.length === 0) return alert('No documents found to sync.');
     
-    if (!confirm(`Are you sure you want to regenerate previews for all ${toRegen.length} PDF documents? This may take a moment.`)) return;
+    if (!confirm(`Syncing will regenerate headers for all ${toProcess.length} documents. Proceed?`)) return;
     
     setIsProcessing(true);
     let count = 0;
     try {
       const updated = [...licenses];
       for (let i = 0; i < updated.length; i++) {
-        if (updated[i].link && updated[i].link.includes('pdf')) {
-          console.log(`[Admin] Syncing preview ${i+1}/${updated.length}: ${updated[i].title}`);
-          const thumb = await generateThumbnailFromPdf(updated[i].link);
-          updated[i] = { ...updated[i], thumbnail: thumb };
-          count++;
+        const item = updated[i];
+        if (!item.link || item.link === '#') continue;
+
+        try {
+          console.log(`[Admin] Syncing ${i+1}/${updated.length}: ${item.title}`);
+          const isPdf = item.link.includes('pdf') || item.link.startsWith('data:application/pdf');
+          
+          let thumb = item.thumbnail;
+          if (isPdf) {
+            thumb = await generateThumbnailFromPdf(item.link);
+          } else {
+            thumb = item.link; // It's an image
+          }
+
+          if (thumb) {
+            updated[i] = { ...item, thumbnail: thumb };
+            count++;
+          }
+        } catch (singleErr) {
+          console.error(`[Admin] Failed to sync ${item.title}:`, singleErr);
         }
       }
       setLicenses(updated);
       await save('na_allah_licenses', updated);
-      alert(`Successfully synced ${count} previews across all devices!`);
+      alert(`Successfully synced ${count} document headers!`);
     } catch (err) {
-      console.error('[Admin] Sync All Error:', err);
-      alert('Failed to sync all previews. Check console.');
+      console.error('[Admin] Global Sync Error:', err);
+      alert('Global sync encountered an error. Check console.');
     } finally {
       setIsProcessing(false);
     }
