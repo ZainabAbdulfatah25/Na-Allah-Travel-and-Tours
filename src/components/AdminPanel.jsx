@@ -995,34 +995,38 @@ function AdminPanel() {
                   <option value="Certified">Certified</option>
                 </select>
 
-                <label style={styles.label}>Direct Document URL (Optional Backup)</label>
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                <label style={styles.label}>Method 1: Direct Document URL (Recommended for large files)</label>
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '25px' }}>
                   <input 
                     style={{ ...styles.input, marginBottom: 0 }} 
                     placeholder="https://example.com/my-certificate.pdf"
                     value={editingLicense ? editingLicense.link : newLicense.link} 
                     onChange={e => editingLicense ? setEditingLicense({ ...editingLicense, link: e.target.value }) : setNewLicense({ ...newLicense, link: e.target.value })} 
                   />
-                  {(editingLicense || newLicense.link) && (
-                    <button 
-                      type="button" 
-                      disabled={isProcessing}
-                      onClick={() => handleRegenerateThumbnail(editingLicense || { ...newLicense, id: 'temp' })}
-                      className="btn btn-outline" 
-                      style={{ padding: '0 15px', whiteSpace: 'nowrap', fontSize: '0.75rem' }}
-                    >
-                      {isProcessing ? '...' : 'Verify Link'}
-                    </button>
-                  )}
+                  <button 
+                    type="button" 
+                    disabled={isProcessing}
+                    onClick={() => handleRegenerateThumbnail(editingLicense || { ...newLicense, id: 'temp' })}
+                    className="btn btn-outline" 
+                    style={{ padding: '0 15px', whiteSpace: 'nowrap', fontSize: '0.75rem', height: '50px' }}
+                  >
+                    {isProcessing ? '...' : 'Verify & Preview'}
+                  </button>
                 </div>
 
-                <label style={styles.label}>Attach Certificate (PDF/JPG)</label>
+                <div style={{ textAlign: 'center', margin: '15px 0', position: 'relative' }}>
+                  <hr style={{ border: '0.5px solid #e2e8f0' }} />
+                  <span style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'white', padding: '0 15px', color: '#64748b', fontSize: '0.7rem', fontWeight: 'bold' }}>OR</span>
+                </div>
+
+                <label style={styles.label}>Method 2: Upload File (Best for smaller docs)</label>
                 <div 
                   style={{
                     ...styles.fileBox, 
                     borderColor: isDragging ? 'var(--primary-gold)' : '#cbd5e1',
                     background: isDragging ? 'rgba(212, 175, 55, 0.05)' : 'var(--off-white)',
-                    borderStyle: isDragging ? 'solid' : 'dashed'
+                    borderStyle: isDragging ? 'solid' : 'dashed',
+                    marginBottom: '20px'
                   }}
                   onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                   onDragLeave={() => setIsDragging(false)}
@@ -1040,36 +1044,27 @@ function AdminPanel() {
                     onChange={handleFileUpload} 
                     style={{ display: 'none' }} 
                   />
-                  <label htmlFor="fileInput" style={{ cursor: 'pointer', display: 'block', padding: '20px' }}>
-                    <span style={{ fontSize: '2rem', display: 'block', marginBottom: '10px' }}>{isDragging ? '📂' : '📤'}</span>
-                    <span style={{ fontWeight: '800', color: 'var(--primary-navy)' }}>
-                      {isDragging ? 'Release to Upload' : 'Click or Drag Certificate Here'}
+                  <label htmlFor="fileInput" style={{ cursor: 'pointer', display: 'block', padding: '15px' }}>
+                    <span style={{ fontSize: '1.5rem', display: 'block', marginBottom: '5px' }}>{isDragging ? '📂' : '📤'}</span>
+                    <span style={{ fontWeight: '800', color: 'var(--primary-navy)', fontSize: '0.9rem' }}>
+                      {isDragging ? 'Release to Upload' : 'Drag or Click to Upload File'}
                     </span>
-                    <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '5px' }}>Supports PDF, JPG, PNG</p>
                   </label>
-                  
-                  {(editingLicense?.thumbnail || newLicense.thumbnail) && (
-                    <div style={{ marginTop: '15px', textAlign: 'center' }}>
-                      <p style={{ color: 'var(--primary-gold)', fontSize: '0.7rem', fontWeight: 'bold', marginBottom: '10px', textTransform: 'uppercase' }}>Preview Header</p>
-                      <div style={{ width: '100%', height: '120px', overflow: 'hidden', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                        <img 
-                          src={editingLicense ? editingLicense.thumbnail : newLicense.thumbnail} 
-                          style={{ width: '100%', height: 'auto', objectFit: 'cover', objectPosition: 'top' }} 
-                          alt="Thumbnail preview"
-                        />
-                      </div>
-                      <div style={{ marginTop: '10px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                        <p style={{ color: 'green', fontSize: '0.75rem', fontWeight: 'bold' }}>✅ File Processed</p>
-                        {editingLicense && editingLicense.link && editingLicense.link.includes('pdf') && (
-                          <button type="button" onClick={() => handleRegenerateThumbnail(editingLicense)} style={{ fontSize: '0.7rem', color: 'var(--primary-navy)', border: 'none', background: 'none', textDecoration: 'underline', cursor: 'pointer' }}>Regenerate</button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  {(!editingLicense?.thumbnail && !newLicense.thumbnail && (editingLicense?.link || newLicense.link)) && (
-                    <p style={{ color: 'green', fontSize: '0.75rem', marginTop: '10px', fontWeight: 'bold' }}>✅ File Attached (Generating Preview...)</p>
-                  )}
                 </div>
+                
+                {(editingLicense?.thumbnail || newLicense.thumbnail) && (
+                  <div style={{ marginTop: '0', textAlign: 'center', background: 'rgba(0,162,232,0.05)', padding: '15px', borderRadius: '12px', border: '1px solid rgba(0,162,232,0.1)', marginBottom: '20px' }}>
+                    <p style={{ color: 'var(--primary-navy)', fontSize: '0.7rem', fontWeight: 'bold', marginBottom: '10px', textTransform: 'uppercase' }}>Preview Generated</p>
+                    <div style={{ width: '100%', height: '100px', overflow: 'hidden', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                      <img 
+                        src={editingLicense ? editingLicense.thumbnail : newLicense.thumbnail} 
+                        style={{ width: '100%', height: 'auto', objectFit: 'cover', objectPosition: 'top' }} 
+                        alt="Thumbnail preview"
+                      />
+                    </div>
+                    <p style={{ color: 'green', fontSize: '0.7rem', fontWeight: 'bold', marginTop: '10px' }}>✅ Ready to {editingLicense ? 'Update' : 'Store'}</p>
+                  </div>
+                )}
 
                 <div style={{ display: 'flex', gap: '15px', marginTop: '30px', paddingBottom: '20px' }}>
                   <button type="submit" className="btn btn-navy" style={{ flex: 1, padding: '16px' }}>{editingLicense ? 'Update' : 'Store'}</button>
