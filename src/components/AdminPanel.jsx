@@ -202,18 +202,31 @@ function AdminPanel() {
       if (key === 'na_allah_services' || key === 'na_allah_destinations' || key === 'na_allah_licenses') {
         const table = key;
         const ids = data.map(d => d.id);
+        
+        // 1. Delete removed items
         if (ids.length > 0) {
           await supabase.from(table).delete().not('id', 'in', `(${ids.join(',')})`);
-          await supabase.from(table).upsert(data);
         } else {
           await supabase.from(table).delete().neq('id', 0);
+        }
+
+        // 2. Optimized Upsert: Process one-by-one for licenses to avoid massive payloads
+        if (key === 'na_allah_licenses') {
+           for (const item of data) {
+             await supabase.from(table).upsert(item);
+           }
+        } else if (ids.length > 0) {
+          await supabase.from(table).upsert(data);
         }
       } else if (key === 'na_allah_packages') {
         const flatPackages = [...(data.ramadan || []).map(p => ({ ...p, category: 'ramadan' })), ...(data.hajj || []).map(p => ({ ...p, category: 'hajj' }))];
         const ids = flatPackages.map(p => p.id);
         if (ids.length > 0) {
           await supabase.from('na_allah_packages').delete().not('id', 'in', `(${ids.join(',')})`);
-          await supabase.from('na_allah_packages').upsert(flatPackages);
+          // One-by-one for packages too for safety
+          for (const pkg of flatPackages) {
+            await supabase.from('na_allah_packages').upsert(pkg);
+          }
         } else {
           await supabase.from('na_allah_packages').delete().neq('id', 0);
         }
