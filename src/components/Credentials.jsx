@@ -28,12 +28,42 @@ function Credentials() {
     } catch(err) {}
   };
 
+  const generateThumbnailFromPdf = async (url, id) => {
+    try {
+      if (!window.pdfjsLib) return;
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+      const pdf = await window.pdfjsLib.getDocument(url).promise;
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 1.0 });
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+      
+      setLicenses(prev => prev.map(item => item.id === id ? { ...item, thumbnail: dataUrl } : item));
+      const vault = JSON.parse(localStorage.getItem('na_allah_thumb_vault') || '{}');
+      vault[id] = dataUrl;
+      localStorage.setItem('na_allah_thumb_vault', JSON.stringify(vault));
+    } catch (err) {
+      console.error('Frontend PDF generation error:', err);
+    }
+  };
+
   useEffect(() => {
     loadLicenses();
     const handleSync = (e) => { if (e.key === 'na_allah_licenses') loadLicenses(); };
     window.addEventListener('storage', handleSync);
     return () => window.removeEventListener('storage', handleSync);
   }, []);
+
+  useEffect(() => {
+    licenses.forEach(l => {
+      if (l.link && l.link !== '#' && !l.thumbnail && (l.link.toLowerCase().includes('.pdf') || l.link.startsWith('data:application/pdf'))) {
+        generateThumbnailFromPdf(l.link, l.id);
+      }
+    });
+  }, [licenses]);
 
   const openDoc = (link) => {
     if (!link || link === '#') return alert('No file attached.');

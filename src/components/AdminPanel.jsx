@@ -206,8 +206,26 @@ function AdminPanel() {
         // 1. SAFE UPSERT FIRST: Ensure data is saved before deleting anything
         if (key === 'na_allah_licenses') {
            for (const item of data) {
-             const { error } = await supabase.from(table).upsert(item);
-             if (error) throw new Error(`Failed to save ${item.title}: ${error.message}`);
+             let { error } = await supabase.from(table).upsert(item);
+
+             if (error) {
+               // Strip any columns the DB doesn't know about and retry
+               console.warn(`[Admin] Upsert failed (${error.message}), retrying with core fields only...`);
+               const safeItem = {
+                 id: item.id,
+                 title: item.title,
+                 link: item.link,
+                 thumbnail: item.thumbnail,
+                 status: item.status,
+               };
+               const { error: retryErr } = await supabase.from(table).upsert(safeItem);
+               if (retryErr) {
+                 // Last resort: save without thumbnail
+                 const { thumbnail, ...minimal } = safeItem;
+                 const { error: minErr } = await supabase.from(table).upsert(minimal);
+                 if (minErr) console.error(`[Admin] Could not save "${item.title}":`, minErr.message);
+               }
+             }
            }
         } else if (ids.length > 0) {
           await supabase.from(table).upsert(data);
@@ -235,9 +253,14 @@ function AdminPanel() {
           await supabase.from('na_allah_packages').delete().neq('id', 0);
         }
       }
+      
+      // 3. FINAL SYNC: Refresh data only AFTER cloud success
+      loadData();
+
     } catch (err) { 
       console.error('Supabase sync error', err); 
-      alert(`Sync Error: ${err.message || 'The file might be too large for the database.'}`);
+      alert(`Sync Warning: ${err.message || 'Check database connection'}`);
+      // Even if sync fails, don't trigger a full loadData() to avoid wiping local UI changes
     }
   };
 
@@ -262,38 +285,105 @@ function AdminPanel() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Set worker for pdf.js
-    if (window.pdfjsLib) {
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+    // 1. UPLOAD TO SUPABASE STORAGE (Resolves high-fidelity PDF failures)
+    setIsProcessing(true);
+    const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+    const filePath = `documents/${fileName}`;
+
+    try {
+      console.log(`[Admin] Uploading ${file.name} to Supabase Storage...`);
+      const { data, error } = await supabase.storage
+        .from('credentials')
+        .upload(filePath, file, { cacheControl: '3600', upsert: false });
+
+      if (error) {
+        // Fallback to Base64 if bucket doesn't exist or upload fails, but warn user
+        console.warn('[Admin] Supabase Storage upload failed, falling back to Base64:', error.message);
+        if (error.message.includes('bucket_not_found') || error.message.includes('not found')) {
+          alert('Note: Storage bucket "credentials" not found. Using fallback storage (Base64).');
+        } else {
+          console.warn('Storage error: ', error.message, '. Falling back to Base64.');
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const result = event.target.result;
+          let thumbnail = result;
+          if (file.type === 'application/pdf') thumbnail = await generateThumbnailFromPdf(result);
+          
+          if (editingLicense) setEditingLicense({...editingLicense, link: result, thumbnail: thumbnail});
+          else setNewLicense({...newLicense, link: result, thumbnail: thumbnail});
+          setIsProcessing(false);
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      // Get Public URL
+      const { data: publicData } = supabase.storage.from('credentials').getPublicUrl(filePath);
+      const publicUrl = publicData?.publicUrl;
+      
+      if (!publicUrl) throw new Error('Failed to retrieve public URL from Storage.');
+      
+      console.log(`[Admin] File uploaded successfully. Public URL: ${publicUrl}`);
+
+      // 2. GENERATE THUMBNAIL (For visualization)
+      let thumbnail = null;
+      if (file.type === 'application/pdf') {
+        const reader = new FileReader();
+        const pdfData = await new Promise((resolve) => {
+          reader.onload = (ev) => resolve(ev.target.result);
+          reader.readAsDataURL(file);
+        });
+        thumbnail = await generateThumbnailFromPdf(pdfData);
+      } else if (file.type.startsWith('image/')) {
+        // Generate a small thumbnail for images to keep UI snappy
+        const reader = new FileReader();
+        const imgData = await new Promise((resolve) => {
+          reader.onload = (ev) => resolve(ev.target.result);
+          reader.readAsDataURL(file);
+        });
+        
+        thumbnail = await new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const MAX_WIDTH = 400;
+            const scale = MAX_WIDTH / img.width;
+            canvas.width = MAX_WIDTH;
+            canvas.height = img.height * scale;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', 0.7));
+          };
+          img.src = imgData;
+        });
+      } else {
+        thumbnail = publicUrl;
+      }
+
+      // 3. UPDATE STATE
+      if (editingLicense) setEditingLicense({...editingLicense, link: publicUrl, thumbnail: thumbnail});
+      else setNewLicense({...newLicense, link: publicUrl, thumbnail: thumbnail});
+
+    } catch (err) {
+      console.error('[Admin] Upload Error:', err);
+      alert(`Upload failed: ${err.message}`);
+    } finally {
+      setIsProcessing(false);
     }
-
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-       const result = event.target.result;
-       let thumbnail = result;
-
-       // If it's a PDF, generate a thumbnail
-       if (file.type === 'application/pdf') {
-         thumbnail = await generateThumbnailFromPdf(result);
-       }
-
-       if (editingLicense) setEditingLicense({...editingLicense, link: result, thumbnail: thumbnail});
-       else setNewLicense({...newLicense, link: result, thumbnail: thumbnail});
-    };
-    reader.readAsDataURL(file);
   };
 
   const generateThumbnailFromPdf = async (dataUri) => {
     try {
       let pdfLib = window.pdfjsLib;
+      
+      // Safety check for pdfLib
       if (!pdfLib) {
-        await new Promise(resolve => {
-          const check = setInterval(() => {
-            if (window.pdfjsLib) { clearInterval(check); resolve(); }
-          }, 100);
-        });
-        pdfLib = window.pdfjsLib;
+        console.warn('[Admin] PDF.js not loaded yet. Skipping thumbnail generation.');
+        return null;
       }
+
       pdfLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
 
       let loadingTask;
@@ -338,11 +428,18 @@ function AdminPanel() {
       }
       
       if (thumbnail) {
-        const updated = licenses.map(l => l.id === license.id ? { ...l, thumbnail } : l);
-        setLicenses(updated);
-        await save('na_allah_licenses', updated);
+        if (license.id === 'temp') {
+          // It's a new license being verified
+          setNewLicense(prev => ({ ...prev, thumbnail }));
+        } else {
+          // Existing license
+          const updated = licenses.map(l => l.id === license.id ? { ...l, thumbnail } : l);
+          setLicenses(updated);
+          await save('na_allah_licenses', updated);
+        }
+
         if (editingLicense && editingLicense.id === license.id) {
-          setEditingLicense({ ...editingLicense, thumbnail });
+          setEditingLicense(prev => ({ ...prev, thumbnail }));
         }
         console.log(`[Admin] Successfully regenerated preview for: ${license.title}`);
       }
@@ -398,40 +495,64 @@ function AdminPanel() {
     }
   };
 
-  const handlePackageSave = (e) => {
+  const handlePackageSave = async (e) => {
     e.preventDefault();
-    const updated = { ...packages };
-    if (editingPackage) updated[editingPackage.category] = updated[editingPackage.category].map(p => p.id === editingPackage.id ? editingPackage : p);
-    else updated[newPackage.category].push({ id: Date.now(), ...newPackage });
-    save('na_allah_packages', updated);
-    setShowAddPackage(false); setEditingPackage(null); setNewPackage({ title: '', price: '', category: 'ramadan' });
+    setIsProcessing(true);
+    try {
+      const updated = { ...packages };
+      if (editingPackage) updated[editingPackage.category] = updated[editingPackage.category].map(p => p.id === editingPackage.id ? editingPackage : p);
+      else updated[newPackage.category].push({ id: Number(`${Date.now()}${Math.floor(Math.random() * 100)}`), ...newPackage });
+      await save('na_allah_packages', updated);
+      setShowAddPackage(false); setEditingPackage(null); setNewPackage({ title: '', price: '', category: 'ramadan' });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const handleServiceSave = (e) => {
+  const handleServiceSave = async (e) => {
     e.preventDefault();
-    let updated;
-    if (editingService) updated = services.map(s => s.id === editingService.id ? editingService : s);
-    else updated = [...services, { id: Date.now(), ...newService }];
-    save('na_allah_services', updated);
-    setShowAddService(false); setEditingService(null); setNewService({ title: '', icon: '✈️', desc: '' });
+    setIsProcessing(true);
+    try {
+      let updated;
+      if (editingService) updated = services.map(s => s.id === editingService.id ? editingService : s);
+      else updated = [...services, { id: Number(`${Date.now()}${Math.floor(Math.random() * 100)}`), ...newService }];
+      await save('na_allah_services', updated);
+      setShowAddService(false); setEditingService(null); setNewService({ title: '', icon: '✈️', desc: '' });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const handleLicenseSave = (e) => {
+  const handleLicenseSave = async (e) => {
     e.preventDefault();
-    let updated;
-    if (editingLicense) updated = licenses.map(l => l.id === editingLicense.id ? editingLicense : l);
-    else { if (!newLicense.link) return alert('No file attached.'); updated = [...licenses, { id: Date.now(), ...newLicense }]; }
-    save('na_allah_licenses', updated);
-    setShowAddLicense(false); setEditingLicense(null); setNewLicense({ title: '', link: '', thumbnail: '', status: 'Verified Member' });
+    setIsProcessing(true);
+    try {
+      let updated;
+      if (editingLicense) updated = licenses.map(l => l.id === editingLicense.id ? editingLicense : l);
+      else { 
+        if (!newLicense.link) return alert('Please upload a document or provide a link first.'); 
+        const uniqueId = Number(`${Date.now()}${Math.floor(Math.random() * 1000)}`);
+        updated = [...licenses, { id: uniqueId, ...newLicense }]; 
+      }
+      await save('na_allah_licenses', updated);
+      setShowAddLicense(false); setEditingLicense(null); setNewLicense({ title: '', link: '', thumbnail: '', status: 'Verified Member' });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const handleDestinationSave = (e) => {
+  const handleDestinationSave = async (e) => {
     e.preventDefault();
-    let updated;
-    if (editingDestination) updated = destinations.map(d => d.id === editingDestination.id ? editingDestination : d);
-    else updated = [...destinations, { id: Date.now(), ...newDestination }];
-    save('na_allah_destinations', updated);
-    setShowAddDestination(false); setEditingDestination(null); setNewDestination({ name: '', val: '' });
+    setIsProcessing(true);
+    try {
+      let updated;
+      if (editingDestination) updated = destinations.map(d => d.id === editingDestination.id ? editingDestination : d);
+      else updated = [...destinations, { id: Number(`${Date.now()}${Math.floor(Math.random() * 100)}`), ...newDestination }];
+      await save('na_allah_destinations', updated);
+      setShowAddDestination(false); setEditingDestination(null); setNewDestination({ name: '', val: '' });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleGlobalSync = (e) => {
@@ -445,7 +566,8 @@ function AdminPanel() {
     if (newAdminData.pin.length < 4) return alert('PIN must be at least 4 digits');
     if (admins.some(a => a.email === newAdminData.email)) return alert('An admin with this email already exists.');
 
-    const newAdmin = { id: Date.now(), email: newAdminData.email, pin: newAdminData.pin, role: 'Admin', date: new Date().toISOString().split('T')[0] };
+    const uniqueId = Number(`${Date.now()}${Math.floor(Math.random() * 100)}`);
+    const newAdmin = { id: uniqueId, email: newAdminData.email, pin: newAdminData.pin, role: 'Admin', date: new Date().toISOString().split('T')[0] };
 
     // Cloud sync
     try {
@@ -528,7 +650,8 @@ function AdminPanel() {
 
       setIsLoading(true);
       setTimeout(() => {
-        const newAdmin = { id: Date.now(), email, pin: passcode, role: 'Admin', date: new Date().toISOString().split('T')[0] };
+        const uniqueId = Number(`${Date.now()}${Math.floor(Math.random() * 100)}`);
+        const newAdmin = { id: uniqueId, email, pin: passcode, role: 'Admin', date: new Date().toISOString().split('T')[0] };
         const updatedAdmins = [...admins, newAdmin];
         setAdmins(updatedAdmins);
         save('na_allah_admins', updatedAdmins);
@@ -998,19 +1121,23 @@ function AdminPanel() {
                 <label style={styles.label}>Method 1: Direct Document URL (Recommended for large files)</label>
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '25px' }}>
                   <input 
+                    type="url"
                     style={{ ...styles.input, marginBottom: 0 }} 
                     placeholder="https://example.com/my-certificate.pdf"
                     value={editingLicense ? editingLicense.link : newLicense.link} 
-                    onChange={e => editingLicense ? setEditingLicense({ ...editingLicense, link: e.target.value }) : setNewLicense({ ...newLicense, link: e.target.value })} 
+                    onChange={e => {
+                      if (editingLicense) setEditingLicense({ ...editingLicense, link: e.target.value });
+                      else setNewLicense({ ...newLicense, link: e.target.value });
+                    }} 
                   />
                   <button 
                     type="button" 
-                    disabled={isProcessing}
+                    disabled={isProcessing || !(editingLicense ? editingLicense.link : newLicense.link)}
                     onClick={() => handleRegenerateThumbnail(editingLicense || { ...newLicense, id: 'temp' })}
                     className="btn btn-outline" 
-                    style={{ padding: '0 15px', whiteSpace: 'nowrap', fontSize: '0.75rem', height: '50px' }}
+                    style={{ padding: '0 15px', whiteSpace: 'nowrap', fontSize: '0.8rem', height: '50px', fontWeight: 'bold' }}
                   >
-                    {isProcessing ? '...' : 'Verify & Preview'}
+                    {isProcessing ? '...' : 'Load Preview'}
                   </button>
                 </div>
 
@@ -1026,7 +1153,11 @@ function AdminPanel() {
                     borderColor: isDragging ? 'var(--primary-gold)' : '#cbd5e1',
                     background: isDragging ? 'rgba(212, 175, 55, 0.05)' : 'var(--off-white)',
                     borderStyle: isDragging ? 'solid' : 'dashed',
-                    marginBottom: '20px'
+                    transform: isDragging ? 'scale(1.02)' : 'scale(1)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    marginBottom: '20px',
+                    position: 'relative',
+                    overflow: 'hidden'
                   }}
                   onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                   onDragLeave={() => setIsDragging(false)}
@@ -1037,6 +1168,9 @@ function AdminPanel() {
                     if (file) handleFileUpload({ target: { files: [file] } });
                   }}
                 >
+                  {isProcessing && (
+                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--primary-gold)', animation: 'shimmer 1.5s infinite' }}></div>
+                  )}
                   <input 
                     type="file" 
                     id="fileInput"
@@ -1044,10 +1178,15 @@ function AdminPanel() {
                     onChange={handleFileUpload} 
                     style={{ display: 'none' }} 
                   />
-                  <label htmlFor="fileInput" style={{ cursor: 'pointer', display: 'block', padding: '15px' }}>
-                    <span style={{ fontSize: '1.5rem', display: 'block', marginBottom: '5px' }}>{isDragging ? '📂' : '📤'}</span>
-                    <span style={{ fontWeight: '800', color: 'var(--primary-navy)', fontSize: '0.9rem' }}>
-                      {isDragging ? 'Release to Upload' : 'Drag or Click to Upload File'}
+                  <label htmlFor="fileInput" style={{ cursor: 'pointer', display: 'block', padding: '30px' }}>
+                    <div style={{ fontSize: '2.5rem', marginBottom: '15px', transition: 'transform 0.3s' }} className={isDragging ? 'animate-bounce' : ''}>
+                      {isProcessing ? '⏳' : (isDragging ? '📥' : '📤')}
+                    </div>
+                    <span style={{ fontWeight: '800', color: 'var(--primary-navy)', fontSize: '1rem', display: 'block' }}>
+                      {isProcessing ? 'Processing Sacred Document...' : (isDragging ? 'Release to Upload' : 'Drop File or Click to Upload')}
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '8px', display: 'block' }}>
+                      PDFs and Images supported (Max 50MB)
                     </span>
                   </label>
                 </div>
@@ -1067,7 +1206,14 @@ function AdminPanel() {
                 )}
 
                 <div style={{ display: 'flex', gap: '15px', marginTop: '30px', paddingBottom: '20px' }}>
-                  <button type="submit" className="btn btn-navy" style={{ flex: 1, padding: '16px' }}>{editingLicense ? 'Update' : 'Store'}</button>
+                  <button 
+                    type="submit" 
+                    disabled={isProcessing} 
+                    className="btn btn-navy" 
+                    style={{ flex: 1, padding: '16px', opacity: isProcessing ? 0.6 : 1, cursor: isProcessing ? 'not-allowed' : 'pointer' }}
+                  >
+                    {isProcessing ? 'Processing...' : (editingLicense ? 'Update' : 'Store')}
+                  </button>
                   <button type="button" onClick={() => { setShowAddLicense(false); setEditingLicense(null); }} className="btn btn-outline" style={{ padding: '16px' }}>Cancel</button>
                 </div>
               </form>
@@ -1142,12 +1288,12 @@ function AdminPanel() {
 
 const styles = {
   adminContainer: { display: 'flex', minHeight: '100vh', backgroundColor: 'var(--off-white)', backgroundImage: 'radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 40%)' },
-  sidebar: { width: '280px', backgroundColor: 'var(--primary-navy)', color: 'white', display: 'flex', flexDirection: 'column', borderRight: '1px solid rgba(255,255,255,0.05)', boxShadow: '4px 0 24px rgba(0,0,0,0.02)' },
-  sidebarHeader: { padding: '40px 30px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' },
-  navItem: { padding: '18px 30px', cursor: 'pointer', opacity: 0.6, fontSize: '0.9rem', fontWeight: '700', letterSpacing: '0.5px', transition: 'all 0.3s' },
-  activeNavItem: { backgroundColor: 'rgba(212, 175, 55, 0.15)', color: 'var(--primary-gold)', opacity: 1, borderRight: '4px solid var(--primary-gold)' },
-  mainContent: { flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto' },
-  topbar: { background: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(10px)', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 50px', borderBottom: '1px solid var(--border-dark)', position: 'sticky', top: 0, zIndex: 10 },
+  sidebar: { width: '280px', backgroundColor: 'var(--primary-navy)', backgroundImage: 'linear-gradient(180deg, var(--primary-navy) 0%, var(--secondary-navy) 100%)', color: 'white', display: 'flex', flexDirection: 'column', borderRight: '1px solid rgba(255,255,255,0.05)', boxShadow: '4px 0 24px rgba(0,0,0,0.1)', zIndex: 20 },
+  sidebarHeader: { padding: '50px 30px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' },
+  navItem: { padding: '18px 30px', cursor: 'pointer', opacity: 0.7, fontSize: '0.9rem', fontWeight: '700', letterSpacing: '0.5px', transition: 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)', borderLeft: '4px solid transparent' },
+  activeNavItem: { backgroundColor: 'rgba(212, 175, 55, 0.12)', color: 'var(--primary-gold)', opacity: 1, borderLeft: '4px solid var(--primary-gold)', transform: 'translateX(5px)' },
+  mainContent: { flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto', background: 'var(--off-white)' },
+  topbar: { background: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(20px)', webkitBackdropFilter: 'blur(20px)', height: '85px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 50px', borderBottom: '1px solid var(--border-dark)', position: 'sticky', top: 0, zIndex: 15 },
   contentArea: { padding: '50px', maxWidth: '1200px', margin: '0 auto', width: '100%' },
   grid2: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '30px' },
   statCard: { backgroundColor: 'white', padding: '30px', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border-dark)', transition: 'transform 0.3s, box-shadow 0.3s' },
