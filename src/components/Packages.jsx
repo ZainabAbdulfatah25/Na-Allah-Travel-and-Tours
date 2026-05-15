@@ -51,7 +51,11 @@ function Packages() {
             });
           }
           applyPackages(pObj);
-          localStorage.setItem('na_allah_packages', JSON.stringify(pObj));
+          try {
+            localStorage.setItem('na_allah_packages', JSON.stringify(pObj));
+          } catch (e) {
+            console.warn('Local storage full for packages, continuing sync...');
+          }
         }
       } catch (err) {}
     };

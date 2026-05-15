@@ -171,7 +171,11 @@ function AdminPanel() {
             }
 
             t.setter(finalData);
-            localStorage.setItem(t.name, JSON.stringify(finalData));
+            try {
+              localStorage.setItem(t.name, JSON.stringify(finalData));
+            } catch (e) {
+              console.warn(`Local storage full for ${t.name}, continuing sync...`);
+            }
           }
         }
 
@@ -189,7 +193,11 @@ function AdminPanel() {
           }
           // Only overwrite if we actually fetched something meaningful, or if it's genuinely empty but we got a successful response
           setPackages(pObj);
-          localStorage.setItem('na_allah_packages', JSON.stringify(pObj));
+          try {
+            localStorage.setItem('na_allah_packages', JSON.stringify(pObj));
+          } catch (e) {
+            console.warn('Local storage full for packages, continuing sync...');
+          }
         }
 
       } catch (err) {
