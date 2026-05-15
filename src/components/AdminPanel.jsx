@@ -139,13 +139,17 @@ function AdminPanel() {
 
           const combinedBookings = [...unsyncedBookings, ...cloudBookings].sort((a, b) => b.id - a.id);
           setBookings(combinedBookings);
-          localStorage.setItem('na_allah_bookings', JSON.stringify(combinedBookings));
+          try {
+            localStorage.setItem('na_allah_bookings', JSON.stringify(combinedBookings));
+          } catch(e) {}
         }
 
         const { data: adminsData, error: aErr } = await supabase.from('na_allah_admins').select('*').order('id', { ascending: true });
         if (adminsData && !aErr && adminsData.length > 0) {
           setAdmins(adminsData);
-          localStorage.setItem('na_allah_admins', JSON.stringify(adminsData));
+          try {
+            localStorage.setItem('na_allah_admins', JSON.stringify(adminsData));
+          } catch(e) {}
         }
 
         const tables = [
