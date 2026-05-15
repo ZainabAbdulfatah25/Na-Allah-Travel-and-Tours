@@ -54,7 +54,7 @@ function AdminPanel() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
-  const [newPackage, setNewPackage] = useState({ title: '', price: '', category: 'ramadan' });
+  const [newPackage, setNewPackage] = useState({ title: '', price: '', category: 'ramadan', features: '' });
   const [newLicense, setNewLicense] = useState({ title: '', link: '', status: 'Verified Member' });
   const [newService, setNewService] = useState({ title: '', icon: '✈️', desc: '' });
   const [newDestination, setNewDestination] = useState({ name: '', val: '' });
@@ -273,9 +273,14 @@ function AdminPanel() {
         });
         const ids = flatPackages.map(p => p.id);
         
-        // Upsert first
+        // Upsert first with fallback for features column
         for (const pkg of flatPackages) {
-          await supabase.from('na_allah_packages').upsert(pkg);
+          const { error } = await supabase.from('na_allah_packages').upsert(pkg);
+          if (error) {
+            console.warn(`[Admin] Upsert failed for package (${error.message}), retrying without features...`);
+            const { features, ...safePkg } = pkg;
+            await supabase.from('na_allah_packages').upsert(safePkg);
+          }
         }
         
         // Cleanup after
@@ -534,10 +539,21 @@ function AdminPanel() {
       const updated = { ...packages };
       const cat = editingPackage ? editingPackage.category : (newPackage.category || Object.keys(packages)[0]);
       if (!updated[cat]) updated[cat] = [];
-      if (editingPackage) updated[cat] = updated[cat].map(p => p.id === editingPackage.id ? editingPackage : p);
-      else updated[cat].push({ id: Number(`${Date.now()}${Math.floor(Math.random() * 100)}`), ...newPackage, category: cat });
+      
+      const pToSave = editingPackage || newPackage;
+      let featArray = [];
+      if (typeof pToSave.features === 'string') {
+         featArray = pToSave.features.split(',').map(f => f.trim()).filter(f => f);
+      } else if (Array.isArray(pToSave.features)) {
+         featArray = pToSave.features;
+      }
+      const finalPkg = { ...pToSave, features: featArray };
+
+      if (editingPackage) updated[cat] = updated[cat].map(p => p.id === editingPackage.id ? finalPkg : p);
+      else updated[cat].push({ id: Number(`${Date.now()}${Math.floor(Math.random() * 100)}`), ...finalPkg, category: cat });
+      
       await save('na_allah_packages', updated);
-      setShowAddPackage(false); setEditingPackage(null); setNewPackage({ title: '', price: '', category: Object.keys(packages)[0] });
+      setShowAddPackage(false); setEditingPackage(null); setNewPackage({ title: '', price: '', category: Object.keys(packages)[0], features: '' });
     } finally {
       setIsProcessing(false);
     }
@@ -967,7 +983,7 @@ function AdminPanel() {
                 <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-muted)' }}>Inquiries</h3><p style={{ ...styles.statNum, fontSize: '3rem' }}>{bookings.length}</p>
               </div>
               <div style={{ ...styles.statCard, cursor: 'pointer', padding: '20px' }} onClick={() => setActiveTab('packages')} className="hover-lift">
-                <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-muted)' }}>Travel Plans</h3><p style={{ ...styles.statNum, fontSize: '3rem' }}>{packages.ramadan.length + packages.hajj.length}</p>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-muted)' }}>Travel Plans</h3><p style={{ ...styles.statNum, fontSize: '3rem' }}>{Object.values(packages).reduce((acc, curr) => acc + (curr ? curr.length : 0), 0)}</p>
               </div>
               <div style={{ ...styles.statCard, cursor: 'pointer', padding: '20px' }} onClick={() => setActiveTab('destinations')} className="hover-lift">
                 <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-muted)' }}>Destinations</h3><p style={{ ...styles.statNum, fontSize: '3rem' }}>{destinations.length}</p>
@@ -1299,7 +1315,7 @@ function AdminPanel() {
         </div>
       )}
 
-      {(showAddPackage || editingPackage) && (<div style={styles.overlay}><div style={styles.modal}><div style={styles.mHead}><h2>📦 {editingPackage ? 'Edit' : 'New'} Plan</h2></div><div style={styles.mBody}><form onSubmit={handlePackageSave}><label style={styles.label}>Plan Title</label><input required style={styles.input} value={editingPackage ? editingPackage.title : newPackage.title} onChange={e => editingPackage ? setEditingPackage({ ...editingPackage, title: e.target.value }) : setNewPackage({ ...newPackage, title: e.target.value })} /><label style={styles.label}>Price (₦)</label><input required style={styles.input} value={editingPackage ? editingPackage.price : newPackage.price} onChange={e => editingPackage ? setEditingPackage({ ...editingPackage, price: e.target.value }) : setNewPackage({ ...newPackage, price: e.target.value })} /><label style={styles.label}>Spiritual Category</label><select disabled={!!editingPackage} style={styles.input} value={editingPackage ? editingPackage.category : (newPackage.category || Object.keys(packages)[0])} onChange={e => setNewPackage({ ...newPackage, category: e.target.value })}>{Object.keys(packages).map(c => <option key={c} value={c}>{c.replace(/_/g, ' ').toUpperCase()}</option>)}</select><div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}><button type="submit" className="btn btn-navy" style={{ flex: 1, padding: '16px' }}>🕋 {editingPackage ? 'Update' : 'Publish'}</button><button type="button" onClick={() => { setShowAddPackage(false); setEditingPackage(null); }} className="btn btn-outline" style={{ padding: '16px' }}>Cancel</button></div></form></div></div></div>)}
+      {(showAddPackage || editingPackage) && (<div style={styles.overlay}><div style={styles.modal}><div style={styles.mHead}><h2>📦 {editingPackage ? 'Edit' : 'New'} Plan</h2></div><div style={styles.mBody}><form onSubmit={handlePackageSave} style={{textAlign: 'left'}}><label style={styles.label}>Plan Title</label><input required style={{...styles.input, marginBottom: '15px'}} value={editingPackage ? editingPackage.title : newPackage.title} onChange={e => editingPackage ? setEditingPackage({ ...editingPackage, title: e.target.value }) : setNewPackage({ ...newPackage, title: e.target.value })} /><label style={styles.label}>Price (₦)</label><input required style={{...styles.input, marginBottom: '15px'}} value={editingPackage ? editingPackage.price : newPackage.price} onChange={e => editingPackage ? setEditingPackage({ ...editingPackage, price: e.target.value }) : setNewPackage({ ...newPackage, price: e.target.value })} /><label style={styles.label}>Features (Comma-separated)</label><textarea required style={{ ...styles.input, minHeight: '100px', marginBottom: '15px' }} value={editingPackage ? (Array.isArray(editingPackage.features) ? editingPackage.features.join(', ') : (editingPackage.features || '')) : newPackage.features} onChange={e => editingPackage ? setEditingPackage({ ...editingPackage, features: e.target.value }) : setNewPackage({ ...newPackage, features: e.target.value })} placeholder="Visa Processing, Round-trip Flight, Full Accommodation" /><label style={styles.label}>Spiritual Category</label><select disabled={!!editingPackage} style={{...styles.input, marginBottom: '15px'}} value={editingPackage ? editingPackage.category : (newPackage.category || Object.keys(packages)[0])} onChange={e => setNewPackage({ ...newPackage, category: e.target.value })}>{Object.keys(packages).map(c => <option key={c} value={c}>{c.replace(/_/g, ' ').toUpperCase()}</option>)}</select><div style={{ display: 'flex', gap: '15px', marginTop: '20px' }}><button type="submit" className="btn btn-navy hover-lift" style={{ flex: 1, padding: '16px' }}>🕋 {editingPackage ? 'Update' : 'Publish'}</button><button type="button" onClick={() => { setShowAddPackage(false); setEditingPackage(null); }} className="btn btn-outline hover-lift" style={{ padding: '16px' }}>Cancel</button></div></form></div></div></div>)}
       
       {showAddCategory && (
         <div style={styles.overlay}>
