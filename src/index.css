@@ -231,8 +231,11 @@ h2 { font-size: clamp(2.5rem, 4.5vw, 4rem); margin-bottom: 1.5rem; }
   /* Ensure fixed width elements shrink */
   *[style*="width: 500px"], 
   *[style*="width: 420px"], 
-  *[style*="width: 280px"],
-  *[style*="width: 250px"],
+  *[style*="width: 250px"] {
+    width: 90% !important;
+    max-width: 100% !important;
+  }
+  
   aside[style*="width: 280px"],
   aside {
     width: 100% !important;
@@ -240,7 +243,43 @@ h2 { font-size: clamp(2.5rem, 4.5vw, 4rem); margin-bottom: 1.5rem; }
   }
   
   /* Admin Panel Specific fixes */
-  aside { position: relative; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); }
+  .mobile-stack > aside { 
+    position: relative !important; 
+    border-right: none !important; 
+    border-bottom: 1px solid rgba(0,0,0,0.1) !important;
+    padding-bottom: 15px !important;
+  }
+  .mobile-stack > aside > div:first-child { display: none !important; }
+  .mobile-stack > aside > ul {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    padding: 10px !important;
+    gap: 10px !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .mobile-stack > aside > ul > li {
+    border-left: none !important;
+    padding: 10px 15px !important;
+    border-radius: 8px !important;
+    font-size: 0.85rem !important;
+    transform: none !important;
+  }
+  .mobile-stack > aside > div:last-child {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    gap: 15px !important;
+    padding: 0 15px !important;
+    margin-top: 5px !important;
+  }
+  .mobile-stack > aside > div:last-child > button {
+    margin: 0 !important;
+    flex: 1 !important;
+    padding: 10px !important;
+    font-size: 0.8rem !important;
+  }
   
   /* Navbar specific fixes */
   .nav-logo-container { top: 15px !important; left: 15px !important; max-width: calc(100% - 130px); }
