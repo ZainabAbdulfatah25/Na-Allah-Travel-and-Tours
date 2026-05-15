@@ -235,8 +235,6 @@ function AdminPanel() {
       // If local storage is full, we still proceed to save to cloud (Supabase)
     }
 
-    loadData();
-
     try {
       if (key === 'na_allah_services' || key === 'na_allah_destinations' || key === 'na_allah_licenses' || key === 'na_allah_interests' || key === 'na_allah_flyers') {
         const table = key;
