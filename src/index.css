@@ -212,24 +212,35 @@ h2 { font-size: clamp(2.5rem, 4.5vw, 4rem); margin-bottom: 1.5rem; }
   /* Force flex/grid wrappers to stack on mobile */
   .mobile-stack { flex-direction: column !important; }
   
-  /* Make all auto-fit grids respect screen width */
-  div[style*="minmax("] { grid-template-columns: 1fr !important; gap: 20px !important; }
-  
-  /* Fix hardcoded form grids and hero grids */
+  /* Fix hardcoded grids and hero grids */
+  *[style*="minmax"],
   form[style*="grid"],
-  div[style*="1fr 400px"] { grid-template-columns: 1fr !important; gap: 20px !important; }
+  *[style*="1fr 400px"],
+  *[style*="1fr 1fr"],
+  *[style*="grid-template-columns: 1fr 1fr"],
+  *[style*="gridTemplateColumns"] { 
+    grid-template-columns: 1fr !important; 
+    gap: 20px !important; 
+  }
   
   /* Fix padding for main content areas */
-  div[style*="padding: 50px"], 
-  div[style*="padding: 60px"] { padding: 25px !important; }
+  *[style*="padding: 50px"], 
+  *[style*="padding: 60px"],
+  .contentArea { padding: 25px !important; }
 
   /* Ensure fixed width elements shrink */
-  div[style*="width: 500px"], 
-  div[style*="width: 420px"], 
-  div[style*="width: 280px"] {
+  *[style*="width: 500px"], 
+  *[style*="width: 420px"], 
+  *[style*="width: 280px"],
+  *[style*="width: 250px"],
+  aside[style*="width: 280px"],
+  aside {
     width: 100% !important;
     max-width: 100% !important;
   }
+  
+  /* Admin Panel Specific fixes */
+  aside { position: relative; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); }
   
   /* Navbar specific fixes */
   .nav-logo-container { top: 15px !important; left: 15px !important; max-width: calc(100% - 130px); }
@@ -242,7 +253,16 @@ h2 { font-size: clamp(2.5rem, 4.5vw, 4rem); margin-bottom: 1.5rem; }
   .nav-pill-open { width: calc(100vw - 30px) !important; max-width: 320px !important; }
   
   /* Admin Topbar fixes */
-  header[style*="height: 80px"] { padding: 0 20px !important; }
+  header[style*="height: 80px"], 
+  header[style*="height: 85px"] { 
+    padding: 15px 20px !important; 
+    height: auto !important; 
+    min-height: 85px; 
+    flex-wrap: wrap; 
+    gap: 10px; 
+    justify-content: center; 
+  }
+  header h2 { font-size: 1.5rem; text-align: center; width: 100%; margin-bottom: 5px !important; }
   
   /* Table responsive wrapper */
   table { display: block; overflow-x: auto; white-space: nowrap; }
