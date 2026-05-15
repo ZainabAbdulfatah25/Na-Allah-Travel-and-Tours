@@ -5,10 +5,22 @@ function ContactForm() {
   const [formData, setFormData] = useState({ name: '', phone: '', email: '', package: 'General Inquiry', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [info, setInfo] = useState({ address: 'No 12, Babangwari, Kano.', phone: '0803 474 7257', whatsapp: '2348034747257' });
+  const [dynamicInterests, setDynamicInterests] = useState([]);
 
-  const loadSettings = () => {
+  const loadSettings = async () => {
     const saved = JSON.parse(localStorage.getItem('na_allah_settings'));
     if (saved) setInfo(saved);
+
+    const savedInt = JSON.parse(localStorage.getItem('na_allah_interests'));
+    if (savedInt) setDynamicInterests(savedInt);
+
+    try {
+      const { data, error } = await supabase.from('na_allah_interests').select('*').order('id', { ascending: true });
+      if (data && !error && data.length > 0) {
+        setDynamicInterests(data);
+        localStorage.setItem('na_allah_interests', JSON.stringify(data));
+      }
+    } catch (err) {}
   };
 
   useEffect(() => {
@@ -71,7 +83,22 @@ function ContactForm() {
             <form onSubmit={handleSubmit} style={styles.form}>
               <h3 style={{marginBottom: '25px', color: 'var(--primary-navy)'}}>Contact Desk</h3>
               <div style={styles.inputGroup}><label style={styles.label}>Full Name</label><input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} style={styles.input} placeholder="Your name" /></div>
-              <div style={styles.row}><div style={styles.inputGroup}><label style={styles.label}>Phone Number</label><input required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} style={styles.input} placeholder="+234..." /></div><div style={styles.inputGroup}><label style={styles.label}>Interest</label><select value={formData.package} onChange={e => setFormData({...formData, package: e.target.value})} style={styles.input}><option value="General">General Inquiry</option><option value="Ramadan">Ramadan 2026</option><option value="Hajj">Hajj 2026</option></select></div></div>
+              <div style={styles.row}>
+                <div style={styles.inputGroup}><label style={styles.label}>Phone Number</label><input required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} style={styles.input} placeholder="+234..." /></div>
+                <div style={styles.inputGroup}><label style={styles.label}>Interest</label>
+                  <select value={formData.package} onChange={e => setFormData({...formData, package: e.target.value})} style={styles.input}>
+                    {dynamicInterests.length > 0 ? dynamicInterests.map(i => (
+                      <option key={i.id} value={i.name}>{i.name}</option>
+                    )) : (
+                      <>
+                        <option value="General">General Inquiry</option>
+                        <option value="Ramadan">Ramadan 2026</option>
+                        <option value="Hajj">Hajj 2026</option>
+                      </>
+                    )}
+                  </select>
+                </div>
+              </div>
               <div style={styles.inputGroup}><label style={styles.label}>Inquiry Details</label><textarea required value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} style={{...styles.input, minHeight: '100px'}} placeholder="How can we help?"></textarea></div>
               <button type="submit" className="btn btn-navy hover-lift" style={{width: '100%', padding: '15px'}}>Submit Inquiry</button>
             </form>

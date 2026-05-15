@@ -23,6 +23,10 @@ function AdminPanel() {
   const [pinPopup, setPinPopup] = useState(null);
   const [newPersonalPin, setNewPersonalPin] = useState('');
 
+  const [showAddInterest, setShowAddInterest] = useState(false);
+  const [editingInterest, setEditingInterest] = useState(null);
+  const [newInterest, setNewInterest] = useState({ name: '' });
+
   const [editingLicense, setEditingLicense] = useState(null);
   const [editingPackage, setEditingPackage] = useState(null);
   const [editingService, setEditingService] = useState(null);
@@ -59,6 +63,7 @@ function AdminPanel() {
   const [destinations, setDestinations] = useState([]);
   const [services, setServices] = useState([]);
   const [admins, setAdmins] = useState([]);
+  const [interests, setInterests] = useState([]);
 
   const loadData = useCallback(() => {
     const s = JSON.parse(localStorage.getItem('na_allah_settings')) || settings;
@@ -91,6 +96,11 @@ function AdminPanel() {
     const ad = JSON.parse(localStorage.getItem('na_allah_admins')) || [
       { id: 1, email: 'admin@naallahtravels.com', pin: '2026', role: 'Super Admin', date: new Date().toISOString().split('T')[0] }
     ];
+    const intrs = JSON.parse(localStorage.getItem('na_allah_interests')) || [
+      { id: 1, name: 'General Inquiry' },
+      { id: 2, name: 'Ramadan 2026' },
+      { id: 3, name: 'Hajj 2026' }
+    ];
     setSettings(s);
     setBookings(b);
     setPackages(p);
@@ -98,6 +108,7 @@ function AdminPanel() {
     setDestinations(dst);
     setServices(sv);
     setAdmins(ad);
+    setInterests(intrs);
 
     // Sync with Cloud (Supabase)
     const fetchCloudData = async () => {
@@ -131,7 +142,8 @@ function AdminPanel() {
         const tables = [
           { name: 'na_allah_services', setter: setServices },
           { name: 'na_allah_destinations', setter: setDestinations },
-          { name: 'na_allah_licenses', setter: setLicenses }
+          { name: 'na_allah_licenses', setter: setLicenses },
+          { name: 'na_allah_interests', setter: setInterests }
         ];
 
         for (const t of tables) {
@@ -199,7 +211,7 @@ function AdminPanel() {
     loadData();
 
     try {
-      if (key === 'na_allah_services' || key === 'na_allah_destinations' || key === 'na_allah_licenses') {
+      if (key === 'na_allah_services' || key === 'na_allah_destinations' || key === 'na_allah_licenses' || key === 'na_allah_interests') {
         const table = key;
         const ids = data.map(d => d.id);
         
@@ -555,6 +567,20 @@ function AdminPanel() {
     }
   };
 
+  const handleInterestSave = async (e) => {
+    e.preventDefault();
+    setIsProcessing(true);
+    try {
+      let updated;
+      if (editingInterest) updated = interests.map(i => i.id === editingInterest.id ? editingInterest : i);
+      else updated = [...interests, { id: Number(`${Date.now()}${Math.floor(Math.random() * 100)}`), ...newInterest }];
+      await save('na_allah_interests', updated);
+      setShowAddInterest(false); setEditingInterest(null); setNewInterest({ name: '' });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const handleGlobalSync = (e) => {
     e.preventDefault();
     save('na_allah_settings', settings);
@@ -760,6 +786,7 @@ function AdminPanel() {
           <li style={{ ...styles.navItem, ...(activeTab === 'dashboard' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('dashboard')}>📊 Summary</li>
           <li style={{ ...styles.navItem, ...(activeTab === 'bookings' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('bookings')}>📝 Inquiries</li>
           <li style={{ ...styles.navItem, ...(activeTab === 'packages' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('packages')}>📦 Travel Plans</li>
+          <li style={{ ...styles.navItem, ...(activeTab === 'interests' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('interests')}>🎯 Interests</li>
           <li style={{ ...styles.navItem, ...(activeTab === 'destinations' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('destinations')}>🌍 Destinations</li>
           <li style={{ ...styles.navItem, ...(activeTab === 'services' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('services')}>🛠️ Core Services</li>
           <li style={{ ...styles.navItem, ...(activeTab === 'licenses' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('licenses')}>📜 Credentials</li>
@@ -845,6 +872,9 @@ function AdminPanel() {
               <div style={{ ...styles.statCard, cursor: 'pointer', padding: '20px' }} onClick={() => setActiveTab('services')} className="hover-lift">
                 <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-muted)' }}>Core Services</h3><p style={{ ...styles.statNum, fontSize: '3rem' }}>{services.length}</p>
               </div>
+              <div style={{ ...styles.statCard, cursor: 'pointer', padding: '20px' }} onClick={() => setActiveTab('interests')} className="hover-lift">
+                <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-muted)' }}>Interests</h3><p style={{ ...styles.statNum, fontSize: '3rem' }}>{interests.length}</p>
+              </div>
               <div style={{ ...styles.statCard, cursor: 'pointer', padding: '20px' }} onClick={() => setActiveTab('licenses')} className="hover-lift">
                 <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-muted)' }}>Credentials</h3><p style={{ ...styles.statNum, fontSize: '3rem' }}>{licenses.length}</p>
               </div>
@@ -922,6 +952,29 @@ function AdminPanel() {
                       <td style={{ textAlign: 'right' }}>
                         <button onClick={() => setEditingDestination(d)} style={{ color: 'var(--primary-navy)', marginRight: '15px', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer' }}>Edit</button>
                         <button onClick={() => save('na_allah_destinations', destinations.filter(dx => dx.id !== d.id))} style={{ color: 'red', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer' }}>✕</button>
+                      </td>
+                    </tr>
+                  ))}</tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'interests' && (
+            <div className="animate-fade-in">
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px', alignItems: 'center' }}>
+                <h3 style={{ margin: 0 }}>Inquiry Interests</h3>
+                <button onClick={() => setShowAddInterest(true)} className="btn btn-navy hover-lift">🎯 + New Interest</button>
+              </div>
+              <div style={styles.tableCard}>
+                <table style={styles.table}>
+                  <thead><tr><th>Interest Name</th><th style={{ width: '120px', textAlign: 'right' }}>Control</th></tr></thead>
+                  <tbody>{interests.map(i => (
+                    <tr key={i.id}>
+                      <td><strong>{i.name}</strong></td>
+                      <td style={{ textAlign: 'right' }}>
+                        <button onClick={() => setEditingInterest(i)} style={{ color: 'var(--primary-navy)', marginRight: '15px', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer' }}>Edit</button>
+                        <button onClick={() => save('na_allah_interests', interests.filter(ix => ix.id !== i.id))} style={{ color: 'red', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer' }}>✕</button>
                       </td>
                     </tr>
                   ))}</tbody>
@@ -1237,6 +1290,25 @@ function AdminPanel() {
                 <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
                   <button type="submit" className="btn btn-navy hover-lift" style={{ flex: 1, padding: '16px' }}>{editingDestination ? 'Update' : 'Add'}</button>
                   <button type="button" onClick={() => { setShowAddDestination(false); setEditingDestination(null); }} className="btn btn-outline hover-lift" style={{ padding: '16px' }}>Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {(showAddInterest || editingInterest) && (
+        <div style={styles.overlay}>
+          <div style={styles.modal}>
+            <div style={styles.mHead}><h2>🎯 {editingInterest ? 'Edit' : 'New'} Interest</h2></div>
+            <div style={styles.mBody}>
+              <form onSubmit={handleInterestSave} style={{ textAlign: 'left' }}>
+                <label style={styles.label}>Interest Name (e.g. Ramadan 2026)</label>
+                <input required style={{ ...styles.input, marginBottom: '20px' }} value={editingInterest ? editingInterest.name : newInterest.name} onChange={e => editingInterest ? setEditingInterest({ ...editingInterest, name: e.target.value }) : setNewInterest({ ...newInterest, name: e.target.value })} />
+
+                <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+                  <button type="submit" className="btn btn-navy hover-lift" style={{ flex: 1, padding: '16px' }}>{editingInterest ? 'Update' : 'Add'}</button>
+                  <button type="button" onClick={() => { setShowAddInterest(false); setEditingInterest(null); }} className="btn btn-outline hover-lift" style={{ padding: '16px' }}>Cancel</button>
                 </div>
               </form>
             </div>

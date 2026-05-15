@@ -7,11 +7,27 @@ function Payment() {
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [inquirySent, setInquirySent] = useState(false);
+  const [dynamicPackages, setDynamicPackages] = useState([]);
 
   useEffect(() => {
     const hash = window.location.hash;
     const match = hash.match(/\?pkg=(.*)/);
     if (match) setFormData(prev => ({...prev, packageDetails: decodeURIComponent(match[1])}));
+
+    const loadPackages = async () => {
+      const saved = JSON.parse(localStorage.getItem('na_allah_packages'));
+      if (saved) {
+        const flat = [...(saved.ramadan||[]), ...(saved.hajj||[])];
+        if (flat.length > 0) setDynamicPackages(flat);
+      }
+      try {
+        const { data, error } = await supabase.from('na_allah_packages').select('*').order('id', { ascending: true });
+        if (data && !error && data.length > 0) {
+          setDynamicPackages(data);
+        }
+      } catch (e) {}
+    };
+    loadPackages();
   }, []);
 
   const saveToAdmin = async (type, message) => {
@@ -139,12 +155,18 @@ function Payment() {
               <div style={styles.inputGroup}>
                 <label style={styles.label}>Package</label>
                 <select style={styles.input} value={formData.packageDetails} onChange={e => setFormData({...formData, packageDetails: e.target.value})}>
-                  <option value="RAMADAN STANDARD Package">Standard Ramadan (4M)</option>
-                  <option value="RAMADAN PREMIUM Package">Premium Ramadan (4.5M)</option>
-                  <option value="RAMADAN VIP Package">VIP Ramadan (5M)</option>
-                  <option value="HAJJ STANDARD Package">Hajj Standard (6.5M)</option>
-                  <option value="HAJJ PREMIUM Package">Hajj Premium (8.5M)</option>
-                  <option value="HAJJ ROYAL Package">Hajj Royal (12M)</option>
+                  {dynamicPackages.length > 0 ? dynamicPackages.map(p => (
+                    <option key={p.id} value={`${p.category.toUpperCase()} ${p.title} (₦${p.price})`}>{p.title} (₦{p.price})</option>
+                  )) : (
+                    <>
+                      <option value="RAMADAN STANDARD Package">Standard Ramadan (4M)</option>
+                      <option value="RAMADAN PREMIUM Package">Premium Ramadan (4.5M)</option>
+                      <option value="RAMADAN VIP Package">VIP Ramadan (5M)</option>
+                      <option value="HAJJ STANDARD Package">Hajj Standard (6.5M)</option>
+                      <option value="HAJJ PREMIUM Package">Hajj Premium (8.5M)</option>
+                      <option value="HAJJ ROYAL Package">Hajj Royal (12M)</option>
+                    </>
+                  )}
                 </select>
               </div>
 
