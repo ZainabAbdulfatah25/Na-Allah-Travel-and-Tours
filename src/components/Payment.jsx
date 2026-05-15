@@ -17,7 +17,10 @@ function Payment() {
     const loadPackages = async () => {
       const saved = JSON.parse(localStorage.getItem('na_allah_packages'));
       if (saved) {
-        const flat = [...(saved.ramadan||[]), ...(saved.hajj||[])];
+        const flat = [];
+        Object.keys(saved).forEach(cat => {
+          flat.push(...(saved[cat] || []));
+        });
         if (flat.length > 0) setDynamicPackages(flat);
       }
       try {

@@ -5,17 +5,18 @@ function Packages() {
   const [selectedDest, setSelectedDest] = useState('');
   
   // Dynamic package states
-  const [ramadanPackages, setRamadanPackages] = useState([
-    { id: 1, title: "Standard Ramadan", price: "4,000,000", features: ["Visa Processing", "Economy Ticket", "Transportation", "Accommodation"] },
-    { id: 2, title: "Premium Ramadan", price: "4,500,000", features: ["Visa Processing", "Economy Ticket", "Transportation", "Premium Hotel"] },
-    { id: 3, title: "VIP Ramadan", price: "5,000,000", features: ["Visa Processing", "Economy Ticket", "VIP Transport", "VIP Suites"] }
-  ]);
-  
-  const [hajjPackages, setHajjPackages] = useState([
-    { id: 4, title: "Standard Hajj", price: "7,000,000", features: ["Hajj Visa", "Round-trip Flight", "Mina/Arafat Tents", "Standard Hotel Rooms"] },
-    { id: 5, title: "Premium Hajj", price: "8,500,000", features: ["Hajj Visa", "Premium Flight", "VIP Tents in Mina", "5-Star Hotel"] },
-    { id: 6, title: "Royal Hajj", price: "12,000,000", features: ["VIP Hajj Visa", "Business Class", "Luxury Tents", "Royal Suites"] }
-  ]);
+  const [packagesData, setPackagesData] = useState({
+    ramadan: [
+      { id: 1, title: "Standard Ramadan", price: "4,000,000", features: ["Visa Processing", "Economy Ticket", "Transportation", "Accommodation"] },
+      { id: 2, title: "Premium Ramadan", price: "4,500,000", features: ["Visa Processing", "Economy Ticket", "Transportation", "Premium Hotel"] },
+      { id: 3, title: "VIP Ramadan", price: "5,000,000", features: ["Visa Processing", "Economy Ticket", "VIP Transport", "VIP Suites"] }
+    ],
+    hajj: [
+      { id: 4, title: "Standard Hajj", price: "7,000,000", features: ["Hajj Visa", "Round-trip Flight", "Mina/Arafat Tents", "Standard Hotel Rooms"] },
+      { id: 5, title: "Premium Hajj", price: "8,500,000", features: ["Hajj Visa", "Premium Flight", "VIP Tents in Mina", "5-Star Hotel"] },
+      { id: 6, title: "Royal Hajj", price: "12,000,000", features: ["VIP Hajj Visa", "Business Class", "Luxury Tents", "Royal Suites"] }
+    ]
+  });
 
   useEffect(() => {
     const handleSync = async () => {
@@ -23,8 +24,15 @@ function Packages() {
       const defaultFeatures = ["Visa Processing", "Round-trip Flight", "Transportation", "Full Accommodation"];
       
       const applyPackages = (data) => {
-         if (data.ramadan) setRamadanPackages(data.ramadan.map(p => ({...p, features: p.features || defaultFeatures})));
-         if (data.hajj) setHajjPackages(data.hajj.map(p => ({...p, features: p.features || defaultFeatures})));
+         const pData = { ...packagesData };
+         Object.keys(data).forEach(cat => {
+            if (data[cat].length > 0) {
+               pData[cat] = data[cat].map(p => ({...p, features: p.features || defaultFeatures}));
+            } else if (!pData[cat]) {
+               pData[cat] = [];
+            }
+         });
+         setPackagesData(pData);
       };
       
       if (saved) applyPackages(saved);
@@ -32,9 +40,11 @@ function Packages() {
       try {
         const { data, error } = await supabase.from('na_allah_packages').select('*').order('id', { ascending: true });
         if (data && !error && data.length > 0) {
-          // Parse back to ramadan/hajj object format used locally
-          const pObj = { ramadan: [], hajj: [] };
-          data.forEach(p => { if (p.category === 'ramadan') pObj.ramadan.push(p); else if (p.category === 'hajj') pObj.hajj.push(p); });
+          const pObj = {};
+          data.forEach(p => { 
+            if (!pObj[p.category]) pObj[p.category] = [];
+            pObj[p.category].push(p); 
+          });
           applyPackages(pObj);
           localStorage.setItem('na_allah_packages', JSON.stringify(pObj));
         }
@@ -104,11 +114,22 @@ function Packages() {
           <h1 style={{fontSize: 'clamp(2rem, 8vw, 3.5rem)', marginBottom: '15px'}}>Our 2026 Packages</h1>
           <p style={{fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '800px', margin: '0 auto'}}>Complete list of seasonal travel arrangements for spiritual journeys.</p>
         </div>
-        {selectedDest === 'mecca' ? (
-          <>{renderSection("Ramadan Packages 2026", ramadanPackages)}{renderSection("Hajj Packages 2026", hajjPackages)}</>
-        ) : (
-          <>{renderSection("Hajj Packages 2026", hajjPackages)}{renderSection("Ramadan Packages 2026", ramadanPackages)}</>
-        )}
+        
+        {Object.keys(packagesData).sort((a,b) => {
+           if (selectedDest === 'mecca') {
+             if (a === 'ramadan') return -1;
+             if (b === 'ramadan') return 1;
+           } else {
+             if (a === 'hajj') return -1;
+             if (b === 'hajj') return 1;
+           }
+           return 0;
+        }).map(cat => (
+          <React.Fragment key={cat}>
+             {packagesData[cat].length > 0 && renderSection(`${cat.replace(/_/g, ' ').toUpperCase()} Packages 2026`, packagesData[cat])}
+          </React.Fragment>
+        ))}
+
       </div>
     </section>
   );
