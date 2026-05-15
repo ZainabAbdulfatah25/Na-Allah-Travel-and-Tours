@@ -290,12 +290,17 @@ function AdminPanel() {
         
         // Upsert categories first
         for (const cat of cats) {
-          await supabase.from('na_allah_categories').upsert({ id: cat });
+          const { error } = await supabase.from('na_allah_categories').upsert({ id: cat });
+          if (error) console.error("Categories upsert error:", error);
         }
         
         // Cleanup categories
         if (cats.length > 0) {
-          await supabase.from('na_allah_categories').delete().not('id', 'in', `(${cats.map(c => `'${c}'`).join(',')})`);
+          const { error } = await supabase.from('na_allah_categories').delete().not('id', 'in', `(${cats.map(c => `"${c}"`).join(',')})`);
+          if (error) {
+             console.error("Categories delete string syntax error, retrying with array...", error);
+             await supabase.from('na_allah_categories').delete().not('id', 'in', cats);
+          }
         } else {
           await supabase.from('na_allah_categories').delete().neq('id', '0');
         }
@@ -318,13 +323,15 @@ function AdminPanel() {
         }
       }
       
-      // 3. FINAL SYNC: Refresh data only AFTER cloud success
-      loadData();
+      // Removed loadData() here because it synchronously overwrites the UI with stale localStorage data
+      // which causes newly added controls to disappear visually if local storage was full.
+      
+      // If we are strictly saving, the React state has already been updated, so we don't need to fetch
+      // unless we want to ensure total consistency, but we can trust the local state for now.
 
     } catch (err) { 
       console.error('Supabase sync error', err); 
       alert(`Sync Warning: ${err.message || 'Check database connection'}`);
-      // Even if sync fails, don't trigger a full loadData() to avoid wiping local UI changes
     }
   };
 
