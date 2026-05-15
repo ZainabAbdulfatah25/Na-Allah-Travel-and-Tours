@@ -295,14 +295,12 @@ function AdminPanel() {
         }
         
         // Cleanup categories
-        if (cats.length > 0) {
-          const { error } = await supabase.from('na_allah_categories').delete().not('id', 'in', `(${cats.map(c => `"${c}"`).join(',')})`);
-          if (error) {
-             console.error("Categories delete string syntax error, retrying with array...", error);
-             await supabase.from('na_allah_categories').delete().not('id', 'in', cats);
-          }
-        } else {
-          await supabase.from('na_allah_categories').delete().neq('id', '0');
+        const { data: existingCats } = await supabase.from('na_allah_categories').select('id');
+        if (existingCats) {
+           const toDelete = existingCats.map(c => c.id).filter(id => !cats.includes(id));
+           if (toDelete.length > 0) {
+              await supabase.from('na_allah_categories').delete().in('id', toDelete);
+           }
         }
 
         // Upsert packages
