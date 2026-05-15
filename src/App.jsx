@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Services from './components/Services';
+import Flyers from './components/Flyers';
 import Packages from './components/Packages';
 import ContactForm from './components/ContactForm';
 import Credentials from './components/Credentials';
@@ -60,6 +61,7 @@ function App() {
     <div className="app-container">
       <Navbar />
       <Hero />
+      <Flyers />
       <Services />
       <Credentials />
       <ContactForm />

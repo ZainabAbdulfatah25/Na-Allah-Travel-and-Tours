@@ -64,6 +64,10 @@ function AdminPanel() {
   const [services, setServices] = useState([]);
   const [admins, setAdmins] = useState([]);
   const [interests, setInterests] = useState([]);
+  const [flyers, setFlyers] = useState([]);
+  const [showAddFlyer, setShowAddFlyer] = useState(false);
+  const [editingFlyer, setEditingFlyer] = useState(null);
+  const [newFlyer, setNewFlyer] = useState({ title: '', image: '', status: 'Active' });
 
   const loadData = useCallback(() => {
     const s = JSON.parse(localStorage.getItem('na_allah_settings')) || settings;
@@ -109,6 +113,8 @@ function AdminPanel() {
     setServices(sv);
     setAdmins(ad);
     setInterests(intrs);
+    const fls = JSON.parse(localStorage.getItem('na_allah_flyers')) || [];
+    setFlyers(fls);
 
     // Sync with Cloud (Supabase)
     const fetchCloudData = async () => {
@@ -143,7 +149,8 @@ function AdminPanel() {
           { name: 'na_allah_services', setter: setServices },
           { name: 'na_allah_destinations', setter: setDestinations },
           { name: 'na_allah_licenses', setter: setLicenses },
-          { name: 'na_allah_interests', setter: setInterests }
+          { name: 'na_allah_interests', setter: setInterests },
+          { name: 'na_allah_flyers', setter: setFlyers }
         ];
 
         for (const t of tables) {
@@ -211,7 +218,7 @@ function AdminPanel() {
     loadData();
 
     try {
-      if (key === 'na_allah_services' || key === 'na_allah_destinations' || key === 'na_allah_licenses' || key === 'na_allah_interests') {
+      if (key === 'na_allah_services' || key === 'na_allah_destinations' || key === 'na_allah_licenses' || key === 'na_allah_interests' || key === 'na_allah_flyers') {
         const table = key;
         const ids = data.map(d => d.id);
         
@@ -581,6 +588,52 @@ function AdminPanel() {
     }
   };
 
+  const handleFlyerSave = async (e) => {
+    e.preventDefault();
+    setIsProcessing(true);
+    try {
+      let updated;
+      if (editingFlyer) updated = flyers.map(f => f.id === editingFlyer.id ? editingFlyer : f);
+      else {
+        if (!newFlyer.image) return alert('Please upload a flyer image or provide a link.');
+        updated = [...flyers, { id: Number(`${Date.now()}${Math.floor(Math.random() * 100)}`), ...newFlyer }];
+      }
+      await save('na_allah_flyers', updated);
+      setShowAddFlyer(false); setEditingFlyer(null); setNewFlyer({ title: '', image: '', status: 'Active' });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleFlyerUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setIsProcessing(true);
+    const fileName = `flyer_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+    const filePath = `flyers/${fileName}`;
+
+    try {
+      const { data, error } = await supabase.storage.from('credentials').upload(filePath, file, { cacheControl: '3600', upsert: false });
+      if (error) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (editingFlyer) setEditingFlyer({...editingFlyer, image: event.target.result});
+          else setNewFlyer({...newFlyer, image: event.target.result});
+          setIsProcessing(false);
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
+      const { data: publicData } = supabase.storage.from('credentials').getPublicUrl(filePath);
+      if (editingFlyer) setEditingFlyer({...editingFlyer, image: publicData.publicUrl});
+      else setNewFlyer({...newFlyer, image: publicData.publicUrl});
+    } catch (err) {
+      alert(`Upload failed: ${err.message}`);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const handleGlobalSync = (e) => {
     e.preventDefault();
     save('na_allah_settings', settings);
@@ -787,6 +840,7 @@ function AdminPanel() {
           <li style={{ ...styles.navItem, ...(activeTab === 'bookings' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('bookings')}>📝 Inquiries</li>
           <li style={{ ...styles.navItem, ...(activeTab === 'packages' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('packages')}>📦 Travel Plans</li>
           <li style={{ ...styles.navItem, ...(activeTab === 'interests' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('interests')}>🎯 Interests</li>
+          <li style={{ ...styles.navItem, ...(activeTab === 'flyers' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('flyers')}>🖼️ Flyers</li>
           <li style={{ ...styles.navItem, ...(activeTab === 'destinations' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('destinations')}>🌍 Destinations</li>
           <li style={{ ...styles.navItem, ...(activeTab === 'services' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('services')}>🛠️ Core Services</li>
           <li style={{ ...styles.navItem, ...(activeTab === 'licenses' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('licenses')}>📜 Credentials</li>
@@ -874,6 +928,9 @@ function AdminPanel() {
               </div>
               <div style={{ ...styles.statCard, cursor: 'pointer', padding: '20px' }} onClick={() => setActiveTab('interests')} className="hover-lift">
                 <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-muted)' }}>Interests</h3><p style={{ ...styles.statNum, fontSize: '3rem' }}>{interests.length}</p>
+              </div>
+              <div style={{ ...styles.statCard, cursor: 'pointer', padding: '20px' }} onClick={() => setActiveTab('flyers')} className="hover-lift">
+                <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-muted)' }}>Marketing Flyers</h3><p style={{ ...styles.statNum, fontSize: '3rem' }}>{flyers.length}</p>
               </div>
               <div style={{ ...styles.statCard, cursor: 'pointer', padding: '20px' }} onClick={() => setActiveTab('licenses')} className="hover-lift">
                 <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-muted)' }}>Credentials</h3><p style={{ ...styles.statNum, fontSize: '3rem' }}>{licenses.length}</p>
@@ -979,6 +1036,34 @@ function AdminPanel() {
                     </tr>
                   ))}</tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'flyers' && (
+            <div className="animate-fade-in">
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px', alignItems: 'center' }}>
+                <h3 style={{ margin: 0 }}>Marketing Flyers</h3>
+                <button onClick={() => setShowAddFlyer(true)} className="btn btn-navy hover-lift">🖼️ + New Flyer</button>
+              </div>
+              <div style={styles.grid2}>
+                {flyers.map(f => (
+                  <div key={f.id} style={{ ...styles.statCard, padding: '15px' }}>
+                    <div style={{ width: '100%', height: '200px', borderRadius: '10px', overflow: 'hidden', marginBottom: '15px', background: '#f1f5f9' }}>
+                      <img src={f.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={f.title} />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <strong>{f.title}</strong>
+                        <div style={{ fontSize: '0.8rem', color: f.status === 'Active' ? 'green' : 'red', fontWeight: 'bold' }}>{f.status}</div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <button onClick={() => setEditingFlyer(f)} style={{ color: 'var(--primary-navy)', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer' }}>Edit</button>
+                        <button onClick={() => save('na_allah_flyers', flyers.filter(fx => fx.id !== f.id))} style={{ color: 'red', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer' }}>✕</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -1309,6 +1394,47 @@ function AdminPanel() {
                 <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
                   <button type="submit" className="btn btn-navy hover-lift" style={{ flex: 1, padding: '16px' }}>{editingInterest ? 'Update' : 'Add'}</button>
                   <button type="button" onClick={() => { setShowAddInterest(false); setEditingInterest(null); }} className="btn btn-outline hover-lift" style={{ padding: '16px' }}>Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {(showAddFlyer || editingFlyer) && (
+        <div style={styles.overlay}>
+          <div style={styles.modal}>
+            <div style={styles.mHead}><h2>🖼️ {editingFlyer ? 'Edit' : 'Upload'} Flyer</h2></div>
+            <div style={styles.mBody}>
+              <form onSubmit={handleFlyerSave} style={{ textAlign: 'left' }}>
+                <label style={styles.label}>Flyer Title / Name</label>
+                <input required style={{ ...styles.input, marginBottom: '20px' }} value={editingFlyer ? editingFlyer.title : newFlyer.title} onChange={e => editingFlyer ? setEditingFlyer({ ...editingFlyer, title: e.target.value }) : setNewFlyer({ ...newFlyer, title: e.target.value })} />
+
+                <label style={styles.label}>Display Status</label>
+                <select style={{ ...styles.input, marginBottom: '20px' }} value={editingFlyer ? editingFlyer.status : newFlyer.status} onChange={e => editingFlyer ? setEditingFlyer({ ...editingFlyer, status: e.target.value }) : setNewFlyer({ ...newFlyer, status: e.target.value })}>
+                  <option value="Active">Active (Scrolling)</option>
+                  <option value="Inactive">Inactive (Hidden)</option>
+                </select>
+
+                <label style={styles.label}>Image Upload</label>
+                <div style={{ ...styles.fileBox, marginBottom: '20px', padding: '15px' }}>
+                  {isProcessing && <p style={{color: 'var(--primary-gold)'}}>Uploading...</p>}
+                  <input type="file" id="flyerInput" accept="image/*" onChange={handleFlyerUpload} style={{ display: 'none' }} />
+                  <label htmlFor="flyerInput" style={{ cursor: 'pointer', display: 'block' }}>
+                    <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📸</div>
+                    <span style={{ fontWeight: 'bold', color: 'var(--primary-navy)' }}>Click to Upload Flyer Image</span>
+                  </label>
+                </div>
+                
+                {(editingFlyer?.image || newFlyer.image) && (
+                  <div style={{ height: '150px', background: '#f1f5f9', borderRadius: '10px', overflow: 'hidden', marginBottom: '20px' }}>
+                    <img src={editingFlyer ? editingFlyer.image : newFlyer.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Preview" />
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '15px' }}>
+                  <button type="submit" disabled={isProcessing} className="btn btn-navy hover-lift" style={{ flex: 1, padding: '16px' }}>{isProcessing ? 'Wait...' : (editingFlyer ? 'Update' : 'Publish')}</button>
+                  <button type="button" onClick={() => { setShowAddFlyer(false); setEditingFlyer(null); }} className="btn btn-outline hover-lift" style={{ padding: '16px' }}>Cancel</button>
                 </div>
               </form>
             </div>
