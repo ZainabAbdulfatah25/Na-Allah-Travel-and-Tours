@@ -175,15 +175,19 @@ function AdminPanel() {
           }
         }
 
-        const { data, error } = await supabase.from('na_allah_packages').select('*').order('id', { ascending: true });
-        if (data && !error && data.length > 0) {
-          const localPkgs = JSON.parse(localStorage.getItem('na_allah_packages')) || {};
+        const { data: catsData } = await supabase.from('na_allah_categories').select('id');
+        const { data: pkgData, error: pkgError } = await supabase.from('na_allah_packages').select('*').order('id', { ascending: true });
+        
+        if (!pkgError) {
           const pObj = {};
-          Object.keys(localPkgs).forEach(k => pObj[k] = []);
-          data.forEach(p => { 
-            if (!pObj[p.category]) pObj[p.category] = [];
-            pObj[p.category].push(p); 
-          });
+          if (catsData) catsData.forEach(c => pObj[c.id] = []);
+          if (pkgData) {
+            pkgData.forEach(p => { 
+              if (!pObj[p.category]) pObj[p.category] = [];
+              pObj[p.category].push(p); 
+            });
+          }
+          // Only overwrite if we actually fetched something meaningful, or if it's genuinely empty but we got a successful response
           setPackages(pObj);
           localStorage.setItem('na_allah_packages', JSON.stringify(pObj));
         }
@@ -266,14 +270,27 @@ function AdminPanel() {
         }
       } else if (key === 'na_allah_packages') {
         const flatPackages = [];
-        Object.keys(data).forEach(cat => {
+        const cats = Object.keys(data);
+        cats.forEach(cat => {
            (data[cat] || []).forEach(p => {
               flatPackages.push({ ...p, category: cat });
            });
         });
         const ids = flatPackages.map(p => p.id);
         
-        // Upsert first with fallback for features column
+        // Upsert categories first
+        for (const cat of cats) {
+          await supabase.from('na_allah_categories').upsert({ id: cat });
+        }
+        
+        // Cleanup categories
+        if (cats.length > 0) {
+          await supabase.from('na_allah_categories').delete().not('id', 'in', `(${cats.map(c => `'${c}'`).join(',')})`);
+        } else {
+          await supabase.from('na_allah_categories').delete().neq('id', '0');
+        }
+
+        // Upsert packages
         for (const pkg of flatPackages) {
           const { error } = await supabase.from('na_allah_packages').upsert(pkg);
           if (error) {

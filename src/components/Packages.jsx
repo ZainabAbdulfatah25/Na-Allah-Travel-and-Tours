@@ -38,13 +38,18 @@ function Packages() {
       if (saved) applyPackages(saved);
       
       try {
-        const { data, error } = await supabase.from('na_allah_packages').select('*').order('id', { ascending: true });
-        if (data && !error && data.length > 0) {
+        const { data: catsData } = await supabase.from('na_allah_categories').select('id');
+        const { data: pkgData, error } = await supabase.from('na_allah_packages').select('*').order('id', { ascending: true });
+        
+        if (!error) {
           const pObj = {};
-          data.forEach(p => { 
-            if (!pObj[p.category]) pObj[p.category] = [];
-            pObj[p.category].push(p); 
-          });
+          if (catsData) catsData.forEach(c => pObj[c.id] = []);
+          if (pkgData) {
+            pkgData.forEach(p => { 
+              if (!pObj[p.category]) pObj[p.category] = [];
+              pObj[p.category].push(p); 
+            });
+          }
           applyPackages(pObj);
           localStorage.setItem('na_allah_packages', JSON.stringify(pObj));
         }
