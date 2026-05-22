@@ -12,6 +12,7 @@ import Payment from './components/Payment';
 
 function App() {
   const [currentHash, setCurrentHash] = useState(window.location.hash);
+  const [selectedInterest, setSelectedInterest] = useState('');
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -62,9 +63,19 @@ function App() {
       <Navbar />
       <Hero />
       <Flyers />
-      <Services />
+      <Services onSelectService={(interest) => {
+        if (interest === 'Flight Bookings') {
+          window.location.hash = '#payment?pkg=Flight%20Bookings';
+        } else if (interest === 'Professional Tours') {
+          window.location.hash = '#all-packages?dest=mecca';
+        } else if (interest === 'Customized Tours') {
+          window.location.hash = '#all-packages?dest=hajj';
+        } else {
+          window.location.hash = '#all-packages';
+        }
+      }} />
       <Credentials />
-      <ContactForm />
+      <ContactForm initialInterest={selectedInterest} />
       <Footer />
     </div>
   );

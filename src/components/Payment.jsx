@@ -93,6 +93,23 @@ function Payment() {
     window.open(`https://wa.me/2348034747257?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
+  const packageExistsInOptions = () => {
+    if (!formData.packageDetails) return true;
+    const existsInDynamic = dynamicPackages.some(p => {
+      const optionVal = `${p.category.toUpperCase()} ${p.title} (₦${p.price})`;
+      return optionVal.toLowerCase() === formData.packageDetails.toLowerCase() || p.title.toLowerCase() === formData.packageDetails.toLowerCase();
+    });
+    if (existsInDynamic) return true;
+
+    const standardOptions = [
+      "RAMADAN STANDARD Package", "RAMADAN PREMIUM Package", "RAMADAN VIP Package",
+      "HAJJ STANDARD Package", "HAJJ PREMIUM Package", "HAJJ ROYAL Package",
+      "Standard Ramadan (4M)", "Premium Ramadan (4.5M)", "VIP Ramadan (5M)",
+      "Hajj Standard (6.5M)", "Hajj Premium (8.5M)", "Hajj Royal (12M)"
+    ];
+    return standardOptions.some(opt => opt.toLowerCase() === formData.packageDetails.toLowerCase());
+  };
+
   if (completed) {
     return (
       <div style={styles.page}>
@@ -158,6 +175,9 @@ function Payment() {
               <div style={styles.inputGroup}>
                 <label style={styles.label}>Package</label>
                 <select style={styles.input} value={formData.packageDetails} onChange={e => setFormData({...formData, packageDetails: e.target.value})}>
+                  {!packageExistsInOptions() && formData.packageDetails && (
+                    <option value={formData.packageDetails}>{formData.packageDetails}</option>
+                  )}
                   {dynamicPackages.length > 0 ? dynamicPackages.map(p => (
                     <option key={p.id} value={`${p.category.toUpperCase()} ${p.title} (₦${p.price})`}>{p.title} (₦{p.price})</option>
                   )) : (

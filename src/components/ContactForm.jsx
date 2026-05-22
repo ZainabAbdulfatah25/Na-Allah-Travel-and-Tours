@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 
-function ContactForm() {
+function ContactForm({ initialInterest }) {
   const [formData, setFormData] = useState({ name: '', phone: '', email: '', package: 'General Inquiry', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [info, setInfo] = useState({ address: 'No 12, Babangwari, Kano.', phone: '0803 474 7257', whatsapp: '2348034747257' });
@@ -29,6 +29,23 @@ function ContactForm() {
     window.addEventListener('storage', handleSync);
     return () => window.removeEventListener('storage', handleSync);
   }, []);
+
+  useEffect(() => {
+    if (initialInterest && formData.package !== initialInterest) {
+      setFormData(prev => ({ ...prev, package: initialInterest }));
+      
+      const exists = dynamicInterests.some(i => i.name.toLowerCase() === initialInterest.toLowerCase());
+      const standardOptions = ['General Inquiry', 'Ramadan 2026', 'Hajj 2026', 'General', 'Ramadan', 'Hajj'];
+      const inStandard = standardOptions.some(opt => opt.toLowerCase() === initialInterest.toLowerCase());
+
+      if (!exists && !inStandard) {
+        setDynamicInterests(prev => {
+          if (prev.some(i => i.name.toLowerCase() === initialInterest.toLowerCase())) return prev;
+          return [...prev, { id: Date.now(), name: initialInterest }];
+        });
+      }
+    }
+  }, [initialInterest, dynamicInterests, formData.package]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

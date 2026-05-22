@@ -9,7 +9,8 @@ function Footer() {
      address: 'No 12, Babangwari, Kano.',
      whatsapp: '2348034747257',
      facebook: '#',
-     instagram: '#'
+     instagram: '#',
+     tiktok: '#'
   });
 
   const loadInfo = () => {
@@ -36,12 +37,19 @@ function Footer() {
     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" /><path d="M21.5 6.5A1.5 1.5 0 1120 5a1.5 1.5 0 011.5 1.5z" /><path d="M12 2.16c3.2 0 3.58.01 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.15 3.23-1.66 4.77-4.92 4.92-1.27.06-1.64.07-4.85.07s-3.58-.01-4.85-.07c-3.26-.15-4.77-1.7-4.92-4.92-.06-1.27-.07-1.64-.07-4.85s.01-3.58.07-4.85C2.38 3.84 3.9 2.31 7.15 2.23 8.42 2.17 8.8 2.16 12 2.16M12 0C8.74 0 8.33.01 7.05.07c-4.26.19-6.78 2.71-6.98 6.98C0 8.33 0 8.74 0 12s.01 3.67.07 4.95c.2 4.27 2.72 6.79 6.98 6.98C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c4.26-.19 6.78-2.71 6.98-6.98C23.99 15.67 24 15.26 24 12s-.01-3.67-.07-4.95c-.2-4.27-2.72-6.79-6.98-6.98C15.67.01 15.26 0 12 0z" /></svg>
   );
 
+  const TiktokIcon = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.86-.74-3.94-1.74-.22-.2-.41-.43-.58-.67-.02 3.32-.01 6.64-.02 9.96-.06 2.3-1.01 4.6-2.91 5.9-1.9 1.4-4.5 1.8-6.8 1.2-2.3-.6-4.3-2.3-5.2-4.5-.9-2.2-.6-4.9.8-6.8 1.4-1.9 3.8-3 6.2-2.8v4.2c-1.22-.1-2.44.42-3.15 1.4-.7.9-.78 2.2-.23 3.1.55.9 1.61 1.4 2.66 1.3 1.25.1 2.4-.7 2.7-1.9.15-.6.12-1.2.13-1.8.01-4.8.01-9.6.01-14.4z" />
+    </svg>
+  );
+
   const getSocialLink = (platform, value) => {
     if (!value || value === '#') return '#';
     if (value.startsWith('http://') || value.startsWith('https://')) return value;
     if (platform === 'facebook') return `https://facebook.com/${value}`;
     if (platform === 'instagram') return `https://instagram.com/${value}`;
     if (platform === 'twitter') return `https://twitter.com/${value}`;
+    if (platform === 'tiktok') return `https://tiktok.com/${value.startsWith('@') ? value : '@' + value}`;
     return '#';
   };
 
@@ -70,6 +78,7 @@ function Footer() {
             <a href={info.whatsapp?.startsWith('http') ? info.whatsapp : `https://wa.me/${info.whatsapp}`} target="_blank" rel="noopener noreferrer" style={styles.social} className="hover-lift"><WhatsappIcon /></a>
             <a href={getSocialLink('facebook', info.facebook)} target="_blank" rel="noopener noreferrer" style={styles.social} className="hover-lift"><FacebookIcon /></a>
             <a href={getSocialLink('instagram', info.instagram)} target="_blank" rel="noopener noreferrer" style={styles.social} className="hover-lift"><InstagramIcon /></a>
+            <a href={getSocialLink('tiktok', info.tiktok)} target="_blank" rel="noopener noreferrer" style={styles.social} className="hover-lift"><TiktokIcon /></a>
             {info.twitter && <a href={getSocialLink('twitter', info.twitter)} target="_blank" rel="noopener noreferrer" style={styles.social} className="hover-lift"><TwitterIcon /></a>}
           </div>
         </div>
