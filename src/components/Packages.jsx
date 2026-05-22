@@ -93,11 +93,15 @@ function Packages() {
         <h2 style={{fontSize: 'clamp(1.8rem, 5vw, 2.5rem)', color: 'var(--primary-navy)', marginBottom: '5px'}}>{title}</h2>
         <p style={{color: 'var(--text-muted)', fontSize: '1.2rem'}}>Religious Travel Packages for 2026</p>
       </div>
-      <div style={styles.grid}>
+      <div style={items.length === 1 ? { display: 'flex', justifyContent: 'center', marginTop: '30px' } : styles.grid}>
         {items.map((pkg, idx) => (
           <div 
             key={pkg.id} 
-            style={{...styles.card, transitionDelay: `${idx * 0.1}s`}} 
+            style={{
+              ...styles.card, 
+              transitionDelay: `${idx * 0.1}s`,
+              ...(items.length === 1 ? { maxWidth: '500px', width: '100%' } : {})
+            }} 
             className={`package-card animate-fade-in-up delay-${idx+1} hover-lift`}
           >
             <div style={styles.cardHeader}><h3 style={{color: 'var(--clear-white)', fontSize: '1.4rem', margin: 0, textTransform: 'uppercase'}}>{pkg.title}</h3></div>
