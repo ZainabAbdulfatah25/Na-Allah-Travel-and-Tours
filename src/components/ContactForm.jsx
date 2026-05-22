@@ -95,6 +95,20 @@ function ContactForm({ initialInterest }) {
               <div style={styles.detailItem} className="animate-fade-in-up delay-1 glass-panel"><strong>🏢 HQ Office:</strong> {info.address}</div>
               <div style={styles.detailItem} className="animate-fade-in-up delay-2 glass-panel"><strong>📞 Direct:</strong> {info.phone}</div>
             </div>
+
+            {/* Google Map Embed */}
+            <div style={styles.mapContainer} className="animate-fade-in-up delay-3 glass-panel">
+              <iframe 
+                title="HQ Office Location Map"
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(info.address || 'No 12, Babangwari, Kano')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                width="100%" 
+                height="220" 
+                style={{ border: 0, borderRadius: '20px', display: 'block' }} 
+                allowFullScreen="" 
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
           </div>
           <div style={styles.formSide} className="animate-fade-in-up delay-3 glass-panel">
             <form onSubmit={handleSubmit} style={styles.form}>
@@ -169,7 +183,8 @@ const styles = {
   blurBlob: { position: 'absolute', width: '500px', height: '500px', borderRadius: '50%', filter: 'blur(90px)', animation: 'floatElement 25s ease-in-out infinite' },
   overlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(5, 16, 36, 0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
   modal: { background: 'white', width: '90%', maxWidth: '420px', borderRadius: '30px', padding: '40px', textAlign: 'center', boxShadow: '0 30px 60px -12px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.8)' },
-  modalIcon: { fontSize: '4rem', marginBottom: '20px', animation: 'floatElement 3s ease-in-out infinite' }
+  modalIcon: { fontSize: '4rem', marginBottom: '20px', animation: 'floatElement 3s ease-in-out infinite' },
+  mapContainer: { marginTop: '25px', borderRadius: '24px', overflow: 'hidden', border: '1.5px solid rgba(212, 175, 55, 0.2)', boxShadow: '0 10px 30px rgba(5, 16, 36, 0.03)', padding: '6px', backgroundColor: '#ffffff' }
 };
 
 export default ContactForm;

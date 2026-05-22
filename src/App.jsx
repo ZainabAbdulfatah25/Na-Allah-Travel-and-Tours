@@ -11,6 +11,7 @@ import AdminPanel from './components/AdminPanel';
 import Payment from './components/Payment';
 import WhyChooseUs from './components/WhyChooseUs';
 import AboutUs from './components/AboutUs';
+import AboutSummary from './components/AboutSummary';
 
 function App() {
   const [currentHash, setCurrentHash] = useState(window.location.hash);
@@ -78,6 +79,7 @@ function App() {
       <Navbar />
       <Hero />
       <Flyers />
+      <AboutSummary />
       <Services onSelectService={(interest, idx) => {
         window.location.hash = `#services-page?tab=${idx}`;
       }} />
