@@ -962,7 +962,7 @@ function AdminPanel() {
         <ul style={{ listStyle: 'none', padding: 0 }}>
           <li style={{ ...styles.navItem, ...(activeTab === 'dashboard' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('dashboard')}>📊 Summary</li>
           <li style={{ ...styles.navItem, ...(activeTab === 'bookings' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('bookings')}>📝 Inquiries</li>
-          <li style={{ ...styles.navItem, ...(activeTab === 'packages' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('packages')}>📦 Travel Plans</li>
+          <li style={{ ...styles.navItem, ...(activeTab === 'packages' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('packages')}>📦 Plans & Packages</li>
           <li style={{ ...styles.navItem, ...(activeTab === 'interests' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('interests')}>🎯 Interests</li>
           <li style={{ ...styles.navItem, ...(activeTab === 'flyers' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('flyers')}>🖼️ Flyers</li>
           <li style={{ ...styles.navItem, ...(activeTab === 'destinations' ? styles.activeNavItem : {}) }} onClick={() => setActiveTab('destinations')}>🌍 Destinations</li>
@@ -1101,17 +1101,17 @@ function AdminPanel() {
           {activeTab === 'packages' && (
             <div className="animate-fade-in">
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px', alignItems: 'center' }}>
-                <h3 style={{ margin: 0 }}>Travel Package Console</h3>
+                <h3 style={{ margin: 0 }}>Travel Plans & Packages Console</h3>
                 <div style={{ display: 'flex', gap: '15px' }}>
-                  <button onClick={() => { setShowAddCategory(true); setNewCategory(''); setEditingCategory(null); }} className="btn btn-outline hover-lift">🗂️ + New Control</button>
-                  <button onClick={() => { setShowAddPackage(true); setNewPackage({ ...newPackage, category: Object.keys(packages)[0] }); }} className="btn btn-navy hover-lift">✈️ + New Package</button>
+                  <button onClick={() => { setShowAddCategory(true); setNewCategory(''); setEditingCategory(null); }} className="btn btn-outline hover-lift">🗂️ + New Category</button>
+                  <button onClick={() => { setShowAddPackage(true); setNewPackage({ ...newPackage, category: Object.keys(packages)[0] }); }} className="btn btn-navy hover-lift">✈️ + New Package Plan</button>
                 </div>
               </div>
               <div style={styles.grid2}>
                 {Object.keys(packages).map(cat => (
                   <div key={cat} style={styles.statCard}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                      <h4 style={{ textTransform: 'uppercase', color: 'var(--primary-gold)', margin: 0 }}>{cat.replace(/_/g, ' ')} control</h4>
+                      <h4 style={{ textTransform: 'uppercase', color: 'var(--primary-gold)', margin: 0 }}>{cat.replace(/_/g, ' ')} Category</h4>
                       <div style={{ display: 'flex', gap: '10px' }}>
                         <button onClick={() => { setEditingCategory(cat); setNewCategory(cat.replace(/_/g, ' ')); setShowAddCategory(true); }} style={{ color: 'var(--primary-navy)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}>Edit</button>
                         <button onClick={() => handleCategoryDelete(cat)} style={{ color: 'red', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}>✕</button>
@@ -1377,18 +1377,18 @@ function AdminPanel() {
         </div>
       )}
 
-      {(showAddPackage || editingPackage) && (<div style={styles.overlay}><div style={styles.modal}><div style={styles.mHead}><h2>📦 {editingPackage ? 'Edit' : 'New'} Plan</h2></div><div style={styles.mBody}><form onSubmit={handlePackageSave} style={{textAlign: 'left'}}><label style={styles.label}>Plan Title</label><input required style={{...styles.input, marginBottom: '15px'}} value={editingPackage ? editingPackage.title : newPackage.title} onChange={e => editingPackage ? setEditingPackage({ ...editingPackage, title: e.target.value }) : setNewPackage({ ...newPackage, title: e.target.value })} /><label style={styles.label}>Price (₦)</label><input required style={{...styles.input, marginBottom: '15px'}} value={editingPackage ? editingPackage.price : newPackage.price} onChange={e => editingPackage ? setEditingPackage({ ...editingPackage, price: e.target.value }) : setNewPackage({ ...newPackage, price: e.target.value })} /><label style={styles.label}>Features (Comma-separated)</label><textarea required style={{ ...styles.input, minHeight: '100px', marginBottom: '15px' }} value={editingPackage ? (Array.isArray(editingPackage.features) ? editingPackage.features.join(', ') : (editingPackage.features || '')) : newPackage.features} onChange={e => editingPackage ? setEditingPackage({ ...editingPackage, features: e.target.value }) : setNewPackage({ ...newPackage, features: e.target.value })} placeholder="Visa Processing, Round-trip Flight, Full Accommodation" /><label style={styles.label}>Spiritual Category</label><select style={{...styles.input, marginBottom: '15px'}} value={editingPackage ? editingPackage.category : (newPackage.category || Object.keys(packages)[0])} onChange={e => editingPackage ? setEditingPackage({ ...editingPackage, category: e.target.value }) : setNewPackage({ ...newPackage, category: e.target.value })}>{Object.keys(packages).map(c => <option key={c} value={c}>{c.replace(/_/g, ' ').toUpperCase()}</option>)}</select><div style={{ display: 'flex', gap: '15px', marginTop: '20px' }}><button type="submit" className="btn btn-navy hover-lift" style={{ flex: 1, padding: '16px' }}>🕋 {editingPackage ? 'Update' : 'Publish'}</button><button type="button" onClick={() => { setShowAddPackage(false); setEditingPackage(null); }} className="btn btn-outline hover-lift" style={{ padding: '16px' }}>Cancel</button></div></form></div></div></div>)}
+      {(showAddPackage || editingPackage) && (<div style={styles.overlay}><div style={styles.modal}><div style={styles.mHead}><h2>📦 {editingPackage ? 'Edit' : 'New'} Plan</h2></div><div style={styles.mBody}><form onSubmit={handlePackageSave} style={{textAlign: 'left'}}><label style={styles.label}>Plan Title</label><input required style={{...styles.input, marginBottom: '15px'}} value={editingPackage ? editingPackage.title : newPackage.title} onChange={e => editingPackage ? setEditingPackage({ ...editingPackage, title: e.target.value }) : setNewPackage({ ...newPackage, title: e.target.value })} /><label style={styles.label}>Price (₦)</label><input required style={{...styles.input, marginBottom: '15px'}} value={editingPackage ? editingPackage.price : newPackage.price} onChange={e => editingPackage ? setEditingPackage({ ...editingPackage, price: e.target.value }) : setNewPackage({ ...newPackage, price: e.target.value })} /><label style={styles.label}>Features (Comma-separated)</label><textarea required style={{ ...styles.input, minHeight: '100px', marginBottom: '15px' }} value={editingPackage ? (Array.isArray(editingPackage.features) ? editingPackage.features.join(', ') : (editingPackage.features || '')) : newPackage.features} onChange={e => editingPackage ? setEditingPackage({ ...editingPackage, features: e.target.value }) : setNewPackage({ ...newPackage, features: e.target.value })} placeholder="Visa Processing, Round-trip Flight, Full Accommodation" /><label style={styles.label}>Plan Category</label><select style={{...styles.input, marginBottom: '15px'}} value={editingPackage ? editingPackage.category : (newPackage.category || Object.keys(packages)[0])} onChange={e => editingPackage ? setEditingPackage({ ...editingPackage, category: e.target.value }) : setNewPackage({ ...newPackage, category: e.target.value })}>{Object.keys(packages).map(c => <option key={c} value={c}>{c.replace(/_/g, ' ').toUpperCase()}</option>)}</select><div style={{ display: 'flex', gap: '15px', marginTop: '20px' }}><button type="submit" className="btn btn-navy hover-lift" style={{ flex: 1, padding: '16px' }}>🕋 {editingPackage ? 'Update' : 'Publish'}</button><button type="button" onClick={() => { setShowAddPackage(false); setEditingPackage(null); }} className="btn btn-outline hover-lift" style={{ padding: '16px' }}>Cancel</button></div></form></div></div></div>)}
       
       {showAddCategory && (
         <div style={styles.overlay}>
           <div style={styles.modal}>
-            <div style={styles.mHead}><h2>🗂️ {editingCategory ? 'Edit' : 'Add'} Package Control</h2></div>
+            <div style={styles.mHead}><h2>🗂️ {editingCategory ? 'Edit' : 'Add'} Plan Category</h2></div>
             <div style={styles.mBody}>
               <form onSubmit={handleCategorySave} style={{ textAlign: 'left' }}>
-                <label style={styles.label}>Control Name (e.g. Umrah, Summer)</label>
+                <label style={styles.label}>Category Name (e.g. Flight Bookings, Hotel Reservations, Hajj, Ramadan)</label>
                 <input required style={{ ...styles.input, marginBottom: '20px' }} value={newCategory} onChange={e => setNewCategory(e.target.value)} />
                 <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
-                  <button type="submit" className="btn btn-navy hover-lift" style={{ flex: 1, padding: '16px' }}>{editingCategory ? 'Update' : 'Add'} Control</button>
+                  <button type="submit" className="btn btn-navy hover-lift" style={{ flex: 1, padding: '16px' }}>{editingCategory ? 'Update' : 'Add'} Category</button>
                   <button type="button" onClick={() => { setShowAddCategory(false); setNewCategory(''); setEditingCategory(null); }} className="btn btn-outline hover-lift" style={{ padding: '16px' }}>Cancel</button>
                 </div>
               </form>

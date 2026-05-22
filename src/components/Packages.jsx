@@ -108,7 +108,38 @@ function Packages() {
                    <li key={i} style={styles.featureItem}><span style={{color: 'var(--primary-gold)', marginRight: '12px', fontWeight: 'bold'}}>✓</span>{feature}</li>
                  ))}
                </ul>
-               <a href={`#payment?pkg=${encodeURIComponent(pkg.title)}`} className="btn btn-navy hover-lift" style={{width: '100%', marginTop: '30px', padding: '15px', fontWeight: 'bold'}}>Official Booking</a>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '30px' }}>
+                  <a 
+                    href={`#payment?pkg=${encodeURIComponent(pkg.title)}&inquiry=true`} 
+                    className="btn btn-outline hover-lift" 
+                    style={{
+                      width: '100%', 
+                      padding: '14px', 
+                      fontSize: '0.95rem',
+                      fontWeight: 'bold', 
+                      textAlign: 'center',
+                      borderColor: 'var(--primary-navy)',
+                      color: 'var(--primary-navy)'
+                    }}
+                  >
+                    Make Inquiry Request
+                  </a>
+                  <a 
+                    href={`#payment?pkg=${encodeURIComponent(pkg.title)}`} 
+                    className="btn btn-navy hover-lift" 
+                    style={{
+                      width: '100%', 
+                      padding: '14px', 
+                      fontSize: '0.95rem',
+                      fontWeight: 'bold', 
+                      textAlign: 'center',
+                      backgroundColor: 'var(--primary-navy)',
+                      color: '#fff'
+                    }}
+                  >
+                    Pay for Service Plan
+                  </a>
+                </div>
             </div>
           </div>
         ))}
@@ -170,23 +201,40 @@ function Packages() {
                 <p style={{color: 'var(--text-muted)', fontSize: '1.1rem', lineHeight: '1.7', marginBottom: '35px'}}>
                   Because travel desires are completely unique, we don't force you into static templates. We customize every flight itinerary, stopover duration, transport tier, and hotel category to align perfectly with your schedule and budget.
                 </p>
-                <a 
-                  href={`#payment?pkg=${encodeURIComponent(serviceName)}`} 
-                  className="btn btn-navy hover-lift" 
-                  style={{
-                    padding: '18px 45px', 
-                    fontWeight: 'bold', 
-                    fontSize: '1.05rem', 
-                    display: 'inline-block',
-                    borderRadius: '30px',
-                    backgroundColor: 'var(--primary-navy)',
-                    color: '#fff',
-                    border: '1px solid var(--primary-gold)',
-                    boxShadow: '0 10px 25px rgba(5, 16, 36, 0.15)'
-                  }}
-                >
-                  Request Custom Booking & Quote →
-                </a>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'center', marginTop: '35px' }}>
+                  <a 
+                    href={`#payment?pkg=${encodeURIComponent(serviceName)}&inquiry=true`} 
+                    className="btn btn-outline hover-lift" 
+                    style={{
+                      padding: '16px 35px', 
+                      fontWeight: 'bold', 
+                      fontSize: '1rem', 
+                      borderRadius: '30px',
+                      borderColor: 'var(--primary-navy)',
+                      color: 'var(--primary-navy)',
+                      minWidth: '220px'
+                    }}
+                  >
+                    Make Inquiry Request
+                  </a>
+                  <a 
+                    href={`#payment?pkg=${encodeURIComponent(serviceName)}`} 
+                    className="btn btn-navy hover-lift" 
+                    style={{
+                      padding: '16px 35px', 
+                      fontWeight: 'bold', 
+                      fontSize: '1rem', 
+                      borderRadius: '30px',
+                      backgroundColor: 'var(--primary-navy)',
+                      color: '#fff',
+                      border: '1px solid var(--primary-gold)',
+                      boxShadow: '0 10px 25px rgba(5, 16, 36, 0.15)',
+                      minWidth: '220px'
+                    }}
+                  >
+                    Pay for Service Plan
+                  </a>
+                </div>
               </div>
             );
           }
