@@ -10,6 +10,7 @@ import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
 import Payment from './components/Payment';
 import WhyChooseUs from './components/WhyChooseUs';
+import AboutUs from './components/AboutUs';
 
 function App() {
   const [currentHash, setCurrentHash] = useState(window.location.hash);
@@ -64,6 +65,11 @@ function App() {
   // NEW: Dedicated Standalone Premium Services Page
   if (currentHash.startsWith('#services-page')) {
     return (<div className="app-container"><Navbar /><Services standalone={true} /><Footer /></div>);
+  }
+
+  // NEW: Dedicated Standalone About Page
+  if (currentHash.startsWith('#about')) {
+    return (<div className="app-container"><Navbar /><AboutUs /><Footer /></div>);
   }
 
   // Default Home Page

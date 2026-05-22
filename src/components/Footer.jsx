@@ -64,7 +64,7 @@ function Footer() {
           <div style={{color: 'white'}}><Logo size={80} showText={true} /></div>
           <p style={styles.desc}>Providing excellence in spiritual and global travel for over a decade. Your premier partner for Hajj and Umrah.</p>
         </div>
-        <div><h4 style={styles.heading}>Explore</h4><ul style={styles.list}><li><a href="#services" style={styles.link} className="hover-lift">Services</a></li><li><a href="#all-packages" style={styles.link} className="hover-lift">Travel Plans</a></li><li><a href="#credentials" style={styles.link} className="hover-lift">Trust Center</a></li></ul></div>
+        <div><h4 style={styles.heading}>Explore</h4><ul style={styles.list}><li><a href="#about" style={styles.link} className="hover-lift">About Us</a></li><li><a href="#services-page" style={styles.link} className="hover-lift">Services</a></li><li><a href="#all-packages" style={styles.link} className="hover-lift">Travel Plans</a></li><li><a href="#credentials" style={styles.link} className="hover-lift">Trust Center</a></li></ul></div>
         <div><h4 style={styles.heading}>Contact HQ</h4><ul style={styles.list}>
           <li style={styles.link}>{info.phone}</li>
           <li style={styles.link}>{info.email}</li>
