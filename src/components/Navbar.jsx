@@ -29,7 +29,7 @@ function Navbar() {
         
         {menuOpen && (
           <div className="animate-fade-in-up" style={{marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px'}}>
-            <a href="#services" style={styles.navLink} onClick={() => setMenuOpen(false)}>Services</a>
+            <a href="#services-page" style={styles.navLink} onClick={() => setMenuOpen(false)}>Services</a>
             <a href="#all-packages" style={styles.navLink} onClick={() => setMenuOpen(false)}>Travel Plans</a>
             <a href="#credentials" style={styles.navLink} onClick={() => setMenuOpen(false)}>Trust Center</a>
             <a href="#all-packages" className="btn btn-primary" style={{marginTop: '10px'}} onClick={() => setMenuOpen(false)}>Book Now</a>

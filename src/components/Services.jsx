@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 
-function Services({ onSelectService }) {
+function Services({ onSelectService, standalone = false }) {
   const [services, setServices] = useState([
     { id: 1, title: "Flight Bookings", icon: "✈️", desc: "Global flight reservations with all major airlines like Saudia." },
     { id: 2, title: "Professional Tours", icon: "🕌", desc: "Expertly guided Umrah and Hajj religious tours for spiritual peace." },
     { id: 3, title: "Customized Tours", icon: "🗺️", desc: "Tailor-made travel itineraries to suit your family's specific needs." }
   ]);
+
+  const [activeTab, setActiveTab] = useState(0);
 
   const loadServices = async () => {
     const saved = JSON.parse(localStorage.getItem('na_allah_services'));
@@ -25,7 +27,19 @@ function Services({ onSelectService }) {
     loadServices();
     const handleSync = (e) => { if (e.key === 'na_allah_services') loadServices(); };
     window.addEventListener('storage', handleSync);
-    return () => window.removeEventListener('storage', handleSync);
+
+    const checkTab = () => {
+      const match = window.location.hash.match(/\?tab=(\d)/);
+      if (match) setActiveTab(parseInt(match[1]));
+    };
+
+    checkTab();
+    window.addEventListener('hashchange', checkTab);
+
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('hashchange', checkTab);
+    };
   }, []);
 
   const renderIcon = (iconStr) => {
@@ -36,6 +50,132 @@ function Services({ onSelectService }) {
     return <span style={{fontSize: '2.5rem'}}>{iconStr}</span>;
   };
 
+  // RENDER DEDICATED FULL STANDALONE PAGE
+  if (standalone) {
+    return (
+      <div style={styles.standalonePage}>
+        {/* Decorative dynamic background elements */}
+        <div style={{...styles.blurBlob, top: '10%', left: '5%', background: 'radial-gradient(circle, rgba(0, 162, 232, 0.08), transparent 70%)'}}></div>
+        <div style={{...styles.blurBlob, bottom: '15%', right: '5%', background: 'radial-gradient(circle, rgba(212, 175, 55, 0.08), transparent 70%)'}}></div>
+
+        <div className="container" style={{position: 'relative', zIndex: 2, padding: '120px 0 80px 0'}}>
+          {/* Header */}
+          <div style={{textAlign: 'center', marginBottom: '50px'}} className="animate-fade-in-up">
+            <span style={styles.badge}>World-Class Standard</span>
+            <h1 style={styles.heroHeading}>Our Premium <span style={{color: 'var(--primary-gold)'}}>Services</span></h1>
+            <p style={styles.heroSub}>Tailor-made itineraries, global reservations, and spiritual journeys managed with absolute comfort and integrity.</p>
+            <div style={{width: '60px', height: '4px', backgroundColor: 'var(--primary-accent)', margin: '20px auto 0 auto', borderRadius: '2px'}}></div>
+          </div>
+
+          {/* Segmented Controller Tab Bar */}
+          <div style={styles.tabContainer} className="glass-panel animate-fade-in-up">
+            {services.map((srv, idx) => (
+              <button 
+                key={srv.id} 
+                onClick={() => {
+                  setActiveTab(idx);
+                  window.location.hash = `#services-page?tab=${idx}`;
+                }}
+                style={{
+                  ...styles.tabButton,
+                  backgroundColor: activeTab === idx ? 'var(--primary-navy)' : 'transparent',
+                  color: activeTab === idx ? '#fff' : 'var(--primary-navy)',
+                  border: activeTab === idx ? '1px solid var(--primary-gold)' : '1px solid transparent',
+                  boxShadow: activeTab === idx ? '0 10px 20px rgba(0,0,0,0.15)' : 'none'
+                }}
+              >
+                <span style={{marginRight: '10px', fontSize: '1.2rem'}}>{srv.icon}</span>
+                {srv.title}
+              </button>
+            ))}
+          </div>
+
+          {/* Dynamic Active Tab Details Card */}
+          <div style={styles.detailCard} className="glass-panel animate-fade-in-up">
+            <div style={styles.detailGrid}>
+              <div style={styles.detailInfo}>
+                <div style={styles.detailIcon}>{renderIcon(services[activeTab]?.icon)}</div>
+                <h2 style={styles.detailTitle}>{services[activeTab]?.title}</h2>
+                <p style={styles.detailDesc}>{services[activeTab]?.desc}</p>
+                
+                {/* Specific feature highlights */}
+                <h4 style={{color: 'var(--primary-navy)', margin: '30px 0 15px 0', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '1.5px', fontWeight: '800'}}>Exclusive Inclusions:</h4>
+                <ul style={styles.detailList}>
+                  {activeTab === 0 && (
+                    <>
+                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> Saudia Airlines & Major Global Carriers</li>
+                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> 24/7 Ticket Reissuance & Support Desk</li>
+                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> Priority Seat Selection & Extra Baggage</li>
+                    </>
+                  )}
+                  {activeTab === 1 && (
+                    <>
+                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> Official NAHCON & Saudi Approved Visas</li>
+                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> Hand-selected 5-Star Accommodations near Haram</li>
+                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> Experienced Spiritual Guides & Educational Seminars</li>
+                    </>
+                  )}
+                  {activeTab === 2 && (
+                    <>
+                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> Custom Family itineraries & Multi-destination plans</li>
+                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> Ground transportation & Dedicated Private Chauffeur</li>
+                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> Curated luxury hotel rates & Exclusive sightseeing</li>
+                    </>
+                  )}
+                </ul>
+
+                {/* Primary CTA Button */}
+                <div style={{marginTop: '35px'}}>
+                  {activeTab === 0 && (
+                    <a href="#payment?pkg=Flight%20Bookings" className="btn btn-navy hover-lift" style={{padding: '18px 40px', fontWeight: 'bold', fontSize: '1rem', display: 'inline-block'}}>
+                      Book Flight Ticket Now
+                    </a>
+                  )}
+                  {activeTab === 1 && (
+                    <a href="#all-packages?dest=mecca" className="btn btn-primary hover-lift" style={{padding: '18px 40px', fontWeight: 'bold', fontSize: '1rem', display: 'inline-block', backgroundColor: 'var(--primary-gold)', color: 'var(--primary-navy)', border: 'none', boxShadow: '0 10px 25px rgba(212, 175, 55, 0.3)'}}>
+                      Select Hajj & Umrah Plan
+                    </a>
+                  )}
+                  {activeTab === 2 && (
+                    <a href="#payment?pkg=Customized%20Tours" className="btn btn-navy hover-lift" style={{padding: '18px 40px', fontWeight: 'bold', fontSize: '1rem', display: 'inline-block'}}>
+                      Request Custom Itinerary
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Graphical Visual Panel side */}
+              <div style={styles.detailGraphic}>
+                {activeTab === 0 && (
+                  <div style={styles.graphicBox} className="animate-scale">
+                    <div style={{fontSize: '5rem', marginBottom: '20px'}}>✈️</div>
+                    <h3 style={{color: 'var(--primary-navy)', margin: '0 0 10px 0', fontWeight: '800'}}>Global Flight Desk</h3>
+                    <p style={{color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6'}}>Enjoy secure, instant ticket issuance with all major airlines, priority seating support, and complete flexibility.</p>
+                  </div>
+                )}
+                {activeTab === 1 && (
+                  <div style={styles.graphicBox} className="animate-scale">
+                    <div style={{fontSize: '5rem', marginBottom: '20px'}}>🕌</div>
+                    <h3 style={{color: 'var(--primary-navy)', margin: '0 0 10px 0', fontWeight: '800'}}>Spiritual Journeys</h3>
+                    <p style={{color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6'}}>Fulfill Hajj & Umrah with absolute confidence. Enjoy luxury 5-star packages situated mere meters from the Holy Kaaba.</p>
+                  </div>
+                )}
+                {activeTab === 2 && (
+                  <div style={styles.graphicBox} className="animate-scale">
+                    <div style={{fontSize: '5rem', marginBottom: '20px'}}>🗺️</div>
+                    <h3 style={{color: 'var(--primary-navy)', margin: '0 0 10px 0', fontWeight: '800'}}>Tailor-Made Tours</h3>
+                    <p style={{color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6'}}>We customize everything around your budget, timeline, and exact family dreams for local or international leisure vacations.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // STANDARD HOME PAGE SECTION RENDER
   return (
     <section id="services" className="section-padding" style={{backgroundColor: 'var(--off-white)', position: 'relative', overflow: 'hidden'}}>
       {/* Decorative background elements */}
@@ -86,7 +226,27 @@ const styles = {
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '40px' },
   card: { padding: 'clamp(30px, 6vw, 50px) clamp(20px, 5vw, 40px)', backgroundColor: 'var(--clear-white)', borderRadius: 'var(--radius-lg)', textAlign: 'center', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-dark)', position: 'relative', overflow: 'hidden' },
   iconBox: { color: 'var(--primary-accent)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '20px', background: 'rgba(0, 162, 232, 0.08)', borderRadius: '50%', marginBottom: '25px', width: '90px', height: '90px' },
-  title: { color: 'var(--primary-navy)', marginBottom: '15px', fontWeight: '800', fontSize: '1.4rem' }
+  title: { color: 'var(--primary-navy)', marginBottom: '15px', fontWeight: '800', fontSize: '1.4rem' },
+  
+  // Standalone Services page styles
+  standalonePage: { backgroundColor: 'var(--off-white)', minHeight: '100vh', position: 'relative', overflow: 'hidden', padding: '20px 0 100px 0' },
+  blurBlob: { position: 'absolute', width: '500px', height: '500px', borderRadius: '50%', filter: 'blur(100px)', animation: 'floatElement 20s ease-in-out infinite' },
+  badge: { display: 'inline-block', padding: '8px 20px', borderRadius: '30px', backgroundColor: 'rgba(0, 162, 232, 0.08)', color: 'var(--primary-accent)', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '15px' },
+  heroHeading: { color: 'var(--primary-navy)', fontSize: 'clamp(2.5rem, 6vw, 3.5rem)', fontWeight: '900', lineHeight: '1.1', marginBottom: '20px' },
+  heroSub: { color: 'var(--text-muted)', maxWidth: '700px', margin: '0 auto', fontSize: '1.15rem', lineHeight: '1.6' },
+  tabContainer: { display: 'flex', justifyContent: 'center', gap: '15px', maxWidth: '700px', margin: '0 auto 50px auto', padding: '12px', borderRadius: '40px', backgroundColor: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(10px)', boxShadow: 'var(--shadow-md)', flexWrap: 'wrap', border: '1px solid rgba(255,255,255,0.4)' },
+  tabButton: { padding: '16px 28px', borderRadius: '30px', fontSize: '1rem', fontWeight: '800', cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', outline: 'none', border: '1px solid transparent', display: 'flex', alignItems: 'center' },
+  detailCard: { backgroundColor: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(15px)', borderRadius: '40px', padding: 'clamp(30px, 6vw, 60px)', boxShadow: '0 30px 60px -15px rgba(5,16,36,0.1)', border: '1px solid rgba(255,255,255,0.5)', width: '100%', boxSizing: 'border-box' },
+  detailGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '50px', alignItems: 'center' },
+  detailInfo: { textAlign: 'left' },
+  detailIcon: { fontSize: '2.5rem', width: '70px', height: '70px', backgroundColor: 'rgba(0, 162, 232, 0.08)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '25px', color: 'var(--primary-accent)' },
+  detailTitle: { fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', color: 'var(--primary-navy)', fontWeight: '900', marginBottom: '15px' },
+  detailDesc: { color: 'var(--text-muted)', fontSize: '1.1rem', lineHeight: '1.7', margin: 0 },
+  detailList: { listStyle: 'none', padding: 0, margin: '20px 0', display: 'flex', flexDirection: 'column', gap: '15px' },
+  detailListItem: { display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem', color: '#475569', fontWeight: '600' },
+  checkMark: { color: 'var(--primary-gold)', fontWeight: 'bold', fontSize: '1.1rem' },
+  detailGraphic: { display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  graphicBox: { padding: '40px', borderRadius: '30px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', textAlign: 'center', width: '100%', maxWidth: '400px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }
 };
 
 export default Services;

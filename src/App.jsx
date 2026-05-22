@@ -57,6 +57,11 @@ function App() {
     return (<div className="app-container"><Navbar /><Credentials /><Footer /></div>);
   }
 
+  // NEW: Dedicated Standalone Premium Services Page
+  if (currentHash.startsWith('#services-page')) {
+    return (<div className="app-container"><Navbar /><Services standalone={true} /><Footer /></div>);
+  }
+
   // Default Home Page
   return (
     <div className="app-container">
@@ -65,13 +70,13 @@ function App() {
       <Flyers />
       <Services onSelectService={(interest) => {
         if (interest === 'Flight Bookings') {
-          window.location.hash = '#payment?pkg=Flight%20Bookings';
+          window.location.hash = '#services-page?tab=0';
         } else if (interest === 'Professional Tours') {
-          window.location.hash = '#all-packages?dest=mecca';
+          window.location.hash = '#services-page?tab=1';
         } else if (interest === 'Customized Tours') {
-          window.location.hash = '#all-packages?dest=hajj';
+          window.location.hash = '#services-page?tab=2';
         } else {
-          window.location.hash = '#all-packages';
+          window.location.hash = '#services-page';
         }
       }} />
       <Credentials />
