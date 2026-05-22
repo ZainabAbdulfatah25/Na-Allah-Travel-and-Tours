@@ -148,23 +148,29 @@ function Payment() {
         
         <div style={styles.card} className="animate-fade-in-up glass-panel">
           <div style={styles.header}>
-            <h2 style={{color: 'white', marginBottom: '10px'}}>Complete Your Trip</h2>
-            <p style={{opacity: 0.9, fontSize: '0.9rem'}}>Official reservation form for Hajj & Umrah 2026.</p>
+            <h2 style={{color: 'white', marginBottom: '10px'}}>
+              {showInquiryForm ? 'Submit Inquiry Request' : 'Complete Your Trip'}
+            </h2>
+            <p style={{opacity: 0.9, fontSize: '0.9rem'}}>
+              {showInquiryForm ? 'Have questions? Ask our travel experts about details, dates, and customization.' : 'Official reservation form for Hajj & Umrah 2026.'}
+            </p>
           </div>
           
-          <div style={styles.paymentBox}>
-            <h3 style={styles.bankTitle}>Deposit Bank Details</h3>
-            <div style={styles.bankWrapper}>
-              <p style={styles.bankLabel}>Bank Name</p>
-              <h4 style={styles.bankName}>Access Bank</h4>
-              <p style={styles.bankLabel}>Account Number</p>
-              <h2 style={styles.accNumber}>1764915629</h2>
-              <p style={styles.bankLabel}>Account Name</p>
-              <h4 style={styles.accName}>Na-Allah Travels and Tours Ltd</h4>
+          {!showInquiryForm && (
+            <div style={styles.paymentBox}>
+              <h3 style={styles.bankTitle}>Deposit Bank Details</h3>
+              <div style={styles.bankWrapper}>
+                <p style={styles.bankLabel}>Bank Name</p>
+                <h4 style={styles.bankName}>Access Bank</h4>
+                <p style={styles.bankLabel}>Account Number</p>
+                <h2 style={styles.accNumber}>1764915629</h2>
+                <p style={styles.bankLabel}>Account Name</p>
+                <h4 style={styles.accName}>Na-Allah Travels and Tours Ltd</h4>
+              </div>
             </div>
-          </div>
+          )}
           
-          <div style={styles.actionContainer}>
+          <div style={{...styles.actionContainer, paddingTop: showInquiryForm ? '40px' : '0'}}>
             <div style={styles.formOuter}>
               {/* PRIMARY CONTACT INFO */}
               <div style={styles.inputGroup}>
