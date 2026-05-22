@@ -17,27 +17,30 @@ function App() {
   useEffect(() => {
     const handleHashChange = () => {
       setCurrentHash(window.location.hash);
-      window.scrollTo(0, 0); 
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); 
     };
     window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
-    // 🎭 Na-Allah Motion Activation Engine
-    const observerOptions = { threshold: 0.15, rootMargin: '0px 0px -50px 0px' };
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('active');
-        }
-      });
-    }, observerOptions);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -20px 0px' };
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+          }
+        });
+      }, observerOptions);
 
-    const animatedElements = document.querySelectorAll('.animate-fade-in-up, .animate-scale, .animate-slide-down');
-    animatedElements.forEach(el => observer.observe(el));
+      const animatedElements = document.querySelectorAll('.animate-fade-in-up, .animate-scale, .animate-slide-down');
+      animatedElements.forEach(el => observer.observe(el));
+      
+      return () => observer.disconnect();
+    }, 50);
 
-    return () => {
-      window.removeEventListener('hashchange', handleHashChange);
-      observer.disconnect();
-    };
+    return () => clearTimeout(timer);
   }, [currentHash]);
 
   // Dedicated Admin Console
