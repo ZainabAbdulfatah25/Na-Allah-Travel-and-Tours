@@ -9,6 +9,7 @@ import Credentials from './components/Credentials';
 import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
 import Payment from './components/Payment';
+import WhyChooseUs from './components/WhyChooseUs';
 
 function App() {
   const [currentHash, setCurrentHash] = useState(window.location.hash);
@@ -74,6 +75,7 @@ function App() {
       <Services onSelectService={(interest, idx) => {
         window.location.hash = `#services-page?tab=${idx}`;
       }} />
+      <WhyChooseUs />
       <Credentials />
       <ContactForm initialInterest={selectedInterest} />
       <Footer />

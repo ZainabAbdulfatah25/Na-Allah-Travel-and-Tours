@@ -71,7 +71,14 @@ function AdminPanel() {
   const [showAddFlyer, setShowAddFlyer] = useState(false);
   const [editingFlyer, setEditingFlyer] = useState(null);
   const [newFlyer, setNewFlyer] = useState({ title: '', image: '', status: 'Active' });
-
+  const [sloganSuggestions, setSloganSuggestions] = useState([
+    "Your Journey, Our Priority",
+    "Travel Smart with Na-Allah",
+    "Making Global Travel Easy",
+    "Where Your Travel Dreams Begin",
+    "Experience the Ultimate Spiritual Journey with Luxury & Comfort."
+  ]);
+  const [customSloganInput, setCustomSloganInput] = useState('');
   const loadData = useCallback(() => {
     const s = JSON.parse(localStorage.getItem('na_allah_settings')) || settings;
     const b = JSON.parse(localStorage.getItem('na_allah_bookings')) || [];
@@ -109,6 +116,9 @@ function AdminPanel() {
       { id: 3, name: 'Hajj 2026' }
     ];
     setSettings(s);
+    if (s.suggestedSlogans && Array.isArray(s.suggestedSlogans)) {
+      setSloganSuggestions(s.suggestedSlogans);
+    }
     setBookings(b);
     setPackages(p);
     setLicenses(l);
@@ -1005,7 +1015,62 @@ function AdminPanel() {
                 <div><label style={styles.label}>Instagram Link/Username</label><input style={styles.input} value={settings.instagram} onChange={e => setSettings({ ...settings, instagram: e.target.value })} /></div>
                 <div><label style={styles.label}>Twitter Link/Username</label><input style={styles.input} value={settings.twitter || ''} onChange={e => setSettings({ ...settings, twitter: e.target.value })} /></div>
 
-                <div style={{ gridColumn: 'span 2' }}><label style={styles.label}>Hero Attraction Slogan</label><textarea style={{ ...styles.input, height: '80px' }} value={settings.heroSlogan} onChange={e => setSettings({ ...settings, heroSlogan: e.target.value })} /></div>
+                <div style={{ gridColumn: 'span 2', backgroundColor: '#f8fafc', padding: '25px', borderRadius: '20px', border: '1px solid #e2e8f0' }}>
+                  <label style={styles.label}>🎯 Hero Attraction Slogan</label>
+                  
+                  {/* Dropdown to select existing */}
+                  <select 
+                    style={{ ...styles.input, marginBottom: '15px' }} 
+                    value={sloganSuggestions.includes(settings.heroSlogan) ? settings.heroSlogan : ''} 
+                    onChange={e => {
+                      if (e.target.value) {
+                        setSettings({ ...settings, heroSlogan: e.target.value });
+                      }
+                    }}
+                  >
+                    <option value="">-- Choose a Suggested Slogan --</option>
+                    {sloganSuggestions.map((slog, sIdx) => (
+                      <option key={sIdx} value={slog}>{slog}</option>
+                    ))}
+                  </select>
+                  
+                  {/* Textarea for manual override */}
+                  <textarea 
+                    placeholder="Or type a custom brand slogan directly here..." 
+                    style={{ ...styles.input, height: '80px', marginBottom: '15px' }} 
+                    value={settings.heroSlogan} 
+                    onChange={e => setSettings({ ...settings, heroSlogan: e.target.value })} 
+                  />
+                  
+                  {/* Input to add more to suggested list */}
+                  <div style={{ display: 'flex', gap: '10px' }} className="mobile-stack">
+                    <input 
+                      type="text" 
+                      placeholder="Add a new slogan to the suggested list..." 
+                      style={{ ...styles.input, flex: 1 }} 
+                      value={customSloganInput} 
+                      onChange={e => setCustomSloganInput(e.target.value)} 
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        if (!customSloganInput.trim()) return;
+                        if (sloganSuggestions.includes(customSloganInput.trim())) {
+                          alert('This slogan is already in your suggested list!');
+                          return;
+                        }
+                        const updatedList = [...sloganSuggestions, customSloganInput.trim()];
+                        setSloganSuggestions(updatedList);
+                        setSettings({ ...settings, heroSlogan: customSloganInput.trim(), suggestedSlogans: updatedList });
+                        setCustomSloganInput('');
+                      }} 
+                      className="btn btn-outline hover-lift" 
+                      style={{ padding: '12px 20px', whiteSpace: 'nowrap' }}
+                    >
+                      ➕ Add & Select Slogan
+                    </button>
+                  </div>
+                </div>
                 <div style={{ gridColumn: 'span 2' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                     <label style={styles.label}>Master PIN (HQ Authorization)</label>
