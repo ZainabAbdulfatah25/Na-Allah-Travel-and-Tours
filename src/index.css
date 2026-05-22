@@ -203,7 +203,7 @@ h2 { font-size: clamp(2.5rem, 4.5vw, 4rem); margin-bottom: 1.5rem; }
 }
 
 /* 📱 Responsive Adjustments */
-@media (max-width: 868px) {
+@media (max-width: 1150px) {
   .container { padding: 0 20px; }
   .section-padding { padding: 60px 0; }
   h1 { font-size: 2.2rem; }
