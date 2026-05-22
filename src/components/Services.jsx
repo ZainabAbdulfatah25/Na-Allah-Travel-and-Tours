@@ -120,7 +120,11 @@ function Services({ onSelectService, standalone = false }) {
         <div style={{...styles.blurBlob, top: '10%', left: '5%', background: 'radial-gradient(circle, rgba(0, 162, 232, 0.08), transparent 70%)'}}></div>
         <div style={{...styles.blurBlob, bottom: '15%', right: '5%', background: 'radial-gradient(circle, rgba(212, 175, 55, 0.08), transparent 70%)'}}></div>
 
-        <div className="container" style={{position: 'relative', zIndex: 2, padding: '120px 0 80px 0'}}>
+        <div className="container" style={{position: 'relative', zIndex: 2, padding: '80px 0 80px 0'}}>
+          {/* Contextual Back Button */}
+          <div style={{textAlign: 'left', marginBottom: '20px'}}>
+            <button onClick={() => window.history.back()} style={styles.backButtonTop} className="hover-lift">← Back</button>
+          </div>
           {/* Header */}
           <div style={{textAlign: 'center', marginBottom: '50px'}} className="animate-fade-in-up">
             <span style={styles.badge}>World-Class Standard</span>
@@ -256,6 +260,7 @@ function Services({ onSelectService, standalone = false }) {
 }
 
 const styles = {
+  backButtonTop: { background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'inline-block', color: 'var(--primary-navy)', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', transition: 'all 0.2s', outline: 'none' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '40px' },
   card: { padding: 'clamp(30px, 6vw, 50px) clamp(20px, 5vw, 40px)', backgroundColor: 'var(--clear-white)', borderRadius: 'var(--radius-lg)', textAlign: 'center', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-dark)', position: 'relative', overflow: 'hidden' },
   iconBox: { color: 'var(--primary-accent)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '20px', background: 'rgba(0, 162, 232, 0.08)', borderRadius: '50%', marginBottom: '25px', width: '90px', height: '90px' },
