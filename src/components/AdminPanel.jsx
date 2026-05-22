@@ -56,7 +56,7 @@ function AdminPanel() {
 
   const [newPackage, setNewPackage] = useState({ title: '', price: '', category: 'ramadan', features: '' });
   const [newLicense, setNewLicense] = useState({ title: '', link: '', status: 'Verified Member' });
-  const [newService, setNewService] = useState({ title: '', icon: '✈️', desc: '' });
+  const [newService, setNewService] = useState({ title: '', icon: '✈️', desc: '', inclusions: '' });
   const [newDestination, setNewDestination] = useState({ name: '', val: '' });
   const [newAdminData, setNewAdminData] = useState({ email: '', pin: '' });
 
@@ -269,7 +269,13 @@ function AdminPanel() {
              }
            }
         } else if (ids.length > 0) {
-          await supabase.from(table).upsert(data);
+          const { error } = await supabase.from(table).upsert(data);
+          if (error && key === 'na_allah_services') {
+             console.warn(`[Admin] Services upsert failed (${error.message}), retrying with core fields only...`);
+             const safeData = data.map(({ inclusions, ...rest }) => rest);
+             const { error: retryErr } = await supabase.from(table).upsert(safeData);
+             if (retryErr) console.error("[Admin] Core services upsert failed:", retryErr.message);
+          }
         }
 
         // 2. CLEANUP AFTER SUCCESS: Only delete if the upsert succeeded
@@ -648,8 +654,9 @@ function AdminPanel() {
       let updated;
       if (editingService) updated = services.map(s => s.id === editingService.id ? editingService : s);
       else updated = [...services, { id: Number(`${Date.now()}${Math.floor(Math.random() * 100)}`), ...newService }];
+      setServices(updated);
       await save('na_allah_services', updated);
-      setShowAddService(false); setEditingService(null); setNewService({ title: '', icon: '✈️', desc: '' });
+      setShowAddService(false); setEditingService(null); setNewService({ title: '', icon: '✈️', desc: '', inclusions: '' });
     } finally {
       setIsProcessing(false);
     }
@@ -662,10 +669,11 @@ function AdminPanel() {
       let updated;
       if (editingLicense) updated = licenses.map(l => l.id === editingLicense.id ? editingLicense : l);
       else { 
-        if (!newLicense.link) return alert('Please upload a document or provide a link first.'); 
-        const uniqueId = Number(`${Date.now()}${Math.floor(Math.random() * 1000)}`);
-        updated = [...licenses, { id: uniqueId, ...newLicense }]; 
+         if (!newLicense.link) return alert('Please upload a document or provide a link first.'); 
+         const uniqueId = Number(`${Date.now()}${Math.floor(Math.random() * 1000)}`);
+         updated = [...licenses, { id: uniqueId, ...newLicense }]; 
       }
+      setLicenses(updated);
       await save('na_allah_licenses', updated);
       setShowAddLicense(false); setEditingLicense(null); setNewLicense({ title: '', link: '', thumbnail: '', status: 'Verified Member' });
     } finally {
@@ -680,6 +688,7 @@ function AdminPanel() {
       let updated;
       if (editingDestination) updated = destinations.map(d => d.id === editingDestination.id ? editingDestination : d);
       else updated = [...destinations, { id: Number(`${Date.now()}${Math.floor(Math.random() * 100)}`), ...newDestination }];
+      setDestinations(updated);
       await save('na_allah_destinations', updated);
       setShowAddDestination(false); setEditingDestination(null); setNewDestination({ name: '', val: '' });
     } finally {
@@ -694,6 +703,7 @@ function AdminPanel() {
       let updated;
       if (editingInterest) updated = interests.map(i => i.id === editingInterest.id ? editingInterest : i);
       else updated = [...interests, { id: Number(`${Date.now()}${Math.floor(Math.random() * 100)}`), ...newInterest }];
+      setInterests(updated);
       await save('na_allah_interests', updated);
       setShowAddInterest(false); setEditingInterest(null); setNewInterest({ name: '' });
     } finally {
@@ -711,6 +721,7 @@ function AdminPanel() {
         if (!newFlyer.image) return alert('Please upload a flyer image or provide a link.');
         updated = [...flyers, { id: Number(`${Date.now()}${Math.floor(Math.random() * 100)}`), ...newFlyer }];
       }
+      setFlyers(updated);
       await save('na_allah_flyers', updated);
       setShowAddFlyer(false); setEditingFlyer(null); setNewFlyer({ title: '', image: '', status: 'Active' });
     } finally {
@@ -1284,11 +1295,14 @@ function AdminPanel() {
                 </div>
 
                 <label style={styles.label}>Brief Description</label>
-                <textarea required style={{ ...styles.input, height: '80px' }} value={editingService ? editingService.desc : newService.desc} onChange={e => editingService ? setEditingService({ ...editingService, desc: e.target.value }) : setNewService({ ...newService, desc: e.target.value })} />
+                <textarea required style={{ ...styles.input, height: '80px', marginBottom: '15px' }} value={editingService ? editingService.desc : newService.desc} onChange={e => editingService ? setEditingService({ ...editingService, desc: e.target.value }) : setNewService({ ...newService, desc: e.target.value })} />
+
+                <label style={styles.label}>Exclusive Inclusions (Comma-separated, optional)</label>
+                <textarea style={{ ...styles.input, height: '80px', marginBottom: '15px' }} value={editingService ? (editingService.inclusions || '') : (newService.inclusions || '')} onChange={e => editingService ? setEditingService({ ...editingService, inclusions: e.target.value }) : setNewService({ ...newService, inclusions: e.target.value })} placeholder="Budget & Executive Hotels, Luxury Resorts, Apartments, Group accommodations" />
 
                 <div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}>
                   <button type="submit" className="btn btn-navy hover-lift" style={{ flex: 1, padding: '16px' }}>{editingService ? 'Update' : 'Launch'}</button>
-                  <button type="button" onClick={() => { setShowAddService(false); setEditingService(null); }} className="btn btn-outline hover-lift" style={{ padding: '16px' }}>Cancel</button>
+                  <button type="button" onClick={() => { setShowAddService(false); setEditingService(null); setNewService({ title: '', icon: '✈️', desc: '', inclusions: '' }); }} className="btn btn-outline hover-lift" style={{ padding: '16px' }}>Cancel</button>
                 </div>
               </form>
             </div>

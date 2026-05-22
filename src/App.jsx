@@ -71,16 +71,8 @@ function App() {
       <Navbar />
       <Hero />
       <Flyers />
-      <Services onSelectService={(interest) => {
-        if (interest === 'Flight Bookings') {
-          window.location.hash = '#services-page?tab=0';
-        } else if (interest === 'Professional Tours') {
-          window.location.hash = '#services-page?tab=1';
-        } else if (interest === 'Customized Tours') {
-          window.location.hash = '#services-page?tab=2';
-        } else {
-          window.location.hash = '#services-page';
-        }
+      <Services onSelectService={(interest, idx) => {
+        window.location.hash = `#services-page?tab=${idx}`;
       }} />
       <Credentials />
       <ContactForm initialInterest={selectedInterest} />

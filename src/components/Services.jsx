@@ -50,6 +50,68 @@ function Services({ onSelectService, standalone = false }) {
     return <span style={{fontSize: '2.5rem'}}>{iconStr}</span>;
   };
 
+  const getPackageCategoryLink = (title) => {
+    const t = (title || '').toLowerCase();
+    if (t.includes('flight')) return '#all-packages?cat=flight';
+    if (t.includes('hajj') || t.includes('umrah')) return '#all-packages?cat=hajj';
+    if (t.includes('ramadan')) return '#all-packages?cat=ramadan';
+    if (t.includes('tour') && t.includes('custom')) return '#all-packages?cat=custom';
+    if (t.includes('hotel') || t.includes('accommodation')) return '#all-packages?cat=hotel';
+    return `#all-packages?cat=${encodeURIComponent(t.replace(/\s+/g, '_'))}`;
+  };
+
+  const getInclusionsForService = (srv) => {
+    if (!srv) return [];
+    
+    if (srv.inclusions) {
+      if (Array.isArray(srv.inclusions)) return srv.inclusions;
+      return srv.inclusions.split(',').map(item => item.trim()).filter(Boolean);
+    }
+    
+    const desc = srv.desc || '';
+    const includesIndex = desc.toLowerCase().indexOf('includes:');
+    if (includesIndex !== -1) {
+      const listPart = desc.substring(includesIndex + 9);
+      return listPart.split(/[,;\n•]+| and /).map(item => item.trim()).filter(item => item && item.length > 2);
+    }
+
+    const title = (srv.title || '').toLowerCase();
+    if (title.includes('flight')) {
+      return [
+        "Saudia Airlines & Major Global Carriers",
+        "24/7 Ticket Reissuance & Support Desk",
+        "Priority Seat Selection & Extra Baggage"
+      ];
+    }
+    if (title.includes('tour') && (title.includes('hajj') || title.includes('umrah') || title.includes('professional'))) {
+      return [
+        "Official NAHCON & Saudi Approved Visas",
+        "Hand-selected 5-Star Accommodations near Haram",
+        "Experienced Spiritual Guides & Educational Seminars"
+      ];
+    }
+    if (title.includes('custom') || title.includes('family')) {
+      return [
+        "Custom Family itineraries & Multi-destination plans",
+        "Ground transportation & Dedicated Private Chauffeur",
+        "Curated luxury hotel rates & Exclusive sightseeing"
+      ];
+    }
+    if (title.includes('hotel') || title.includes('accommodation')) {
+      return [
+        "Budget & Executive Hotels worldwide",
+        "Luxury Resorts, Apartments & Short-lets",
+        "Group accommodation bookings"
+      ];
+    }
+    
+    return [
+      "24/7 dedicated travel concierge",
+      "Official visa documentation support",
+      "Handpicked luxury accommodations"
+    ];
+  };
+
   // RENDER DEDICATED FULL STANDALONE PAGE
   if (standalone) {
     return (
@@ -101,72 +163,43 @@ function Services({ onSelectService, standalone = false }) {
                 {/* Specific feature highlights */}
                 <h4 style={{color: 'var(--primary-navy)', margin: '30px 0 15px 0', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '1.5px', fontWeight: '800'}}>Exclusive Inclusions:</h4>
                 <ul style={styles.detailList}>
-                  {activeTab === 0 && (
-                    <>
-                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> Saudia Airlines & Major Global Carriers</li>
-                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> 24/7 Ticket Reissuance & Support Desk</li>
-                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> Priority Seat Selection & Extra Baggage</li>
-                    </>
-                  )}
-                  {activeTab === 1 && (
-                    <>
-                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> Official NAHCON & Saudi Approved Visas</li>
-                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> Hand-selected 5-Star Accommodations near Haram</li>
-                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> Experienced Spiritual Guides & Educational Seminars</li>
-                    </>
-                  )}
-                  {activeTab === 2 && (
-                    <>
-                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> Custom Family itineraries & Multi-destination plans</li>
-                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> Ground transportation & Dedicated Private Chauffeur</li>
-                      <li style={styles.detailListItem}><span style={styles.checkMark}>✓</span> Curated luxury hotel rates & Exclusive sightseeing</li>
-                    </>
-                  )}
+                  {getInclusionsForService(services[activeTab]).map((inc, i) => (
+                    <li key={i} style={styles.detailListItem}>
+                      <span style={styles.checkMark}>✓</span> {inc}
+                    </li>
+                  ))}
                 </ul>
 
                 {/* Primary CTA Button */}
                 <div style={{marginTop: '35px'}}>
-                  {activeTab === 0 && (
-                    <a href="#payment?pkg=Flight%20Bookings" className="btn btn-navy hover-lift" style={{padding: '18px 40px', fontWeight: 'bold', fontSize: '1rem', display: 'inline-block'}}>
-                      Book Flight Ticket Now
-                    </a>
-                  )}
-                  {activeTab === 1 && (
-                    <a href="#all-packages?dest=mecca" className="btn btn-primary hover-lift" style={{padding: '18px 40px', fontWeight: 'bold', fontSize: '1rem', display: 'inline-block', backgroundColor: 'var(--primary-gold)', color: 'var(--primary-navy)', border: 'none', boxShadow: '0 10px 25px rgba(212, 175, 55, 0.3)'}}>
-                      Select Hajj & Umrah Plan
-                    </a>
-                  )}
-                  {activeTab === 2 && (
-                    <a href="#payment?pkg=Customized%20Tours" className="btn btn-navy hover-lift" style={{padding: '18px 40px', fontWeight: 'bold', fontSize: '1rem', display: 'inline-block'}}>
-                      Request Custom Itinerary
-                    </a>
-                  )}
+                  <a 
+                    href={getPackageCategoryLink(services[activeTab]?.title)} 
+                    className="btn btn-navy hover-lift" 
+                    style={{
+                      padding: '18px 40px', 
+                      fontWeight: 'bold', 
+                      fontSize: '1rem', 
+                      display: 'inline-block',
+                      backgroundColor: 'var(--primary-navy)',
+                      color: '#fff',
+                      border: '1px solid var(--primary-gold)',
+                      boxShadow: '0 10px 25px rgba(5,16,36,0.15)'
+                    }}
+                  >
+                    Select {services[activeTab]?.title || 'Service'} Package Plan →
+                  </a>
                 </div>
               </div>
 
               {/* Graphical Visual Panel side */}
               <div style={styles.detailGraphic}>
-                {activeTab === 0 && (
-                  <div style={styles.graphicBox} className="animate-scale">
-                    <div style={{fontSize: '5rem', marginBottom: '20px'}}>✈️</div>
-                    <h3 style={{color: 'var(--primary-navy)', margin: '0 0 10px 0', fontWeight: '800'}}>Global Flight Desk</h3>
-                    <p style={{color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6'}}>Enjoy secure, instant ticket issuance with all major airlines, priority seating support, and complete flexibility.</p>
-                  </div>
-                )}
-                {activeTab === 1 && (
-                  <div style={styles.graphicBox} className="animate-scale">
-                    <div style={{fontSize: '5rem', marginBottom: '20px'}}>🕌</div>
-                    <h3 style={{color: 'var(--primary-navy)', margin: '0 0 10px 0', fontWeight: '800'}}>Spiritual Journeys</h3>
-                    <p style={{color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6'}}>Fulfill Hajj & Umrah with absolute confidence. Enjoy luxury 5-star packages situated mere meters from the Holy Kaaba.</p>
-                  </div>
-                )}
-                {activeTab === 2 && (
-                  <div style={styles.graphicBox} className="animate-scale">
-                    <div style={{fontSize: '5rem', marginBottom: '20px'}}>🗺️</div>
-                    <h3 style={{color: 'var(--primary-navy)', margin: '0 0 10px 0', fontWeight: '800'}}>Tailor-Made Tours</h3>
-                    <p style={{color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6'}}>We customize everything around your budget, timeline, and exact family dreams for local or international leisure vacations.</p>
-                  </div>
-                )}
+                <div style={styles.graphicBox} className="animate-scale">
+                  <div style={{fontSize: '5rem', marginBottom: '20px'}}>{services[activeTab]?.icon || '✈️'}</div>
+                  <h3 style={{color: 'var(--primary-navy)', margin: '0 0 10px 0', fontWeight: '800'}}>{services[activeTab]?.title}</h3>
+                  <p style={{color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6'}}>
+                    {services[activeTab]?.desc ? services[activeTab].desc.split('Includes:')[0].trim() : 'Enjoy complete comfort, unshakeable integrity, and premium service rates with Na-Allah Travel.'}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -195,7 +228,7 @@ function Services({ onSelectService, standalone = false }) {
                key={srv.id} 
                style={{...styles.card, cursor: 'pointer', animationDelay: `${idx * 0.15}s`}} 
                className="animate-fade-in-up hover-lift"
-               onClick={() => onSelectService && onSelectService(srv.title)}
+               onClick={() => onSelectService ? onSelectService(srv.title, idx) : window.location.hash = `#services-page?tab=${idx}`}
              >
                <div style={styles.iconBox}>{renderIcon(srv.icon)}</div>
                <h3 style={styles.title}>{srv.title}</h3>

@@ -142,7 +142,7 @@ function Payment() {
 
       <div className="container" style={{...styles.container, position: 'relative', zIndex: 1}}>
         <div style={{display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px'}}>
-           <button onClick={() => window.location.hash = ''} style={styles.backButtonTop} className="hover-lift">← Home</button>
+           <button onClick={() => window.history.back()} style={styles.backButtonTop} className="hover-lift">← Back</button>
            <h3 style={{color: 'var(--primary-navy)', margin: 0, fontWeight: '800'}}>Booking & Inquiries</h3>
         </div>
         

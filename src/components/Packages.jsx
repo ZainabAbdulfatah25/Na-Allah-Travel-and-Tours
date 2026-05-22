@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient';
 
 function Packages() {
   const [selectedDest, setSelectedDest] = useState('');
+  const [selectedCat, setSelectedCat] = useState('');
   
   // Dynamic package states
   const [packagesData, setPackagesData] = useState({
@@ -66,9 +67,15 @@ function Packages() {
     
     const checkHash = () => {
       const h = window.location.hash;
-      const match = h.match(/\?dest=(.*)/);
-      if (match) setSelectedDest(decodeURIComponent(match[1]));
-      else setSelectedDest('');
+      const qIndex = h.indexOf('?');
+      if (qIndex !== -1) {
+        const searchParams = new URLSearchParams(h.substring(qIndex + 1));
+        setSelectedDest(searchParams.get('dest') || '');
+        setSelectedCat(searchParams.get('cat') || '');
+      } else {
+        setSelectedDest('');
+        setSelectedCat('');
+      }
     };
     
     checkHash();
@@ -118,26 +125,87 @@ function Packages() {
       </div>
 
       <div className="container" style={{position: 'relative', zIndex: 1}}>
-        {window.location.hash.includes('all-packages') && (<button onClick={() => window.location.hash = ''} style={styles.backButtonTop}>← Back to Home</button>)}
+        {window.location.hash.includes('all-packages') && (<button onClick={() => window.history.back()} style={styles.backButtonTop}>← Back</button>)}
         <div style={{textAlign: 'center', marginBottom: 'clamp(40px, 8vw, 80px)'}} className="animate-fade-in-up">
           <h1 style={{fontSize: 'clamp(2rem, 8vw, 3.5rem)', marginBottom: '15px'}}>Our 2026 Packages</h1>
           <p style={{fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '800px', margin: '0 auto'}}>Complete list of seasonal travel arrangements for spiritual journeys.</p>
         </div>
         
-        {Object.keys(packagesData).sort((a,b) => {
-           if (selectedDest === 'mecca') {
-             if (a === 'ramadan') return -1;
-             if (b === 'ramadan') return 1;
-           } else {
-             if (a === 'hajj') return -1;
-             if (b === 'hajj') return 1;
-           }
-           return 0;
-        }).map(cat => (
-          <React.Fragment key={cat}>
-             {packagesData[cat].length > 0 && renderSection(`${cat.replace(/_/g, ' ').toUpperCase()} Packages 2026`, packagesData[cat])}
-          </React.Fragment>
-        ))}
+        {(() => {
+          const filteredCats = Object.keys(packagesData).filter(cat => {
+            if (selectedCat) {
+              if (selectedCat.toLowerCase().includes('hajj') || selectedCat.toLowerCase().includes('umrah')) {
+                return cat.toLowerCase().includes('hajj') || cat.toLowerCase().includes('ramadan');
+              }
+              return cat.toLowerCase().includes(selectedCat.toLowerCase()) || selectedCat.toLowerCase().includes(cat.toLowerCase());
+            }
+            return true;
+          });
+
+          // Check if there are any active packages in the filtered categories
+          const hasPackages = filteredCats.some(cat => packagesData[cat] && packagesData[cat].length > 0);
+
+          if (!hasPackages && selectedCat) {
+            let serviceName = "Custom Sacred Travel";
+            if (selectedCat.includes('flight')) serviceName = "Flight Bookings";
+            else if (selectedCat.includes('hotel')) serviceName = "Hotel Reservation services";
+            else if (selectedCat.includes('custom')) serviceName = "Customized Tours";
+            else {
+              serviceName = selectedCat.charAt(0).toUpperCase() + selectedCat.slice(1).replace(/_/g, ' ');
+            }
+
+            return (
+              <div className="glass-panel animate-fade-in-up" style={{
+                maxWidth: '700px',
+                margin: '50px auto 100px auto',
+                padding: 'clamp(30px, 6vw, 60px)',
+                borderRadius: '35px',
+                textAlign: 'center',
+                border: '1px solid rgba(255, 255, 255, 0.5)',
+                background: 'rgba(255, 255, 255, 0.85)',
+                boxShadow: '0 20px 40px rgba(5, 16, 36, 0.05)'
+              }}>
+                <div style={{fontSize: '4.5rem', marginBottom: '20px'}}>✨</div>
+                <h2 style={{color: 'var(--primary-navy)', fontWeight: '900', fontSize: '2rem', marginBottom: '15px'}}>Bespoke {serviceName} Arrangements</h2>
+                <p style={{color: 'var(--text-muted)', fontSize: '1.1rem', lineHeight: '1.7', marginBottom: '35px'}}>
+                  Because travel desires are completely unique, we don't force you into static templates. We customize every flight itinerary, stopover duration, transport tier, and hotel category to align perfectly with your schedule and budget.
+                </p>
+                <a 
+                  href={`#payment?pkg=${encodeURIComponent(serviceName)}`} 
+                  className="btn btn-navy hover-lift" 
+                  style={{
+                    padding: '18px 45px', 
+                    fontWeight: 'bold', 
+                    fontSize: '1.05rem', 
+                    display: 'inline-block',
+                    borderRadius: '30px',
+                    backgroundColor: 'var(--primary-navy)',
+                    color: '#fff',
+                    border: '1px solid var(--primary-gold)',
+                    boxShadow: '0 10px 25px rgba(5, 16, 36, 0.15)'
+                  }}
+                >
+                  Request Custom Booking & Quote →
+                </a>
+              </div>
+            );
+          }
+
+          return filteredCats.sort((a,b) => {
+             if (selectedDest === 'mecca') {
+               if (a === 'ramadan') return -1;
+               if (b === 'ramadan') return 1;
+             } else {
+               if (a === 'hajj') return -1;
+               if (b === 'hajj') return 1;
+             }
+             return 0;
+          }).map(cat => (
+            <React.Fragment key={cat}>
+               {packagesData[cat].length > 0 && renderSection(`${cat.replace(/_/g, ' ').toUpperCase()} Packages 2026`, packagesData[cat])}
+            </React.Fragment>
+          ));
+        })()}
 
       </div>
     </section>
