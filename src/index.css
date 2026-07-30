@@ -282,13 +282,14 @@ h2 { font-size: clamp(2.5rem, 4.5vw, 4rem); margin-bottom: 1.5rem; }
   }
   
   /* Navbar specific fixes */
-  .nav-logo-container { top: 15px !important; left: 15px !important; max-width: calc(100% - 130px); }
+  .nav-logo-container { top: 15px !important; left: 15px !important; max-width: calc(100% - 155px); }
+  .nav-logo-container img { width: 42px !important; height: 42px !important; }
   .nav-logo-container svg { width: 40px !important; height: 40px !important; }
-  .nav-logo-container span { font-size: 0.9rem !important; }
+  .nav-logo-container span { font-size: 0.95rem !important; }
   .nav-logo-container > div:last-child span:last-child { font-size: 0.55rem !important; display: block !important; }
   .nav-pill-container { top: 15px !important; right: 15px !important; }
-  .nav-pill-container:not(.nav-pill-open) { width: 110px !important; height: 45px !important; }
-  .nav-pill-container:not(.nav-pill-open) > div { height: 45px !important; }
+  .nav-pill-container:not(.nav-pill-open) { width: 140px !important; height: 48px !important; }
+  .nav-pill-container:not(.nav-pill-open) > div { height: 48px !important; }
   .nav-pill-open { width: calc(100vw - 30px) !important; max-width: 320px !important; }
   
   /* Admin Topbar fixes */
@@ -305,4 +306,13 @@ h2 { font-size: clamp(2.5rem, 4.5vw, 4rem); margin-bottom: 1.5rem; }
   
   /* Table responsive wrapper */
   table { display: block; overflow-x: auto; white-space: nowrap; }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 0 16px; }
+  h1 { font-size: 1.9rem !important; }
+  h2 { font-size: 1.7rem !important; }
+  .btn { padding: 14px 24px !important; font-size: 0.95rem !important; }
+  .nav-logo-container span { font-size: 0.85rem !important; }
+  .nav-logo-container > div:last-child span:last-child { display: none !important; }
 }

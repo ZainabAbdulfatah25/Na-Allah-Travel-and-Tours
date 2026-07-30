@@ -159,6 +159,11 @@ function Credentials() {
         .credential-card:hover .cert-img {
           transform: scale(1.1) translateY(-10px);
         }
+        @media (max-width: 768px) {
+          .credential-card {
+            width: clamp(270px, 80vw, 340px) !important;
+          }
+        }
       `}</style>
     </section>
   );

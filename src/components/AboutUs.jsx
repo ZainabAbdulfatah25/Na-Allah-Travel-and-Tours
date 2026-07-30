@@ -156,7 +156,7 @@ const styles = {
   },
   headerSection: {
     position: 'relative',
-    padding: '160px 0 100px 0',
+    padding: 'clamp(110px, 14vw, 160px) 0 80px 0',
     backgroundColor: 'var(--primary-navy)',
     color: '#ffffff',
     textAlign: 'center',
@@ -184,7 +184,7 @@ const styles = {
     marginBottom: '20px'
   },
   title: {
-    fontSize: 'clamp(2.5rem, 6vw, 3.8rem)',
+    fontSize: 'clamp(2.1rem, 6vw, 3.8rem)',
     fontWeight: '900',
     letterSpacing: '-1px',
     lineHeight: '1.1',
@@ -192,7 +192,7 @@ const styles = {
     maxWidth: '900px'
   },
   subtitle: {
-    fontSize: 'clamp(1rem, 2vw, 1.25rem)',
+    fontSize: 'clamp(0.95rem, 2vw, 1.25rem)',
     color: 'rgba(255,255,255,0.8)',
     maxWidth: '750px',
     margin: '0 auto 30px auto',
@@ -211,8 +211,8 @@ const styles = {
   },
   storyGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-    gap: '60px',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+    gap: '40px',
     alignItems: 'center'
   },
   storyTextCol: {

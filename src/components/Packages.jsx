@@ -265,16 +265,16 @@ function Packages() {
 }
 
 const styles = {
-  section: { backgroundColor: 'var(--off-white)', minHeight: '100vh', padding: '100px 0' },
+  section: { backgroundColor: 'var(--off-white)', minHeight: '100vh', padding: ' clamp(60px, 10vw, 100px) 0' },
   blurBlob: { position: 'absolute', width: '500px', height: '500px', borderRadius: '50%', filter: 'blur(100px)', animation: 'floatElement 15s ease-in-out infinite' },
   backButtonTop: { background: '#f1f5f9', border: 'none', padding: '12px 25px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '40px' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px' },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '30px' },
   card: { backgroundColor: 'white', borderRadius: '25px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.08)', border: '1px solid #f1f5f9' },
   cardHeader: { backgroundColor: 'var(--primary-navy)', padding: '25px', textAlign: 'center', borderBottom: '5px solid var(--primary-gold)' },
   cardBody: { padding: 'clamp(20px, 5vw, 40px)' },
   priceRow: { marginBottom: '20px', textAlign: 'center' },
   priceLabel: { fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '800', marginBottom: '5px' },
-  priceValue: { fontSize: 'clamp(1.8rem, 6vw, 2.5rem)', color: 'var(--primary-navy)', fontWeight: 'bold' },
+  priceValue: { fontSize: 'clamp(1.5rem, 5vw, 2.3rem)', color: 'var(--primary-navy)', fontWeight: 'bold', wordBreak: 'break-word' },
   featureList: { marginTop: '25px' },
   featureItem: { padding: '12px 0', borderBottom: '1px solid #f8fafc', display: 'flex', alignItems: 'baseline', fontSize: '1rem', color: '#475569' }
 };

@@ -93,6 +93,15 @@ function Flyers() {
         .flyer-card:hover .flyer-overlay {
           opacity: 1;
         }
+        @media (max-width: 768px) {
+          .flyer-card {
+            width: clamp(270px, 80vw, 340px) !important;
+            height: clamp(380px, 60vh, 440px) !important;
+          }
+          .flyer-overlay {
+            opacity: 0.9 !important;
+          }
+        }
       `}</style>
     </section>
   );

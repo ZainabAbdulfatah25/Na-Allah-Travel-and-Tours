@@ -88,38 +88,39 @@ const styles = {
     backgroundPosition: 'center',
     backgroundAttachment: 'fixed',
     color: 'white',
-    paddingTop: '80px',
+    paddingTop: 'clamp(110px, 15vw, 150px)',
+    paddingBottom: '60px',
     position: 'relative'
   },
   containerGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 400px',
-    gap: '60px',
+    gap: '40px',
     alignItems: 'center',
     position: 'relative',
     zIndex: 1,
     width: '100%'
   },
   textSide: { textAlign: 'left' },
-  heading: { fontSize: 'clamp(4rem, 7vw, 6.5rem)', fontWeight: '900', lineHeight: '0.95', marginBottom: '30px', letterSpacing: '-0.04em', textTransform: 'uppercase' },
+  heading: { fontSize: 'clamp(2.1rem, 6.5vw, 5.5rem)', fontWeight: '900', lineHeight: '1.05', marginBottom: '20px', letterSpacing: '-0.03em', textTransform: 'uppercase' },
   gradientText: { 
     background: 'linear-gradient(135deg, var(--primary-accent), var(--primary-gold))', 
     WebkitBackgroundClip: 'text', 
     WebkitTextFillColor: 'transparent',
     display: 'inline-block'
   },
-  subtext: { fontSize: 'clamp(1.2rem, 2vw, 1.5rem)', color: 'rgba(255,255,255,0.7)', marginBottom: '0', maxWidth: '600px', fontWeight: '500', lineHeight: '1.6' },
+  subtext: { fontSize: 'clamp(1rem, 2.5vw, 1.4rem)', color: 'rgba(255,255,255,0.8)', marginBottom: '0', maxWidth: '600px', fontWeight: '500', lineHeight: '1.5' },
   widgetSide: { position: 'relative' },
   searchWidget: { 
     display: 'flex', 
     flexDirection: 'column',
-    padding: 'clamp(25px, 5vw, 40px)', 
+    padding: 'clamp(20px, 4vw, 35px)', 
     borderRadius: 'var(--radius-lg)',
     boxShadow: 'var(--shadow-lg)',
-    transform: 'translateY(20px)'
+    transform: 'none'
   },
-  label: { display: 'block', fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.7)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '15px' },
-  select: { width: '100%', padding: '18px 25px', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(255,255,255,0.05)', fontSize: '1.2rem', color: 'white', fontWeight: '700', outline: 'none', backdropFilter: 'blur(10px)', transition: 'all 0.3s' }
+  label: { display: 'block', fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.7)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '12px' },
+  select: { width: '100%', padding: '16px 20px', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(255,255,255,0.05)', fontSize: '1.05rem', color: 'white', fontWeight: '700', outline: 'none', backdropFilter: 'blur(10px)', transition: 'all 0.3s' }
 };
 
 export default Hero;

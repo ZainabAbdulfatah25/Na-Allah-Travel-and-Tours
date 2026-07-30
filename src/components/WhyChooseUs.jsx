@@ -116,12 +116,12 @@ const styles = {
   },
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
     gap: '30px',
     marginTop: '30px'
   },
   card: {
-    padding: '40px 30px',
+    padding: 'clamp(25px, 5vw, 40px) clamp(20px, 4vw, 30px)',
     backgroundColor: '#ffffff',
     borderRadius: '28px',
     border: '1px solid rgba(226, 232, 240, 0.8)',
