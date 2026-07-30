@@ -288,7 +288,7 @@ h2 { font-size: clamp(2.5rem, 4.5vw, 4rem); margin-bottom: 1.5rem; }
   .nav-logo-container span { font-size: 0.95rem !important; }
   .nav-logo-container > div:last-child span:last-child { font-size: 0.55rem !important; display: block !important; }
   .nav-pill-container { top: 15px !important; right: 15px !important; }
-  .nav-pill-container:not(.nav-pill-open) { width: 140px !important; height: 48px !important; }
+  .nav-pill-container:not(.nav-pill-open) { width: 135px !important; height: 48px !important; }
   .nav-pill-container:not(.nav-pill-open) > div { height: 48px !important; }
   .nav-pill-open { width: calc(100vw - 30px) !important; max-width: 320px !important; }
   
